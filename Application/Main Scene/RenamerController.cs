@@ -86,7 +86,7 @@ namespace Unishare.Apps.DarwinMobile
                 Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                 try
                 {
-                    Globals.CloudManager.StartNetwork();
+                    Globals.CloudManager.NetworkRefeshNodes();
                 }
                 catch
                 {

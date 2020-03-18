@@ -25,6 +25,7 @@ using Unishare.Apps.DarwinCore;
 using CoreFoundation;
 
 using System;
+
 using Unishare.Apps.Common.Models;
 
 namespace Unishare.Apps.DarwinMobile
@@ -106,7 +107,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             try
             {
-                Globals.CloudManager?.ForceNetworkRefesh();
+                Globals.CloudManager?.StartNetwork(false);
             }
             catch (Exception exception)
             {
@@ -136,8 +137,7 @@ namespace Unishare.Apps.DarwinMobile
 
             try
             {
-                Globals.CloudManager?.StopNetwork();
-                Globals.CloudManager?.StartNetwork();
+                Globals.CloudManager?.StartNetwork(false);
             }
             catch (Exception exception)
             {

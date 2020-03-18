@@ -420,16 +420,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\Apps.Common\Apps.Common.csproj">
-      <Project>{cc49bd17-051e-41c2-b27e-a3816bfc3151}</Project>
-      <Name>Unishare.Apps.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
-      <Project>{0dd195c4-d953-4637-8fa1-602a8bcde5a8}</Project>
-      <Name>Unishare.Apps.DarwinCore</Name>
-      <IsAppExtension>false</IsAppExtension>
-      <IsWatchApp>false</IsWatchApp>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\Interface\Interface.csproj">
       <Project>{B7B0DA36-730F-47F4-9CF8-336E0F8BD259}</Project>
       <Name>Interface</Name>
@@ -437,6 +427,14 @@
     <ProjectReference Include="..\..\..\src\PersonalCloud\PersonalCloud.csproj">
       <Project>{E622A39F-59A4-4E05-B324-9B3918C8026C}</Project>
       <Name>PersonalCloud</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Shared\Apps.Common\Apps.Common.csproj">
+      <Project>{CC49BD17-051E-41C2-B27E-A3816BFC3151}</Project>
+      <Name>Apps.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
+      <Project>{0DD195C4-D953-4637-8FA1-602A8BCDE5A8}</Project>
+      <Name>Apps.DarwinCore</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
