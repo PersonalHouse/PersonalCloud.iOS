@@ -40,20 +40,6 @@
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Interface\Interface.csproj">
-      <Project>{b7b0da36-730f-47f4-9cf8-336e0f8bd259}</Project>
-      <Name>Interface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\PersonalCloud\PersonalCloud.csproj">
-      <Project>{e622a39f-59a4-4e05-b324-9b3918c8026c}</Project>
-      <Name>PersonalCloud</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Shared\Apps.Common\Apps.Common.csproj">
-      <Project>{cc49bd17-051e-41c2-b27e-a3816bfc3151}</Project>
-      <Name>Unishare.Apps.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="NSDateExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PathHelpers.cs" />
@@ -65,6 +51,16 @@
     <Compile Include="Prompts.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="UserInfoExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PersonalCloud.Core\src\Interface\Interface.csproj">
+      <Project>{89d53d65-f9a8-4586-91e5-43474f791024}</Project>
+      <Name>Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PersonalCloud.Core\src\PersonalCloud\PersonalCloud.csproj">
+      <Project>{3ec42fe4-5cbd-44e6-9e33-bb48e823afb5}</Project>
+      <Name>PersonalCloud</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

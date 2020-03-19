@@ -420,21 +420,23 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Interface\Interface.csproj">
-      <Project>{B7B0DA36-730F-47F4-9CF8-336E0F8BD259}</Project>
-      <Name>Interface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\src\PersonalCloud\PersonalCloud.csproj">
-      <Project>{E622A39F-59A4-4E05-B324-9B3918C8026C}</Project>
-      <Name>PersonalCloud</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Shared\Apps.Common\Apps.Common.csproj">
-      <Project>{CC49BD17-051E-41C2-B27E-A3816BFC3151}</Project>
-      <Name>Apps.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
       <Project>{0DD195C4-D953-4637-8FA1-602A8BCDE5A8}</Project>
       <Name>Apps.DarwinCore</Name>
+      <IsAppExtension>false</IsAppExtension>
+      <IsWatchApp>false</IsWatchApp>
+    </ProjectReference>
+    <ProjectReference Include="..\PersonalCloud.Apps.Common\Apps.Common.csproj">
+      <Project>{569e4750-33c6-474c-b1ed-6481b67b04b9}</Project>
+      <Name>Apps.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PersonalCloud.Core\src\Interface\Interface.csproj">
+      <Project>{89d53d65-f9a8-4586-91e5-43474f791024}</Project>
+      <Name>Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PersonalCloud.Core\src\PersonalCloud\PersonalCloud.csproj">
+      <Project>{3ec42fe4-5cbd-44e6-9e33-bb48e823afb5}</Project>
+      <Name>PersonalCloud</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
