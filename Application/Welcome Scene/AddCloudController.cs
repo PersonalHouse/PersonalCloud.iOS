@@ -28,6 +28,7 @@ namespace Unishare.Apps.DarwinMobile
             deviceName = UIDevice.CurrentDevice.Name;
 
             NavigationItem.LeftBarButtonItem.Clicked += DiscardChanges;
+            TableView.SeparatorColor = TableView.BackgroundColor;
         }
 
         #endregion
@@ -69,32 +70,15 @@ namespace Unishare.Apps.DarwinMobile
                 return cell;
             }
 
-            if (indexPath.Section == 1 && indexPath.Row == 1)
-            {
-                var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                cell.Update(Texts.ScanInvitation, Colors.BlueButton, true);
-                return cell;
-            }
-
             if (indexPath.Section == 2 && indexPath.Row == 0)
             {
-                var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                cell.Update(Texts.JoinByInvitation, Colors.BlueButton, true);
+                var cell = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                cell.Update(Texts.JoinByInvitation);
+                cell.Clicked += VerifyInvite;
                 return cell;
             }
 
             throw new ArgumentOutOfRangeException(nameof(indexPath));
-        }
-
-        public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
-        {
-            tableView.DeselectRow(indexPath, true);
-            
-            if (indexPath.Section == 2 && indexPath.Row == 0)
-            {
-                VerifyInvite();
-                return;
-            }
         }
 
         #endregion
@@ -109,7 +93,7 @@ namespace Unishare.Apps.DarwinMobile
             else NavigationController.DismissViewController(true, null);
         }
 
-        private void VerifyInvite()
+        private void VerifyInvite(object sender, EventArgs e)
         {
             var invalidCharHit = false;
             foreach(var character in Path.GetInvalidFileNameChars())

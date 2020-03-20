@@ -61,6 +61,8 @@ namespace Unishare.Apps.DarwinMobile
             shareFiles = Globals.Database.CheckSetting(UserSettings.EnableSharing, "1");
 
             cloud = Globals.Database.Table<CloudModel>().First();
+
+            TableView.SeparatorColor = TableView.BackgroundColor;
         }
 
         public override void ViewDidAppear(bool animated)
@@ -74,19 +76,24 @@ namespace Unishare.Apps.DarwinMobile
 
         #region TableView
 
-        public override nint NumberOfSections(UITableView tableView) => 5;
+        public override nint NumberOfSections(UITableView tableView) => 4;
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
             return (int) section switch
             {
-                0 => 2,
+                0 => 3,
                 1 => 1,
                 2 => 1,
                 3 => 1,
-                4 => 1,
                 _ => throw new ArgumentOutOfRangeException(nameof(section)),
             };
+        }
+
+        public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
+        {
+            if (indexPath.Section == 0 && indexPath.Row == 2) return 65;
+            return UITableView.AutomaticDimension;
         }
 
         public override string TitleForHeader(UITableView tableView, nint section)
@@ -94,10 +101,9 @@ namespace Unishare.Apps.DarwinMobile
             return (int) section switch
             {
                 0 => HeaderCloud,
-                1 => null,
-                2 => HeaderSharing,
-                3 => HeaderPhotoSync,
-                4 => null,
+                1 => HeaderSharing,
+                2 => HeaderPhotoSync,
+                3 => null,
                 _ => throw new ArgumentOutOfRangeException(nameof(section)),
             };
         }
@@ -107,10 +113,9 @@ namespace Unishare.Apps.DarwinMobile
             return (int) section switch
             {
                 0 => null,
-                1 => null,
-                2 => string.Format(FooterSharing, UIDevice.CurrentDevice.Model, Environment.NewLine + Environment.NewLine),
-                3 => string.Format(FooterPhotoSync, UIDevice.CurrentDevice.Model),
-                4 => "如果此个人云内仍有其它设备，您可以通过其它设备的邀请再次加入。当最后一台设备离开时，此个人云将消失。",
+                1 => string.Format(FooterSharing, UIDevice.CurrentDevice.Model, Environment.NewLine + Environment.NewLine),
+                2 => string.Format(FooterPhotoSync, UIDevice.CurrentDevice.Model),
+                3 => "如果此个人云内仍有其它设备，您可以通过其它设备的邀请再次加入。当最后一台设备离开时，此个人云将消失。",
                 _ => throw new ArgumentOutOfRangeException(nameof(section)),
             };
         }
@@ -133,14 +138,15 @@ namespace Unishare.Apps.DarwinMobile
                 return cell;
             }
 
-            if (indexPath.Section == 1 && indexPath.Row == 0)
+            if (indexPath.Section == 0 && indexPath.Row == 2)
             {
-                var button = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                button.Update("邀请新设备加入", Colors.BlueButton, UITextAlignment.Center, true);
+                var button = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                button.Update("邀请新设备加入");
+                button.Clicked += ShowInvitation;
                 return button;
             }
 
-            if (indexPath.Section == 2 && indexPath.Row == 0)
+            if (indexPath.Section == 1 && indexPath.Row == 0)
             {
                 var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
                 cell.Update(EnableFileSharing, shareFiles);
@@ -148,7 +154,7 @@ namespace Unishare.Apps.DarwinMobile
                 return cell;
             }
 
-            if (indexPath.Section == 3 && indexPath.Row == 0)
+            if (indexPath.Section == 2 && indexPath.Row == 0)
             {
                 var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
                 cell.Update(EnablePhotoSharing, sharePhotos);
@@ -156,16 +162,16 @@ namespace Unishare.Apps.DarwinMobile
                 return cell;
             }
 
-            if (indexPath.Section == 4 && indexPath.Row == 0)
+            if (indexPath.Section == 3 && indexPath.Row == 0)
             {
-                var button = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                button.Update("切换或离开个人云", Colors.DangerousRed, UITextAlignment.Center, true);
+                var button = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                button.Update("切换或离开个人云", Colors.DangerousRed);
+                button.Clicked += LeaveCloud;
                 return button;
             }
 
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
-
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
@@ -183,65 +189,65 @@ namespace Unishare.Apps.DarwinMobile
                 this.ShowAlert("暂时不支持修改个人云名称", null);
                 return;
             }
-
-            if (indexPath.Section == 1 && indexPath.Row == 0)
-            {
-                var alert = UIAlertController.Create("正在生成……", null, UIAlertControllerStyle.Alert);
-                PresentViewController(alert, true, () => {
-                    Task.Run(async () => {
-                        try
-                        {
-                            var inviteCode = await Globals.CloudManager.SharePersonalCloud(Globals.CloudManager.PersonalClouds[0]).ConfigureAwait(false);
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, null);
-                                this.ShowAlert("已生成邀请码", "请在其它设备输入邀请码：" + Environment.NewLine + Environment.NewLine
-                                    + inviteCode + Environment.NewLine + Environment.NewLine
-                                    + "离开此界面邀请码将失效。", "停止邀请", true, action => {
-                                        try { _ = Globals.CloudManager.StopSharePersonalCloud(Globals.CloudManager.PersonalClouds[0]); }
-                                        catch { }
-                                    });
-                            });
-                        }
-                        catch
-                        {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, null);
-                                this.ShowAlert("无法生成邀请码", null);
-                            });
-                        }
-                    });
-                });
-                return;
-            }
-
-            if (indexPath.Section == 4 && indexPath.Row == 0)
-            {
-                var alert = UIAlertController.Create("从个人云中移除此设备？", "当前设备将离开个人云，本地保存的相关信息也将删除。", UIAlertControllerStyle.Alert);
-                alert.AddAction(UIAlertAction.Create("确认", UIAlertActionStyle.Destructive, action => {
-                    Globals.CloudManager.ExitFromCloud(Globals.CloudManager.PersonalClouds[0]);
-                    Globals.Database.DeleteAll<CloudModel>();
-
-                    var rootController = UIApplication.SharedApplication.Windows[0].RootViewController;
-                    if (rootController == TabBarController)
-                    {
-                        TabBarController.DismissViewController(true, () => {
-                            var controller = Storyboard.InstantiateViewController("WelcomeScreen");
-                            controller.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
-                            PresentViewController(controller, true, () => { });
-                        });
-                    }
-                    else rootController.DismissViewController(true, null);
-                }));
-                var ok = UIAlertAction.Create("取消", UIAlertActionStyle.Default, null);
-                alert.AddAction(ok);
-                alert.PreferredAction = ok;
-                PresentViewController(alert, true, null);
-
-                return;
-            }
         }
 
         #endregion
+
+        private void ShowInvitation(object sender, EventArgs e)
+        {
+            var alert = UIAlertController.Create("正在生成……", null, UIAlertControllerStyle.Alert);
+            PresentViewController(alert, true, () => {
+                Task.Run(async () => {
+                    try
+                    {
+                        var inviteCode = await Globals.CloudManager.SharePersonalCloud(Globals.CloudManager.PersonalClouds[0]).ConfigureAwait(false);
+                        InvokeOnMainThread(() => {
+                            DismissViewController(true, null);
+                            this.ShowAlert("已生成邀请码", "请在其它设备输入邀请码：" + Environment.NewLine + Environment.NewLine
+                                + inviteCode + Environment.NewLine + Environment.NewLine
+                                + "离开此界面邀请码将失效。", "停止邀请", true, action => {
+                                    try { _ = Globals.CloudManager.StopSharePersonalCloud(Globals.CloudManager.PersonalClouds[0]); }
+                                    catch { }
+                                });
+                        });
+                    }
+                    catch
+                    {
+                        InvokeOnMainThread(() => {
+                            DismissViewController(true, null);
+                            this.ShowAlert("无法生成邀请码", null);
+                        });
+                    }
+                });
+            });
+            return;
+        }
+
+        private void LeaveCloud(object sender, EventArgs e)
+        {
+            var alert = UIAlertController.Create("从个人云中移除此设备？", "当前设备将离开个人云，本地保存的相关信息也将删除。", UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create("确认", UIAlertActionStyle.Destructive, action => {
+                Globals.CloudManager.ExitFromCloud(Globals.CloudManager.PersonalClouds[0]);
+                Globals.Database.DeleteAll<CloudModel>();
+
+                var rootController = UIApplication.SharedApplication.Windows[0].RootViewController;
+                if (rootController == TabBarController)
+                {
+                    TabBarController.DismissViewController(true, () => {
+                        var controller = Storyboard.InstantiateViewController("WelcomeScreen");
+                        controller.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
+                        PresentViewController(controller, true, () => { });
+                    });
+                }
+                else rootController.DismissViewController(true, null);
+            }));
+            var ok = UIAlertAction.Create("取消", UIAlertActionStyle.Default, null);
+            alert.AddAction(ok);
+            alert.PreferredAction = ok;
+            PresentViewController(alert, true, null);
+
+            return;
+        }
 
         private void ToggleFileSharing(object sender, ToggledEventArgs e)
         {

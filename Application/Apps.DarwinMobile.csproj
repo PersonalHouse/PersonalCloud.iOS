@@ -418,6 +418,10 @@
     <Compile Include="Main Scene\RenamerController.Designer.cs">
       <DependentUpon>RenamerController.cs</DependentUpon>
     </Compile>
+    <Compile Include="TableView Cells\AccentButtonCell.cs" />
+    <Compile Include="TableView Cells\AccentButtonCell.designer.cs">
+      <DependentUpon>AccentButtonCell.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">

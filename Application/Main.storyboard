@@ -209,6 +209,36 @@
                                     <outlet property="TitleLabel" destination="16t-zS-98n" id="NYt-EQ-74S"/>
                                 </connections>
                             </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" shouldIndentWhileEditing="NO" reuseIdentifier="TableCellButton" rowHeight="60" id="ppi-B2-3hR" customClass="AccentButtonCell">
+                                <rect key="frame" x="0.0" y="186" width="414" height="60"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ppi-B2-3hR" id="O3a-DW-6Cp">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kFF-i6-UTK">
+                                            <rect key="frame" x="20" y="10" width="374" height="40"/>
+                                            <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="40" id="J59-ru-jDZ"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <state key="normal" title="Button">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </state>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="kFF-i6-UTK" secondAttribute="trailing" constant="20" id="43O-Ug-g1A"/>
+                                        <constraint firstItem="kFF-i6-UTK" firstAttribute="leading" secondItem="O3a-DW-6Cp" secondAttribute="leading" constant="20" id="9YY-PU-98Y"/>
+                                        <constraint firstItem="kFF-i6-UTK" firstAttribute="centerY" secondItem="O3a-DW-6Cp" secondAttribute="centerY" id="NJD-mL-1od"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <connections>
+                                    <outlet property="AccentButton" destination="kFF-i6-UTK" id="X2G-ei-5fg"/>
+                                </connections>
+                            </tableViewCell>
                         </prototypes>
                         <connections>
                             <outlet property="dataSource" destination="wmQ-QX-hwy" id="7Af-ga-jqV"/>
@@ -405,6 +435,36 @@
                                     <outlet property="TitleLabel" destination="JD4-By-793" id="mvh-en-3C0"/>
                                 </connections>
                             </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" shouldIndentWhileEditing="NO" reuseIdentifier="TableCellButton" rowHeight="60" id="QMR-22-1uW" customClass="AccentButtonCell">
+                                <rect key="frame" x="0.0" y="186" width="414" height="60"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="QMR-22-1uW" id="kuc-NK-a2O">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jLC-eJ-RMa">
+                                            <rect key="frame" x="20" y="10" width="374" height="40"/>
+                                            <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="40" id="VtD-ny-Gme"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <state key="normal" title="Button">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </state>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="jLC-eJ-RMa" firstAttribute="leading" secondItem="kuc-NK-a2O" secondAttribute="leading" constant="20" id="3cO-k4-cKF"/>
+                                        <constraint firstItem="jLC-eJ-RMa" firstAttribute="centerY" secondItem="kuc-NK-a2O" secondAttribute="centerY" id="FxC-Rd-fo3"/>
+                                        <constraint firstAttribute="trailing" secondItem="jLC-eJ-RMa" secondAttribute="trailing" constant="20" id="Zpd-7c-f11"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <connections>
+                                    <outlet property="AccentButton" destination="jLC-eJ-RMa" id="name-outlet-jLC-eJ-RMa"/>
+                                </connections>
+                            </tableViewCell>
                         </prototypes>
                         <connections>
                             <outlet property="dataSource" destination="L31-Xh-p0M" id="taW-UB-TnD"/>
@@ -510,6 +570,36 @@
                                 <connections>
                                     <outlet property="DetailLabel" destination="och-vq-mej" id="xM3-2l-pSy"/>
                                     <outlet property="TitleLabel" destination="IJt-xZ-oxe" id="mUi-Ku-qil"/>
+                                </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" shouldIndentWhileEditing="NO" reuseIdentifier="TableCellButton" rowHeight="60" id="4s1-Su-jQ5" customClass="AccentButtonCell">
+                                <rect key="frame" x="0.0" y="186" width="414" height="60"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="4s1-Su-jQ5" id="1XM-Jc-7vr">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="60"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UfL-jU-Qj5">
+                                            <rect key="frame" x="20" y="10" width="374" height="40"/>
+                                            <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="40" id="WSo-B4-eJw"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <state key="normal" title="Button">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </state>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="UfL-jU-Qj5" firstAttribute="leading" secondItem="1XM-Jc-7vr" secondAttribute="leading" constant="20" id="kUF-Le-hBs"/>
+                                        <constraint firstItem="UfL-jU-Qj5" firstAttribute="centerY" secondItem="1XM-Jc-7vr" secondAttribute="centerY" id="m1C-B5-G0F"/>
+                                        <constraint firstAttribute="trailing" secondItem="UfL-jU-Qj5" secondAttribute="trailing" constant="20" id="odD-Pz-0AB"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <connections>
+                                    <outlet property="AccentButton" destination="UfL-jU-Qj5" id="mJt-mo-awK"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -1078,8 +1168,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="NavCloud" width="24" height="15.919400215148926"/>
-        <image name="NavGear" width="24" height="23.654449462890625"/>
-        <image name="NavTray" width="24" height="17.374050140380859"/>
+        <image name="NavCloud" width="24" height="16"/>
+        <image name="NavGear" width="24" height="24"/>
+        <image name="NavTray" width="24" height="18"/>
     </resources>
 </document>

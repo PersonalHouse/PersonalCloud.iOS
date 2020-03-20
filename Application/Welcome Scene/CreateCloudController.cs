@@ -26,6 +26,7 @@ namespace Unishare.Apps.DarwinMobile
             deviceName = UIDevice.CurrentDevice.Name;
 
             NavigationItem.LeftBarButtonItem.Clicked += DiscardChanges;
+            TableView.SeparatorColor = TableView.BackgroundColor;
         }
 
         #endregion
@@ -70,19 +71,13 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 2 && indexPath.Row == 0)
             {
-                var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                cell.Update(Texts.CreatePersonalCloud, Colors.BlueButton, true);
+                var cell = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                cell.Update(Texts.CreatePersonalCloud);
+                cell.Clicked += SubmitAndCreate;
                 return cell;
             }
 
             throw new ArgumentOutOfRangeException(nameof(indexPath));
-        }
-
-        public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
-        {
-            tableView.DeselectRow(indexPath, true);
-
-            if (indexPath.Section == 2 && indexPath.Row == 0) SubmitAndCreate();
         }
 
         #endregion
@@ -97,7 +92,7 @@ namespace Unishare.Apps.DarwinMobile
             else NavigationController.DismissViewController(true, null);
         }
 
-        private void SubmitAndCreate()
+        private void SubmitAndCreate(object sender, EventArgs e)
         {
             var invalidCharHit = false;
             foreach (var character in Path.GetInvalidFileNameChars())
