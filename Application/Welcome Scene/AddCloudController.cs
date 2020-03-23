@@ -66,7 +66,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 1 && indexPath.Row == 0)
             {
                 var cell = (TitleEditorCell) tableView.DequeueReusableCell(TitleEditorCell.Identifier, indexPath);
-                cell.Update(Texts.Invitation, Texts.InvitationPlaceholder , UpdateInvite, inviteCode, UIKeyboardType.AsciiCapableNumberPad);
+                cell.Update(Texts.Invitation, Texts.InvitationPlaceholder, UpdateInvite, inviteCode, UIKeyboardType.AsciiCapableNumberPad);
                 return cell;
             }
 
@@ -96,7 +96,7 @@ namespace Unishare.Apps.DarwinMobile
         private void VerifyInvite(object sender, EventArgs e)
         {
             var invalidCharHit = false;
-            foreach(var character in Path.GetInvalidFileNameChars())
+            foreach (var character in Path.GetInvalidFileNameChars())
             {
                 if (deviceName?.Contains(character) == true) invalidCharHit = true;
             }
@@ -130,7 +130,7 @@ namespace Unishare.Apps.DarwinMobile
                     catch (NoDeviceResponseException)
                     {
                         InvokeOnMainThread(() => {
-                            DismissViewController(true, () => this.ShowAlert("无法查询云信息", "当前网络中没有已加入个人云的设备。"));
+                            DismissViewController(true, () => this.ShowAlert("无法查询云信息", "未发现可以加入的个人云。"));
                         });
                     }
                     catch (InviteNotAcceptedException)

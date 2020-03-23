@@ -77,15 +77,6 @@ namespace Unishare.Apps.DarwinMobile
             };
         }
 
-        public override string TitleForHeader(UITableView tableView, nint section)
-        {
-            return (int) section switch
-            {
-                0 => "设备",
-                _ => throw new ArgumentOutOfRangeException(nameof(section))
-            };
-        }
-
         public override string TitleForFooter(UITableView tableView, nint section)
         {
             return (int) section switch
