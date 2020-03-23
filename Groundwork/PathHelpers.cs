@@ -21,6 +21,9 @@ namespace Unishare.Apps.DarwinCore
 
         public static string SharedContainer => Path.Combine(Documents, "Favorites");
 
+        public static string PhotoRestore =>
+            Path.Combine(Cache, "Restore");
+
         // public static string Favorites => Path.Combine(SharedDocuments, "Favorites");
     }
 }

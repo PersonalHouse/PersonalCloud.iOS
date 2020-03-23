@@ -11,9 +11,9 @@
 	<key>CFBundleDisplayName</key>
 	<string>个人云</string>
 	<key>CFBundleVersion</key>
-	<string>49</string>
+	<string>50</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.1</string>
+	<string>2.1</string>
 	<key>MinimumOSVersion</key>
 	<string>11.0</string>
 	<key>CFBundleDevelopmentRegion</key>

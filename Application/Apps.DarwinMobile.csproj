@@ -327,6 +327,8 @@
     <ImageAsset Include="Assets.xcassets\DirectoryBack.imageset\Up%403x.png">
       <Visible>false</Visible>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\NavPhoto.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\NavPhoto.imageset\Photos.pdf" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -422,6 +424,10 @@
     <Compile Include="TableView Cells\AccentButtonCell.designer.cs">
       <DependentUpon>AccentButtonCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="Main Scene\PhotosBackupController.cs" />
+    <Compile Include="Main Scene\PhotosBackupController.designer.cs">
+      <DependentUpon>PhotosBackupController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
@@ -446,6 +452,9 @@
   <ItemGroup>
     <BundleResource Include="Resources\Desktop %28Photos%29.ini" />
     <BundleResource Include="Resources\Desktop %28Album%29.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets.xcassets\NavPhoto.imageset\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

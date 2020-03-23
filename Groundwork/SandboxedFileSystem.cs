@@ -158,8 +158,7 @@ namespace Unishare.Apps.DarwinCore
                         if (string.IsNullOrEmpty(resource.OriginalFilename)) continue;
 
                         var extension = Path.GetExtension(resource.OriginalFilename) ?? string.Empty;
-                        var resourceName = Path.GetFileNameWithoutExtension(resource.OriginalFilename) ?? string.Empty;
-                        var fileName = $"{originalName} ({resourceName}){extension}";
+                        var fileName = $"{originalName} ({resource.ResourceType.ToString("G")}){extension}";
                         photos[fileName] = photo;
                         resources[fileName] = resource;
 
