@@ -8,11 +8,10 @@ using Foundation;
 
 using NSPersonalCloud.RootFS;
 
-using Photos;
-
 using UIKit;
 
 using Unishare.Apps.DarwinCore;
+using Unishare.Apps.DarwinCore.Models;
 
 namespace Unishare.Apps.DarwinMobile
 {
@@ -23,7 +22,7 @@ namespace Unishare.Apps.DarwinMobile
         private const string ChooseDeviceSegue = "ChooseBackupPath";
         private const string SelectPhotosSegue = "SelectPhotos";
 
-        private List<PHAsset> photos = new List<PHAsset>();
+        private List<PLAsset> photos = new List<PLAsset>();
         private string workingPath;
 
         private bool isBackupInProgress;
@@ -184,13 +183,12 @@ namespace Unishare.Apps.DarwinMobile
                     try { await fileSystem.CreateDirectoryAsync(remotePath).ConfigureAwait(false); }
                     catch { }
 
-                    var failures = new List<PHAsset>(photos.Count);
+                    var failures = new List<PLAsset>(photos.Count);
                     for (var i = 0; i < photos.Count; i++)
                     {
                         var photo = photos[i];
-                        var fileName = photo.CreationDate.ToDateTime().ToString("yyyyMMdd-HHmmss");
-                        var zipFile = Path.Combine(PathHelpers.Cache, fileName + ".zip");
-                        var originalFile = Path.Combine(PathHelpers.Cache, fileName + ".tmp");
+                        var zipFile = Path.Combine(PathHelpers.Cache, photo.FileName + ".assets");
+                        var originalFile = Path.Combine(PathHelpers.Cache, photo.FileName);
 
                         var zipStream = new FileStream(zipFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
                         var originalStream = new FileStream(originalFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -199,9 +197,9 @@ namespace Unishare.Apps.DarwinMobile
 
                         try
                         {
-                            fileName = package.WriteArchive(zipStream, originalStream);
-                            var newZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(fileName) + ".assets");
-                            var newOriginalFile = Path.Combine(remotePath, fileName);
+                            package.WriteArchive(zipStream, originalStream);
+                            var newZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".zip");
+                            var newOriginalFile = Path.Combine(remotePath, photo.FileName);
 
                             zipStream.Seek(0, SeekOrigin.Begin);
                             await fileSystem.WriteFileAsync(newZipFile, zipStream).ConfigureAwait(false);
@@ -212,18 +210,24 @@ namespace Unishare.Apps.DarwinMobile
                         {
                             zipStream.Dispose();
                             originalStream.Dispose();
+                            failures.Add(photo);
+                        }
 
+                        try
+                        {
                             File.Delete(zipFile);
                             File.Delete(originalFile);
-
-                            failures.Add(photo);
+                        }
+                        catch
+                        {
+                            // Ignored.
                         }
                     }
 
                     InvokeOnMainThread(() => {
                         photos = failures;
                         isBackupInProgress = false;
-                        RefreshStatus();
+                        TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 3)), UITableViewRowAnimation.Automatic);
 
                         if (photos.Count > 0) this.ShowAlert("部分文件备份失败", "请前往相册备份页面查看剩余项目。");
                         else this.ShowAlert("相册备份完成", null);
@@ -292,11 +296,5 @@ namespace Unishare.Apps.DarwinMobile
         }
 
         #endregion
-
-        private void RefreshStatus()
-        {
-            TableView.ReloadSections(new NSIndexSet(2), UITableViewRowAnimation.Automatic);
-            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 1) }, UITableViewRowAnimation.Automatic);
-        }
     }
 }

@@ -10,6 +10,7 @@ using Photos;
 using UIKit;
 
 using Unishare.Apps.DarwinCore;
+using Unishare.Apps.DarwinCore.Models;
 
 namespace Unishare.Apps.DarwinMobile
 {
@@ -17,9 +18,9 @@ namespace Unishare.Apps.DarwinMobile
     {
         public SelectPhotosController(IntPtr handle) : base(handle) { }
 
-        public List<PHAsset> SelectedPhotos { get; set; }
+        public List<PLAsset> SelectedPhotos { get; set; }
 
-        private PHAsset[] photos;
+        private PLAsset[] photos;
         private bool[] selections;
 
         public override void ViewDidLoad()
@@ -81,7 +82,11 @@ namespace Unishare.Apps.DarwinMobile
         {
             Task.Run(() => {
                 var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
-                photos = collections.OfType<PHAssetCollection>().SelectMany(x => PHAsset.FetchAssets(x, null).OfType<PHAsset>()).ToArray();
+                photos = collections.OfType<PHAssetCollection>().SelectMany(x => PHAsset.FetchAssets(x, null).OfType<PHAsset>().Select(x => {
+                    var asset = new PLAsset { Asset = x };
+                    asset.Refresh();
+                    return asset;
+                })).ToArray();
                 selections = new bool[photos.Length];
                 for (var i = 0; i < photos.Length; i++)
                 {

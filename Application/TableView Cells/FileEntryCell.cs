@@ -1,12 +1,15 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
+
 using Humanizer;
+
 using Photos;
+
 using UIKit;
 
 using Unishare.Apps.DarwinCore;
+using Unishare.Apps.DarwinCore.Models;
 
 namespace Unishare.Apps.DarwinMobile
 {
@@ -33,38 +36,19 @@ namespace Unishare.Apps.DarwinMobile
             else IconImage.Image = UIImage.FromBundle("UnknownFile");
         }
 
-        public void Update(PHAsset photo)
+        public void Update(PLAsset photo)
         {
             IconImage.Image = null;
             IconImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-            NameLabel.Text = photo.CreationDate.ToDateTime().ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-            TypeLabel.Text = photo.MediaType switch
-            {
-                PHAssetMediaType.Audio => "声音",
-                PHAssetMediaType.Image => "照片",
-                PHAssetMediaType.Video => "视频",
-                _ => "未知媒体类型"
-            };
+            NameLabel.Text = photo.FileName;
+            TypeLabel.Text = photo.Tags.ToString("F");
             SizeLabel.Text = null;
 
-            PHImageManager.DefaultManager.RequestImageForAsset(photo, IconImage.Frame.Size, PHImageContentMode.AspectFill, null, (result, info) => {
+            PHImageManager.DefaultManager.RequestImageForAsset(photo.Asset, IconImage.Frame.Size, PHImageContentMode.AspectFill, null, (result, info) => {
                 var error = info.ObjectForKey(PHImageKeys.Error);
                 if (error == null) InvokeOnMainThread(() => IconImage.Image = result);
             });
-
-            Task.Run(() => {
-                var resources = PHAssetResource.GetAssetResources(photo);
-                long size = 0;
-                foreach (var resource in resources)
-                {
-                    if (resource.ResourceType == PHAssetResourceType.Photo || resource.ResourceType == PHAssetResourceType.Video)
-                    {
-                        InvokeOnMainThread(() => NameLabel.Text = Path.GetFileNameWithoutExtension(resource.OriginalFilename));
-                    }
-                    size += resource.UserInfoGetSize() ?? 0;
-                }
-                InvokeOnMainThread(() => SizeLabel.Text = size.Bytes().Humanize("0.00"));
-            });
+            SizeLabel.Text = photo.Size.Bytes().Humanize("0.00");
         }
 
         public void Update(UIImage icon, string title, string subtitle, string detail)
