@@ -424,9 +424,17 @@
     <Compile Include="TableView Cells\AccentButtonCell.designer.cs">
       <DependentUpon>AccentButtonCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="Main Scene\PhotosBackupController.cs" />
-    <Compile Include="Main Scene\PhotosBackupController.designer.cs">
+    <Compile Include="Backup Scene\PhotosBackupController.cs" />
+    <Compile Include="Backup Scene\PhotosBackupController.Designer.cs">
       <DependentUpon>PhotosBackupController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Backup Scene\ChooseDeviceController.cs" />
+    <Compile Include="Backup Scene\ChooseDeviceController.Designer.cs">
+      <DependentUpon>ChooseDeviceController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Backup Scene\SelectPhotosController.cs" />
+    <Compile Include="Backup Scene\SelectPhotosController.Designer.cs">
+      <DependentUpon>SelectPhotosController.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -455,6 +463,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets.xcassets\NavPhoto.imageset\" />
+    <Folder Include="Backup Scene\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

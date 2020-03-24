@@ -14,16 +14,8 @@ namespace Unishare.Apps.DarwinMobile
     [Register ("PhotosBackupController")]
     partial class PhotosBackupController
     {
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem AddFileButton { get; set; }
-
         void ReleaseDesignerOutlets ()
         {
-            if (AddFileButton != null) {
-                AddFileButton.Dispose ();
-                AddFileButton = null;
-            }
         }
     }
 }
