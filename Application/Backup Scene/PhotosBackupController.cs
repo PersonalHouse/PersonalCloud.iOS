@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Threading.Tasks;
 
 using Foundation;
 
@@ -21,7 +23,7 @@ namespace Unishare.Apps.DarwinMobile
         private const string ChooseDeviceSegue = "ChooseBackupPath";
         private const string SelectPhotosSegue = "SelectPhotos";
 
-        private readonly List<PHAsset> photos = new List<PHAsset>();
+        private List<PHAsset> photos = new List<PHAsset>();
         private string workingPath;
 
         private bool isBackupInProgress;
@@ -40,7 +42,7 @@ namespace Unishare.Apps.DarwinMobile
             base.ViewDidAppear(animated);
             var sections = new NSMutableIndexSet();
             sections.Add(0);
-            sections.Add(2);
+            if (!isBackupInProgress) sections.Add(2);
             TableView.ReloadSections(sections, UITableViewRowAnimation.Automatic);
         }
 
@@ -164,8 +166,7 @@ namespace Unishare.Apps.DarwinMobile
             {
                 if (isBackupInProgress)
                 {
-                    isBackupInProgress = false;
-                    RefreshStatus();
+                    this.ShowAlert("无法停止备份", "暂时不支持此功能");
                     return;
                 }
 
@@ -176,10 +177,59 @@ namespace Unishare.Apps.DarwinMobile
                 }
 
                 isBackupInProgress = true;
+                tableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 1) }, UITableViewRowAnimation.Automatic);
 
-                // Todo: Start backup.
+                Task.Run(async () => {
+                    var remotePath = Path.Combine("/" + workingPath, "Photo Library/");
+                    try { await fileSystem.CreateDirectoryAsync(remotePath).ConfigureAwait(false); }
+                    catch { }
 
-                RefreshStatus();
+                    var failures = new List<PHAsset>(photos.Count);
+                    for (var i = 0; i < photos.Count; i++)
+                    {
+                        var photo = photos[i];
+                        var fileName = photo.CreationDate.ToDateTime().ToString("yyyyMMdd-HHmmss");
+                        var zipFile = Path.Combine(PathHelpers.Cache, fileName + ".zip");
+                        var originalFile = Path.Combine(PathHelpers.Cache, fileName + ".tmp");
+
+                        var zipStream = new FileStream(zipFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+                        var originalStream = new FileStream(originalFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+
+                        var package = new SinglePhotoPackage(photo);
+
+                        try
+                        {
+                            fileName = package.WriteArchive(zipStream, originalStream);
+                            var newZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(fileName) + ".assets");
+                            var newOriginalFile = Path.Combine(remotePath, fileName);
+
+                            zipStream.Seek(0, SeekOrigin.Begin);
+                            await fileSystem.WriteFileAsync(newZipFile, zipStream).ConfigureAwait(false);
+                            originalStream.Seek(0, SeekOrigin.Begin);
+                            await fileSystem.WriteFileAsync(newOriginalFile, originalStream).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            zipStream.Dispose();
+                            originalStream.Dispose();
+
+                            File.Delete(zipFile);
+                            File.Delete(originalFile);
+
+                            failures.Add(photo);
+                        }
+                    }
+
+                    InvokeOnMainThread(() => {
+                        photos = failures;
+                        isBackupInProgress = false;
+                        RefreshStatus();
+
+                        if (photos.Count > 0) this.ShowAlert("部分文件备份失败", "请前往相册备份页面查看剩余项目。");
+                        else this.ShowAlert("相册备份完成", null);
+                    });
+                });
+
                 return;
             }
 
@@ -245,8 +295,8 @@ namespace Unishare.Apps.DarwinMobile
 
         private void RefreshStatus()
         {
-            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 1) }, UITableViewRowAnimation.Automatic);
             TableView.ReloadSections(new NSIndexSet(2), UITableViewRowAnimation.Automatic);
+            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 1) }, UITableViewRowAnimation.Automatic);
         }
     }
 }
