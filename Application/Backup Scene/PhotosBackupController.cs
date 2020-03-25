@@ -187,7 +187,7 @@ namespace Unishare.Apps.DarwinMobile
                     for (var i = 0; i < photos.Count; i++)
                     {
                         var photo = photos[i];
-                        var zipFile = Path.Combine(PathHelpers.Cache, photo.FileName + ".assets");
+                        var zipFile = Path.Combine(PathHelpers.Cache, photo.FileName + ".zip");
                         var originalFile = Path.Combine(PathHelpers.Cache, photo.FileName);
 
                         var zipStream = new FileStream(zipFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -198,7 +198,7 @@ namespace Unishare.Apps.DarwinMobile
                         try
                         {
                             package.WriteArchive(zipStream, originalStream);
-                            var newZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".zip");
+                            var newZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".PLAsset");
                             var newOriginalFile = Path.Combine(remotePath, photo.FileName);
 
                             zipStream.Seek(0, SeekOrigin.Begin);

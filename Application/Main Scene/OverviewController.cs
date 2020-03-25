@@ -229,6 +229,7 @@ namespace Unishare.Apps.DarwinMobile
             alert.AddAction(UIAlertAction.Create("确认", UIAlertActionStyle.Destructive, action => {
                 Globals.CloudManager.ExitFromCloud(Globals.CloudManager.PersonalClouds[0]);
                 Globals.Database.DeleteAll<CloudModel>();
+                UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
 
                 var rootController = UIApplication.SharedApplication.Windows[0].RootViewController;
                 if (rootController == TabBarController)

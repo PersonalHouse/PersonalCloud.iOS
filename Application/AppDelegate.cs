@@ -28,6 +28,9 @@ using System;
 
 using Unishare.Apps.Common.Models;
 
+using Sentry;
+using Sentry.Protocol;
+
 namespace Unishare.Apps.DarwinMobile
 {
     [Register("AppDelegate")]
@@ -35,6 +38,7 @@ namespace Unishare.Apps.DarwinMobile
     {
         public UIWindow Window { get; private set; }
 
+        private IDisposable sentry;
         private CFNotificationObserverToken networkNotification;
 
         [Export("application:didFinishLaunchingWithOptions:")]
@@ -43,6 +47,15 @@ namespace Unishare.Apps.DarwinMobile
 #if !DEBUG
             AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
 #endif
+            sentry = SentrySdk.Init(options => {
+                options.Dsn = new Dsn("https://d0a8d714e2984642a530aa7deaca3498@sentry.io/5174354");
+                options.Release = application.GetBundleVersion();
+            });
+            Globals.Loggers = new LoggerFactory().AddSentry(options => {
+                options.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@sentry.io/5174354";
+                options.InitializeSdk = false;
+            });
+
             SQLitePCL.Batteries_V2.Init();
 
             var databasePath = Path.Combine(PathHelpers.SharedLibrary, "Preferences.sqlite3");
@@ -50,6 +63,14 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.CreateTable<KeyValueModel>();
             Globals.Database.CreateTable<CloudModel>();
             Globals.Database.CreateTable<NodeModel>();
+
+            SentrySdk.ConfigureScope(scope => {
+                scope.User = new User {
+                    Username = UIDevice.CurrentDevice.Name
+                };
+                var id = Globals.Database.LoadSetting(UserSettings.DeviceId);
+                if (!string.IsNullOrEmpty(id)) scope.User.Id = id;
+            });
 
             if (Globals.Database.Find<KeyValueModel>(UserSettings.EnableSharing) is null)
             {
@@ -82,12 +103,20 @@ namespace Unishare.Apps.DarwinMobile
             }
 
             Globals.Storage = new AppleDataStorage();
-            Globals.CloudManager = new PCLocalService(Globals.Storage, new LoggerFactory(), Globals.FileSystem);
+            Globals.CloudManager = new PCLocalService(Globals.Storage, Globals.Loggers, Globals.FileSystem);
             Task.Run(() => Globals.CloudManager.StartService());
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
-            if (Globals.Database.Table<CloudModel>().Count() > 0) Window.RootViewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("MainScreen");
-            else Window.RootViewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("WelcomeScreen");
+            if (Globals.Database.Table<CloudModel>().Count() > 0)
+            {
+                Window.RootViewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("MainScreen");
+                UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(TimeSpan.FromHours(1).TotalSeconds);
+            }
+            else
+            {
+                Window.RootViewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("WelcomeScreen");
+                application.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
+            }
             Window.MakeKeyAndVisible();
 
             try
@@ -129,7 +158,23 @@ namespace Unishare.Apps.DarwinMobile
 
             Globals.CloudManager?.Dispose();
             Globals.Database?.Dispose();
+            Globals.Loggers?.Dispose();
+            sentry?.Dispose();
         }
+
+        #region Background App Refresh
+
+        [Export("application:performFetchWithCompletionHandler:")]
+        public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
+        {
+            SentrySdk.AddBreadcrumb($"HasLocalServiceStarted: {Globals.CloudManager?.PersonalClouds?.Count != null}", level: BreadcrumbLevel.Warning);
+            SentrySdk.AddBreadcrumb($"IsDatabaseReadable: {Globals.Database?.Table<CloudModel>()?.Count() != null}", level: BreadcrumbLevel.Warning);
+            SentrySdk.AddBreadcrumb($"IsCloudFileSystemReady: {Globals.FileSystem?.RootPath != null}", level: BreadcrumbLevel.Warning);
+            SentrySdk.CaptureMessage("Background App Refresh triggered.", SentryLevel.Warning);
+            completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+        }
+
+        #endregion
 
         private void ObserveNetworkChange(string name, NSDictionary userInfo)
         {

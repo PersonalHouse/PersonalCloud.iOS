@@ -32,8 +32,9 @@ namespace Unishare.Apps.DarwinMobile
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-
             if (!welcomeCompleted) return;
+
+            UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(TimeSpan.FromHours(1).TotalSeconds);
             PerformSegue(FinishingSegue, this);
             welcomeCompleted = false;
         }

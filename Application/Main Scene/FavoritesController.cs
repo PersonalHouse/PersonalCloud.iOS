@@ -133,45 +133,45 @@ namespace Unishare.Apps.DarwinMobile
                     return;
                 }
 
+                if (Path.GetExtension(item.FullName)?.ToUpperInvariant() == ".PLASSET")
+                {
+                    var alert = UIAlertController.Create("恢复相册备份？", $"“{item.Name}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。"
+                                                         + Environment.NewLine + Environment.NewLine
+                                                         + "您可以立即恢复此备份，相册中目前所有照片均不会受到影响。", UIAlertControllerStyle.Alert);
+                    alert.AddAction(UIAlertAction.Create("取消", UIAlertActionStyle.Cancel, null));
+                    var restore = UIAlertAction.Create("恢复备份", UIAlertActionStyle.Default, action => {
+                        Task.Run(() => {
+                            SinglePhotoPackage.RestoreFromArchive(item.FullName, () => {
+                                InvokeOnMainThread(() => {
+                                    var completionAlert = UIAlertController.Create("相册备份恢复成功", $"“{item.Name}”已导入本机相册。", UIAlertControllerStyle.Alert);
+                                    completionAlert.AddAction(UIAlertAction.Create("删除备份", UIAlertActionStyle.Destructive, action => {
+                                        try { item.Delete(); }
+                                        catch { }
+                                        RefreshDirectory(this, EventArgs.Empty);
+                                    }));
+                                    var ok = UIAlertAction.Create("好", UIAlertActionStyle.Default, null);
+                                    completionAlert.AddAction(ok);
+                                    completionAlert.PreferredAction = ok;
+                                    PresentViewController(completionAlert, true, null);
+                                });
+                            }, error => {
+                                InvokeOnMainThread(() => {
+                                    this.ShowAlert("相册备份恢复失败", error?.LocalizedDescription ?? "未能完成操作，因为发生了未知错误。");
+                                });
+                            });
+                        });
+                    });
+                    alert.AddAction(restore);
+                    alert.PreferredAction = restore;
+                    PresentViewController(alert, true, null);
+                    return;
+                }
+
                 var url = NSUrl.FromFilename(item.FullName);
                 this.PreviewFile(url);
                 return;
             }
         }
-
-        /*
-        public override UISwipeActionsConfiguration GetLeadingSwipeActionsConfiguration(UITableView tableView, NSIndexPath indexPath)
-        {
-            var upload = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Destructive, "同步", (action, view, handler) => {
-                handler?.Invoke(true);
-
-                this.ShowAlert(Texts.FeatureUnavailable, Texts.FeatureUnavailableMessage);
-                return;
-
-                try
-                {
-                    var path = items[indexPath.Row].FullName;
-                    File.Delete(path);
-
-                    InvokeOnMainThread(() => {
-                        items.RemoveAt(indexPath.Row);
-                        TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
-                    });
-                }
-                catch (Exception exception)
-                {
-                    InvokeOnMainThread(() => {
-                        this.ShowAlert("无法删除此项目", exception.GetType().Name);
-                    });
-                }
-            });
-            upload.BackgroundColor = Colors.OrangeFlag;
-
-            var actions = UISwipeActionsConfiguration.FromActions(new[] { upload });
-            actions.PerformsFirstActionWithFullSwipe = false;
-            return actions;
-        }
-        */
 
         public override UISwipeActionsConfiguration GetTrailingSwipeActionsConfiguration(UITableView tableView, NSIndexPath indexPath)
         {

@@ -8,6 +8,15 @@ namespace Unishare.Apps.DarwinCore
 {
     public static partial class UIKitExtensions
     {
+        public static string GetBundleVersion(this UIApplication application)
+        {
+            var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion")?.ToString();
+            var shortVersion = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleShortVersionString")?.ToString();
+
+            if (version != null && shortVersion != null) return $"{shortVersion} ({version})";
+            return shortVersion ?? version ?? "?";
+        }
+
         public static void ShowAlert(this UIViewController controller, string title, string message)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
@@ -69,7 +78,7 @@ namespace Unishare.Apps.DarwinCore
             controller.PresentViewController(alert, true, null);
         }
 
-        public static void PresentAlertController(this UIViewController controller, UIAlertController alert, UIView anchor = null)
+        public static void PresentActionSheet(this UIViewController controller, UIAlertController alert, UIView anchor = null)
         {
             var popover = alert.PopoverPresentationController;
             if (popover != null)
