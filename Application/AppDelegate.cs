@@ -47,6 +47,7 @@ namespace Unishare.Apps.DarwinMobile
             sentry = SentrySdk.Init(options =>
             {
                 options.Dsn = new Dsn("https://d0a8d714e2984642a530aa7deaca3498@sentry.io/5174354");
+                options.Environment = "iOS";
                 options.Release = application.GetBundleVersion();
             });
 
@@ -60,16 +61,6 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.CreateTable<CloudModel>();
             Globals.Database.CreateTable<NodeModel>();
             Globals.Database.CreateTable<PLAsset>();
-
-            SentrySdk.ConfigureScope(scope =>
-            {
-                scope.User = new User
-                {
-                    Username = UIDevice.CurrentDevice.Name
-                };
-                var id = Globals.Database.LoadSetting(UserSettings.DeviceId);
-                if (!string.IsNullOrEmpty(id)) scope.User.Id = id;
-            });
 
             Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
@@ -119,7 +110,6 @@ namespace Unishare.Apps.DarwinMobile
             if (Globals.Database.Table<CloudModel>().Count() > 0)
             {
                 Window.RootViewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("MainScreen");
-                UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(TimeSpan.FromHours(1).TotalSeconds);
             }
             else
             {

@@ -42,7 +42,7 @@ namespace Unishare.Apps.DarwinMobile
             NameLabel.Text = photo.FileName;
             var type = photo.Type.ToChineseString();
             var tags = photo.Tags.Unpack().ToChineseString();
-            if (!string.IsNullOrEmpty(tags)) TypeLabel.Text = type + "、" + tags;
+            if (!string.IsNullOrEmpty(tags)) TypeLabel.Text = tags;
             else TypeLabel.Text = type;
             SizeLabel.Text = null;
 

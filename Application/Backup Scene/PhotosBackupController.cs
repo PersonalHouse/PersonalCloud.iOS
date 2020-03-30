@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Foundation;
 
 using NSPersonalCloud.RootFS;
@@ -11,7 +11,6 @@ using UIKit;
 
 using Unishare.Apps.Common;
 using Unishare.Apps.DarwinCore;
-using Unishare.Apps.DarwinCore.Models;
 
 namespace Unishare.Apps.DarwinMobile
 {
@@ -25,9 +24,6 @@ namespace Unishare.Apps.DarwinMobile
         private bool autoBackup;
         private string backupPath;
         private int backupIntervalHours;
-
-        private IReadOnlyList<PLAsset> photos;
-        private bool isBackupInProgress;
         private RootFileSystem fileSystem;
 
         #region Lifecycle
@@ -36,23 +32,11 @@ namespace Unishare.Apps.DarwinMobile
         {
             base.ViewDidLoad();
             fileSystem = Globals.CloudManager.PersonalClouds[0].RootFS;
-
-            /*
-            if (isBackupInProgress)
-            {
-                Task.Run(async () => {
-                    await Globals.BackupWorker.BackupTask.ConfigureAwait(false);
-                    TableView.ReloadSections(new NSIndexSet(2), UITableViewRowAnimation.Automatic);
-                });
-            }
-            */
         }
 
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            photos = Globals.BackupWorker?.Photos;
-            isBackupInProgress = Globals.BackupWorker?.BackupTask?.IsCompleted == false;
             autoBackup = PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized && Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1");
             backupPath = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
             if (!int.TryParse(Globals.Database.LoadSetting(UserSettings.PhotoBackupInterval) ?? "-1", out backupIntervalHours)) backupIntervalHours = 0;
@@ -162,6 +146,12 @@ namespace Unishare.Apps.DarwinMobile
                     return;
                 }
 
+                if (!Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
+                {
+                    this.ShowAlert("定时备份未配置", "执行计划备份前必须先配置定时备份。");
+                    return;
+                }
+
                 Task.Run(() => {
                     if (Globals.BackupWorker == null) Globals.BackupWorker = new PhotoLibraryExporter();
                     Globals.BackupWorker.StartBackup(fileSystem, backupPath);
@@ -180,46 +170,39 @@ namespace Unishare.Apps.DarwinMobile
             if (e.On)
             {
                 PHPhotoLibrary.RequestAuthorization(status => {
-                    if (status == PHAuthorizationStatus.Authorized) TurnOnAutoBackup();
-                    else
-                    {
-                        TurnOffAutoBackup();
-                        InvokeOnMainThread(() => {
-                            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 2) }, UITableViewRowAnimation.Fade);
-                            this.ShowAlert("无法设置定时备份", "您已拒绝个人云访问“照片”，请前往系统设置 App 更改隐私授权。");
-                        });
-                    }
+                    if (status == PHAuthorizationStatus.Authorized) InvokeOnMainThread(() => TurnOnAutoBackup(sender));
+                    else InvokeOnMainThread(() => {
+                        TurnOffAutoBackup(sender);
+                        this.ShowAlert("无法设置定时备份", "您已拒绝个人云访问“照片”，请前往系统设置 App 更改隐私授权。");
+                    });
                 });
             }
-            else TurnOffAutoBackup();
+            else TurnOffAutoBackup(sender);
         }
 
-        private void TurnOnAutoBackup()
+        private void TurnOnAutoBackup(object obj)
         {
             if (string.IsNullOrEmpty(backupPath))
             {
-                TurnOffAutoBackup();
-                InvokeOnMainThread(() => {
-                    this.ShowAlert("无法使用定时备份", "您尚未选择备份存储位置，请点击“选择存储位置”。");
-                });
+                TurnOffAutoBackup(obj);
+                this.ShowAlert("无法使用定时备份", "您尚未选择备份存储位置，请点击“选择存储位置”。");
                 return;
             }
 
             if (backupIntervalHours < 1)
             {
-                TurnOffAutoBackup();
-                InvokeOnMainThread(() => {
-                    this.ShowAlert("无法使用定时备份", "您尚未设置备份间隔时间，请点击“设置间隔时间”。");
-                });
+                TurnOffAutoBackup(obj);
+                this.ShowAlert("无法使用定时备份", "您尚未设置备份间隔时间，请点击“设置间隔时间”。");
                 return;
             }
 
             Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "1");
-            InvokeOnMainThread(() => UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(backupIntervalHours * 3600));
+            UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(backupIntervalHours * 3600);
         }
 
-        private void TurnOffAutoBackup()
+        private void TurnOffAutoBackup(object obj)
         {
+            if (obj is UISwitch button && button.On) button.On = false;
             Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "0");
             UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
         }
