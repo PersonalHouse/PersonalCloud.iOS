@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.IO;
 
 using Humanizer;
@@ -41,7 +40,10 @@ namespace Unishare.Apps.DarwinMobile
             IconImage.Image = null;
             IconImage.ContentMode = UIViewContentMode.ScaleAspectFill;
             NameLabel.Text = photo.FileName;
-            TypeLabel.Text = photo.Tags.ToString("F");
+            var type = photo.Type.ToChineseString();
+            var tags = photo.Tags.Unpack().ToChineseString();
+            if (!string.IsNullOrEmpty(tags)) TypeLabel.Text = type + "、" + tags;
+            else TypeLabel.Text = type;
             SizeLabel.Text = null;
 
             PHImageManager.DefaultManager.RequestImageForAsset(photo.Asset, IconImage.Frame.Size, PHImageContentMode.AspectFill, null, (result, info) => {

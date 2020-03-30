@@ -1,6 +1,7 @@
 using System;
-using System.Linq;
+
 using UIKit;
+
 using Unishare.Apps.Common.Models;
 
 namespace Unishare.Apps.DarwinMobile
@@ -34,7 +35,6 @@ namespace Unishare.Apps.DarwinMobile
             base.ViewDidAppear(animated);
             if (!welcomeCompleted) return;
 
-            UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(TimeSpan.FromHours(1).TotalSeconds);
             PerformSegue(FinishingSegue, this);
             welcomeCompleted = false;
         }

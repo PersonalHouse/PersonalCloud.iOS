@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Threading.Tasks;
-
 using Foundation;
 
 using NSPersonalCloud.RootFS;
 
+using Photos;
+
 using UIKit;
 
+using Unishare.Apps.Common;
 using Unishare.Apps.DarwinCore;
 using Unishare.Apps.DarwinCore.Models;
 
@@ -20,11 +20,13 @@ namespace Unishare.Apps.DarwinMobile
         public PhotosBackupController(IntPtr handle) : base(handle) { }
 
         private const string ChooseDeviceSegue = "ChooseBackupPath";
-        private const string SelectPhotosSegue = "SelectPhotos";
+        private const string ViewPhotosSegue = "ViewPhotos";
 
-        private List<PLAsset> photos = new List<PLAsset>();
-        private string workingPath;
+        private bool autoBackup;
+        private string backupPath;
+        private int backupIntervalHours;
 
+        private IReadOnlyList<PLAsset> photos;
         private bool isBackupInProgress;
         private RootFileSystem fileSystem;
 
@@ -34,55 +36,40 @@ namespace Unishare.Apps.DarwinMobile
         {
             base.ViewDidLoad();
             fileSystem = Globals.CloudManager.PersonalClouds[0].RootFS;
-        }
 
-        public override void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-            var sections = new NSMutableIndexSet();
-            sections.Add(0);
-            if (!isBackupInProgress) sections.Add(2);
-            TableView.ReloadSections(sections, UITableViewRowAnimation.Automatic);
-        }
-
-        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
-        {
-            base.PrepareForSegue(segue, sender);
-            switch (segue.Identifier)
+            /*
+            if (isBackupInProgress)
             {
-                case ChooseDeviceSegue:
-                {
-                    var controller = (ChooseDeviceController) segue.DestinationViewController;
-                    controller.SelectedDevice = workingPath;
-                    controller.SelectedDeviceChanged += (o, e) => {
-                        var sender = (ChooseDeviceController) o;
-                        workingPath = sender.SelectedDevice;
-                    };
-                    return;
-                }
-
-                case SelectPhotosSegue:
-                {
-                    var controller = (SelectPhotosController) segue.DestinationViewController;
-                    controller.SelectedPhotos = photos;
-                    return;
-                }
+                Task.Run(async () => {
+                    await Globals.BackupWorker.BackupTask.ConfigureAwait(false);
+                    TableView.ReloadSections(new NSIndexSet(2), UITableViewRowAnimation.Automatic);
+                });
             }
+            */
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+            photos = Globals.BackupWorker?.Photos;
+            isBackupInProgress = Globals.BackupWorker?.BackupTask?.IsCompleted == false;
+            autoBackup = PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized && Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1");
+            backupPath = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
+            if (!int.TryParse(Globals.Database.LoadSetting(UserSettings.PhotoBackupInterval) ?? "-1", out backupIntervalHours)) backupIntervalHours = 0;
         }
 
         #endregion
 
         #region Data Source
 
-        public override nint NumberOfSections(UITableView tableView) => 3;
+        public override nint NumberOfSections(UITableView tableView) => 1;
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
             return (int) section switch
             {
-                0 => 2,
-                1 => 1,
-                2 => photos.Count,
+                0 => 5,
+                1 => 3,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -91,9 +78,8 @@ namespace Unishare.Apps.DarwinMobile
         {
             return (int) section switch
             {
-                0 => null,
-                1 => null,
-                2 => isBackupInProgress ? "正在备份……" : null,
+                0 => "自动备份",
+                1 => "手动备份",
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -102,34 +88,42 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (indexPath.Section == 0 && indexPath.Row == 0)
             {
-                var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
-                cell.Update("选择存储设备", !string.IsNullOrEmpty(workingPath) ? "已选择" : null, true);
-                cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
+                var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
+                cell.Update("定时备份照片", autoBackup);
+                cell.Accessory = UITableViewCellAccessory.None;
+                cell.Clicked += ToggleAutoBackup;
                 return cell;
             }
 
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
                 var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
-                cell.Update("选择照片或视频", photos.Count > 0 ? photos.Count.ToString(CultureInfo.InvariantCulture) : "无", true);
+                cell.Update("选择存储位置", string.IsNullOrEmpty(backupPath) ? null : "已设置", true);
                 cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 return cell;
             }
 
-            if (indexPath.Section == 1 && indexPath.Row == 0)
+            if (indexPath.Section == 0 && indexPath.Row == 2)
             {
-                var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                if (isBackupInProgress) cell.Update("停止备份", Colors.DangerousRed, true);
-                else cell.Update("立即备份", Colors.BlueButton, true);
+                var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
+                cell.Update("设置间隔时间", backupIntervalHours < 1 ? null : "1 小时", true);
                 cell.Accessory = UITableViewCellAccessory.None;
                 return cell;
             }
 
-            if (indexPath.Section == 2)
+            if (indexPath.Section == 0 && indexPath.Row == 3)
             {
-                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
-                var photo = photos[indexPath.Row];
-                cell.Update(photo);
+                var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
+                cell.Update("查看下次备份项目", true);
+                cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
+                return cell;
+            }
+
+            if (indexPath.Section == 0 && indexPath.Row == 4)
+            {
+                var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
+                cell.Update("立即执行计划备份", Colors.BlueButton, true);
+                cell.Accessory = UITableViewCellAccessory.None;
                 return cell;
             }
 
@@ -140,161 +134,94 @@ namespace Unishare.Apps.DarwinMobile
         {
             tableView.DeselectRow(indexPath, true);
 
-            if (indexPath.Section == 0 && indexPath.Row == 0)
+            if (indexPath.Section == 0 && indexPath.Row == 0) return;
+
+            if (indexPath.Section == 0 && indexPath.Row == 1)
             {
-                if (isBackupInProgress)
-                {
-                    this.ShowAlert("不能切换存储设备", "备份已在进行，在备份完成或中断前无法更改备份参数。");
-                    return;
-                }
                 PerformSegue(ChooseDeviceSegue, this);
                 return;
             }
-            if (indexPath.Section == 0 && indexPath.Row == 1)
+
+            if (indexPath.Section == 0 && indexPath.Row == 2)
             {
-                if (isBackupInProgress)
-                {
-                    this.ShowAlert("不能重选待备份文件", "备份已在进行，在备份完成或中断前无法更改备份参数。");
-                    return;
-                }
-                PerformSegue(SelectPhotosSegue, this);
+                this.ShowAlert("无法设置间隔时间", "尚不支持调整备份间隔时间。");
                 return;
             }
 
-            if (indexPath.Section == 1 && indexPath.Row == 0)
+            if (indexPath.Section == 0 && indexPath.Row == 3)
             {
-                if (isBackupInProgress)
+                PerformSegue(ViewPhotosSegue, this);
+                return;
+            }
+
+            if (indexPath.Section == 0 && indexPath.Row == 4)
+            {
+                if ((Globals.BackupWorker?.BackupTask?.IsCompleted ?? true) != true)
                 {
-                    this.ShowAlert("无法停止备份", "暂时不支持此功能");
+                    this.ShowAlert("无法启动新备份", "当前有计划备份正在执行。");
                     return;
                 }
 
-                if (string.IsNullOrEmpty(workingPath) || !(photos?.Count > 0))
-                {
-                    this.ShowAlert("备份所需信息不完整", "请核对备份存储设备和待备份文件。");
-                    return;
-                }
-
-                isBackupInProgress = true;
-                tableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 1) }, UITableViewRowAnimation.Automatic);
-
-                Task.Run(async () => {
-                    var remotePath = Path.Combine("/" + workingPath, "Photo Library/");
-                    try { await fileSystem.CreateDirectoryAsync(remotePath).ConfigureAwait(false); }
-                    catch { }
-
-                    var failures = new List<PLAsset>(photos.Count);
-                    for (var i = 0; i < photos.Count; i++)
-                    {
-                        var photo = photos[i];
-                        var zipFile = Path.Combine(PathHelpers.Cache, photo.FileName + ".zip");
-                        var originalFile = Path.Combine(PathHelpers.Cache, photo.FileName);
-
-                        var zipStream = new FileStream(zipFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-                        var originalStream = new FileStream(originalFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-
-                        var package = new SinglePhotoPackage(photo);
-
-                        try
-                        {
-                            package.WriteArchive(zipStream, originalStream);
-                            var newZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".PLAsset");
-                            var newOriginalFile = Path.Combine(remotePath, photo.FileName);
-
-                            zipStream.Seek(0, SeekOrigin.Begin);
-                            await fileSystem.WriteFileAsync(newZipFile, zipStream).ConfigureAwait(false);
-                            originalStream.Seek(0, SeekOrigin.Begin);
-                            await fileSystem.WriteFileAsync(newOriginalFile, originalStream).ConfigureAwait(false);
-                        }
-                        catch
-                        {
-                            zipStream.Dispose();
-                            originalStream.Dispose();
-                            failures.Add(photo);
-                        }
-
-                        try
-                        {
-                            File.Delete(zipFile);
-                            File.Delete(originalFile);
-                        }
-                        catch
-                        {
-                            // Ignored.
-                        }
-                    }
-
-                    InvokeOnMainThread(() => {
-                        photos = failures;
-                        isBackupInProgress = false;
-                        TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 3)), UITableViewRowAnimation.Automatic);
-
-                        if (photos.Count > 0) this.ShowAlert("部分文件备份失败", "请前往相册备份页面查看剩余项目。");
-                        else this.ShowAlert("相册备份完成", null);
-                    });
+                Task.Run(() => {
+                    if (Globals.BackupWorker == null) Globals.BackupWorker = new PhotoLibraryExporter();
+                    Globals.BackupWorker.StartBackup(fileSystem, backupPath);
                 });
-
+                this.ShowAlert("备份已启动", "计划备份正在执行。您可以继续使用个人云。");
                 return;
             }
-
-            /*
-            if (indexPath.Section == 2 && indexPath.Row == 0)
-            {
-                List<FileInfo> items = null;
-                var types = new PHAssetResourceType[items.Count];
-                for (var i = 0; i < items.Count; i++)
-                {
-                    var fileName = items[i].Name;
-                    if (fileName.IndexOf('(') != -1)
-                    {
-                        var indexLeft = fileName.IndexOf('(') + 1;
-                        var resourceType = fileName.Substring(indexLeft, fileName.IndexOf(')') - indexLeft);
-                        var type = (PHAssetResourceType) Enum.Parse(typeof(PHAssetResourceType), resourceType);
-                        types[i] = type;
-                    }
-                    else
-                    {
-                        var uti = UTI.FromFileName(Path.GetExtension(fileName));
-                        if (uti.ConformsTo(UTType.Image)) types[i] = PHAssetResourceType.Photo;
-                        else if (uti.ConformsTo(UTType.Video)) types[i] = PHAssetResourceType.Video;
-                    }
-                }
-
-                var alert = UIAlertController.Create("正在更新相册……", null, UIAlertControllerStyle.Alert);
-                PresentViewController(alert, true, null);
-
-                PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() => {
-                    var assets = PHAssetCreationRequest.CreationRequestForAsset();
-
-                    var requestOptions = new PHAssetResourceCreationOptions {
-                        ShouldMoveFile = true
-                    };
-                    for (var i = 0; i < items.Count; i++)
-                    {
-                        var url = NSUrl.FromFilename(items[i].FullName);
-                        assets.AddResource(types[i], url, requestOptions);
-                    }
-                }, (isSuccess, error) => {
-                    InvokeOnMainThread(() => {
-                        DismissViewController(true, () => {
-                            if (!isSuccess)
-                            {
-                                this.ShowAlert("恢复失败", error.LocalizedDescription);
-                            }
-                            else
-                            {
-                                this.ShowAlert("恢复成功", null);
-                            }
-                        });
-                    });
-                });
-                return;
-            }
-            */
 
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
 
         #endregion
+
+        private void ToggleAutoBackup(object sender, ToggledEventArgs e)
+        {
+            if (e.On)
+            {
+                PHPhotoLibrary.RequestAuthorization(status => {
+                    if (status == PHAuthorizationStatus.Authorized) TurnOnAutoBackup();
+                    else
+                    {
+                        TurnOffAutoBackup();
+                        InvokeOnMainThread(() => {
+                            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 2) }, UITableViewRowAnimation.Fade);
+                            this.ShowAlert("无法设置定时备份", "您已拒绝个人云访问“照片”，请前往系统设置 App 更改隐私授权。");
+                        });
+                    }
+                });
+            }
+            else TurnOffAutoBackup();
+        }
+
+        private void TurnOnAutoBackup()
+        {
+            if (string.IsNullOrEmpty(backupPath))
+            {
+                TurnOffAutoBackup();
+                InvokeOnMainThread(() => {
+                    this.ShowAlert("无法使用定时备份", "您尚未选择备份存储位置，请点击“选择存储位置”。");
+                });
+                return;
+            }
+
+            if (backupIntervalHours < 1)
+            {
+                TurnOffAutoBackup();
+                InvokeOnMainThread(() => {
+                    this.ShowAlert("无法使用定时备份", "您尚未设置备份间隔时间，请点击“设置间隔时间”。");
+                });
+                return;
+            }
+
+            Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "1");
+            InvokeOnMainThread(() => UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(backupIntervalHours * 3600));
+        }
+
+        private void TurnOffAutoBackup()
+        {
+            Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "0");
+            UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
+        }
     }
 }

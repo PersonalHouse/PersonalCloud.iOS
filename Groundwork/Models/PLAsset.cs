@@ -35,7 +35,7 @@ namespace Unishare.Apps.DarwinCore.Models
         public PLAssetType Type { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public PLAssetTag Tags { get; set; }
+        public PLAssetTags Tags { get; set; }
 
         public DateTime CreationDate { get; set; }
         public DateTime ModificationDate { get; set; }
@@ -44,6 +44,15 @@ namespace Unishare.Apps.DarwinCore.Models
         public long Size { get; set; }
 
         public long Version { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is PLAsset asset &&
+                   (Id == asset.Id ||
+                   EqualityComparer<PHAsset>.Default.Equals(Asset, asset.Asset));
+        }
+
+        public override int GetHashCode() => HashCode.Combine(Id);
 
         public void Refresh()
         {
@@ -61,8 +70,8 @@ namespace Unishare.Apps.DarwinCore.Models
                 if (Type != (PLAssetType) Asset.MediaType) HasChanged = true;
                 Type = (PLAssetType) Asset.MediaType;
 
-                if (Tags != (PLAssetTag) Asset.MediaSubtypes) HasChanged = true;
-                Tags = (PLAssetTag) Asset.MediaSubtypes;
+                if (Tags != (PLAssetTags) Asset.MediaSubtypes) HasChanged = true;
+                Tags = (PLAssetTags) Asset.MediaSubtypes;
 
                 var creation = Asset.CreationDate.ToDateTime();
                 if (creation != CreationDate) HasChanged = true;
@@ -84,7 +93,7 @@ namespace Unishare.Apps.DarwinCore.Models
 
                 Id = Asset.LocalIdentifier;
                 Type = (PLAssetType) Asset.MediaType;
-                Tags = (PLAssetTag) Asset.MediaSubtypes;
+                Tags = (PLAssetTags) Asset.MediaSubtypes;
                 CreationDate = Asset.CreationDate.ToDateTime();
                 ModificationDate = Asset.ModificationDate.ToDateTime();
 

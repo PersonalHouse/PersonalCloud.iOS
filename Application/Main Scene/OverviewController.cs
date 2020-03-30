@@ -57,7 +57,7 @@ namespace Unishare.Apps.DarwinMobile
             base.ViewDidLoad();
 
             sharePhotos = PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
-                Globals.Database.CheckSetting(UserSettings.EnablePhotoSync, "1");
+                Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1");
             shareFiles = Globals.Database.CheckSetting(UserSettings.EnableSharing, "1");
 
             cloud = Globals.Database.Table<CloudModel>().First();
@@ -80,7 +80,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
-            return (int) section switch
+            return (int)section switch
             {
                 0 => 3,
                 1 => 1,
@@ -98,7 +98,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public override string TitleForHeader(UITableView tableView, nint section)
         {
-            return (int) section switch
+            return (int)section switch
             {
                 0 => HeaderCloud,
                 1 => HeaderSharing,
@@ -110,7 +110,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public override string TitleForFooter(UITableView tableView, nint section)
         {
-            return (int) section switch
+            return (int)section switch
             {
                 0 => null,
                 1 => string.Format(FooterSharing, UIDevice.CurrentDevice.Model, Environment.NewLine + Environment.NewLine),
@@ -124,7 +124,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (indexPath.Section == 0 && indexPath.Row == 0)
             {
-                var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
+                var cell = (KeyValueCell)tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
                 cell.Update(Texts.DeviceName, Globals.CloudManager.PersonalClouds[0].NodeDisplayName);
                 cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 return cell;
@@ -132,7 +132,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
-                var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
+                var cell = (KeyValueCell)tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
                 cell.Update(Texts.CloudName, cloud.Name);
                 cell.Accessory = UITableViewCellAccessory.None;
                 return cell;
@@ -140,7 +140,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 2)
             {
-                var button = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                var button = (AccentButtonCell)tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
                 button.Update("邀请新设备加入");
                 button.Clicked += ShowInvitation;
                 return button;
@@ -148,7 +148,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 1 && indexPath.Row == 0)
             {
-                var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
+                var cell = (SwitchCell)tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
                 cell.Update(EnableFileSharing, shareFiles);
                 cell.Clicked += ToggleFileSharing;
                 return cell;
@@ -156,7 +156,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 2 && indexPath.Row == 0)
             {
-                var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
+                var cell = (SwitchCell)tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
                 cell.Update(EnablePhotoSharing, sharePhotos);
                 cell.Clicked += TogglePhotoSharing;
                 return cell;
@@ -164,7 +164,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 3 && indexPath.Row == 0)
             {
-                var button = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                var button = (AccentButtonCell)tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
                 button.Update("切换或离开个人云", Colors.DangerousRed);
                 button.Clicked += LeaveCloud;
                 return button;
@@ -196,16 +196,20 @@ namespace Unishare.Apps.DarwinMobile
         private void ShowInvitation(object sender, EventArgs e)
         {
             var alert = UIAlertController.Create("正在生成……", null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
+            PresentViewController(alert, true, () =>
+            {
+                Task.Run(async () =>
+                {
                     try
                     {
                         var inviteCode = await Globals.CloudManager.SharePersonalCloud(Globals.CloudManager.PersonalClouds[0]).ConfigureAwait(false);
-                        InvokeOnMainThread(() => {
+                        InvokeOnMainThread(() =>
+                        {
                             DismissViewController(true, null);
                             this.ShowAlert("已生成邀请码", "请在其它设备输入邀请码：" + Environment.NewLine + Environment.NewLine
                                 + inviteCode + Environment.NewLine + Environment.NewLine
-                                + "离开此界面邀请码将失效。", "停止邀请", true, action => {
+                                + "离开此界面邀请码将失效。", "停止邀请", true, action =>
+                                {
                                     try { _ = Globals.CloudManager.StopSharePersonalCloud(Globals.CloudManager.PersonalClouds[0]); }
                                     catch { }
                                 });
@@ -213,7 +217,8 @@ namespace Unishare.Apps.DarwinMobile
                     }
                     catch
                     {
-                        InvokeOnMainThread(() => {
+                        InvokeOnMainThread(() =>
+                        {
                             DismissViewController(true, null);
                             this.ShowAlert("无法生成邀请码", null);
                         });
@@ -226,7 +231,8 @@ namespace Unishare.Apps.DarwinMobile
         private void LeaveCloud(object sender, EventArgs e)
         {
             var alert = UIAlertController.Create("从个人云中移除此设备？", "当前设备将离开个人云，本地保存的相关信息也将删除。", UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create("确认", UIAlertActionStyle.Destructive, action => {
+            alert.AddAction(UIAlertAction.Create("确认", UIAlertActionStyle.Destructive, action =>
+            {
                 Globals.CloudManager.ExitFromCloud(Globals.CloudManager.PersonalClouds[0]);
                 Globals.Database.DeleteAll<CloudModel>();
                 UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
@@ -234,7 +240,8 @@ namespace Unishare.Apps.DarwinMobile
                 var rootController = UIApplication.SharedApplication.Windows[0].RootViewController;
                 if (rootController == TabBarController)
                 {
-                    TabBarController.DismissViewController(true, () => {
+                    TabBarController.DismissViewController(true, () =>
+                    {
                         var controller = Storyboard.InstantiateViewController("WelcomeScreen");
                         controller.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                         PresentViewController(controller, true, () => { });
@@ -266,12 +273,14 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (e.On)
             {
-                PHPhotoLibrary.RequestAuthorization(status => {
+                PHPhotoLibrary.RequestAuthorization(status =>
+                {
                     if (status == PHAuthorizationStatus.Authorized) TurnOnPhotoSharing();
                     else
                     {
                         TurnOffPhotoSharing();
-                        InvokeOnMainThread(() => {
+                        InvokeOnMainThread(() =>
+                        {
                             TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 2) }, UITableViewRowAnimation.Fade);
                             this.ShowAlert(AlertPhotosAccessTitle, AlertPhotosAccessMessage);
                         });
@@ -285,14 +294,17 @@ namespace Unishare.Apps.DarwinMobile
         {
             sharePhotos = true;
             Globals.FileSystem.ArePhotosShared = true;
-            Globals.Database.SaveSetting(UserSettings.EnablePhotoSync, "1");
+            if (Globals.BackupWorker == null) Globals.BackupWorker = new PhotoLibraryExporter();
+            else Globals.BackupWorker.Refresh();
+            Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "1");
         }
 
         private void TurnOffPhotoSharing()
         {
             sharePhotos = false;
             Globals.FileSystem.ArePhotosShared = false;
-            Globals.Database.SaveSetting(UserSettings.EnablePhotoSync, "0");
+            Globals.BackupWorker = null;
+            Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "0");
         }
 
         private void TurnOnFileSharing()

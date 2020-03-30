@@ -1,35 +1,32 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+
+using CoreFoundation;
 
 using Foundation;
 
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 using Microsoft.Extensions.Logging;
 
 using NSPersonalCloud;
 
 using Photos;
 
-#if !DEBUG
-using Microsoft.AppCenter;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
-#endif
+using Sentry;
+using Sentry.Protocol;
 
 using SQLite;
 
 using UIKit;
 
 using Unishare.Apps.Common;
-using Unishare.Apps.DarwinCore;
-
-using CoreFoundation;
-
-using System;
-
 using Unishare.Apps.Common.Models;
-
-using Sentry;
-using Sentry.Protocol;
+using Unishare.Apps.DarwinCore;
+using Unishare.Apps.DarwinCore.Models;
 
 namespace Unishare.Apps.DarwinMobile
 {
@@ -44,33 +41,37 @@ namespace Unishare.Apps.DarwinMobile
         [Export("application:didFinishLaunchingWithOptions:")]
         public bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
-#if !DEBUG
+            SQLitePCL.Batteries_V2.Init();
+
             AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
-#endif
-            sentry = SentrySdk.Init(options => {
+            sentry = SentrySdk.Init(options =>
+            {
                 options.Dsn = new Dsn("https://d0a8d714e2984642a530aa7deaca3498@sentry.io/5174354");
                 options.Release = application.GetBundleVersion();
             });
-            Globals.Loggers = new LoggerFactory().AddSentry(options => {
-                options.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@sentry.io/5174354";
-                options.InitializeSdk = false;
-            });
 
-            SQLitePCL.Batteries_V2.Init();
+#if DEBUG
+            Crashes.SetEnabledAsync(false);
+#endif
 
             var databasePath = Path.Combine(PathHelpers.SharedLibrary, "Preferences.sqlite3");
             Globals.Database = new SQLiteConnection(databasePath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
             Globals.Database.CreateTable<KeyValueModel>();
             Globals.Database.CreateTable<CloudModel>();
             Globals.Database.CreateTable<NodeModel>();
+            Globals.Database.CreateTable<PLAsset>();
 
-            SentrySdk.ConfigureScope(scope => {
-                scope.User = new User {
+            SentrySdk.ConfigureScope(scope =>
+            {
+                scope.User = new User
+                {
                     Username = UIDevice.CurrentDevice.Name
                 };
                 var id = Globals.Database.LoadSetting(UserSettings.DeviceId);
                 if (!string.IsNullOrEmpty(id)) scope.User.Id = id;
             });
+
+            Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
             if (Globals.Database.Find<KeyValueModel>(UserSettings.EnableSharing) is null)
             {
@@ -78,11 +79,13 @@ namespace Unishare.Apps.DarwinMobile
             }
 
             var sharingEnabled = false;
-            if (Globals.Database.LoadSetting(UserSettings.EnableSharing) == "1")
+            if (Globals.Database.CheckSetting(UserSettings.EnableSharing, "1"))
             {
                 sharingEnabled = true;
                 UIApplication.SharedApplication.IdleTimerDisabled = true;
             }
+
+            Globals.Loggers = new LoggerFactory().AddSentry();
 
             try
             {
@@ -97,9 +100,15 @@ namespace Unishare.Apps.DarwinMobile
             Globals.FileSystem = new SandboxedFileSystem(sharingEnabled ? PathHelpers.Documents : null);
 
             if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
-                Globals.Database.CheckSetting(UserSettings.EnablePhotoSync, "1"))
+                Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1"))
             {
                 Globals.FileSystem.ArePhotosShared = true;
+            }
+
+            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
+                Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
+            {
+                Globals.BackupWorker = new PhotoLibraryExporter();
             }
 
             Globals.Storage = new AppleDataStorage();
@@ -121,7 +130,7 @@ namespace Unishare.Apps.DarwinMobile
 
             try
             {
-                networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.DeliverImmediately);
+                networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
             }
             catch
             {
@@ -167,11 +176,29 @@ namespace Unishare.Apps.DarwinMobile
         [Export("application:performFetchWithCompletionHandler:")]
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
-            SentrySdk.AddBreadcrumb($"HasLocalServiceStarted: {Globals.CloudManager?.PersonalClouds?.Count != null}", level: BreadcrumbLevel.Warning);
-            SentrySdk.AddBreadcrumb($"IsDatabaseReadable: {Globals.Database?.Table<CloudModel>()?.Count() != null}", level: BreadcrumbLevel.Warning);
-            SentrySdk.AddBreadcrumb($"IsCloudFileSystemReady: {Globals.FileSystem?.RootPath != null}", level: BreadcrumbLevel.Warning);
-            SentrySdk.CaptureMessage("Background App Refresh triggered.", SentryLevel.Warning);
-            completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+            SentrySdk.AddBreadcrumb("Background App Refresh triggered.");
+
+            var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
+            if (string.IsNullOrEmpty(path))
+            {
+                SentrySdk.CaptureMessage("Photo sync not configured.", SentryLevel.Error);
+                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                return;
+            }
+
+            var worker = Globals.BackupWorker;
+            if (worker == null)
+            {
+                SentrySdk.CaptureMessage("Photo sync worker not initialized.", SentryLevel.Error);
+                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                return;
+            }
+
+            Globals.CloudManager.NetworkRefeshNodes();
+
+            var items = worker.StartBackup(Globals.CloudManager.PersonalClouds?.FirstOrDefault()?.RootFS, path).Result;
+            if (items > 0) completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+            else completionHandler?.Invoke(UIBackgroundFetchResult.NoData);
         }
 
         #endregion

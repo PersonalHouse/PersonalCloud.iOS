@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 using Foundation;
-
+using NSPersonalCloud;
 using UIKit;
 
 using Unishare.Apps.Common;
@@ -95,7 +95,7 @@ namespace Unishare.Apps.DarwinMobile
         private void SubmitAndCreate(object sender, EventArgs e)
         {
             var invalidCharHit = false;
-            foreach (var character in Path.GetInvalidFileNameChars())
+            foreach (var character in VirtualFileSystem.InvalidCharacters)
             {
                 if (deviceName?.Contains(character) == true) invalidCharHit = true;
             }
