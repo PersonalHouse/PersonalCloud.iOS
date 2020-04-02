@@ -14,7 +14,7 @@ using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile
 {
-    public partial class FavoritesController : UITableViewController, IUIDocumentInteractionControllerDelegate
+    public partial class FavoritesController : UITableViewController, IUIDocumentInteractionControllerDelegate, IUIDocumentPickerDelegate
     {
         public FavoritesController(IntPtr handle) : base(handle) { }
 
@@ -45,7 +45,7 @@ namespace Unishare.Apps.DarwinMobile
 
         #endregion
 
-        #region TableView DataSource
+        #region TableView Data Source
 
         public override nint NumberOfSections(UITableView tableView) => 1;
 
@@ -97,6 +97,10 @@ namespace Unishare.Apps.DarwinMobile
 
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
+
+        #endregion
+
+        #region TableView Delegate
 
         public override void AccessoryButtonTapped(UITableView tableView, NSIndexPath indexPath)
         {
@@ -173,6 +177,99 @@ namespace Unishare.Apps.DarwinMobile
             }
         }
 
+        // iOS 8.0+
+        public override bool CanEditRow(UITableView tableView, NSIndexPath indexPath)
+        {
+            if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0) return false;
+            if (indexPath.Section == 0) return true;
+            return false;
+        }
+
+        // Required for iOS < 9.0
+        public override void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle, NSIndexPath indexPath)
+        {
+            // See EditActionsForRow(UITableView, NSIndexPath).
+        }
+
+        // iOS 8.0+
+        public override UITableViewRowAction[] EditActionsForRow(UITableView tableView, NSIndexPath indexPath)
+        {
+            if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0) return null;
+
+            if (indexPath.Section == 0)
+            {
+                var item = items[depth == 0 ? indexPath.Row : (indexPath.Row - 1)];
+
+                var rename = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "重命名", (action, indexPath) => {
+                    TableView.SetEditing(false, true);
+
+                    this.CreatePrompt("输入新名称", $"即将重命名“{item.Name}”", item.Name, item.Name, "保存新名称", "取消", text => {
+                        if (string.IsNullOrWhiteSpace(text))
+                        {
+                            this.ShowAlert("新名称无效", null);
+                            return;
+                        }
+
+                        if (text == item.Name) return;
+
+                        try
+                        {
+                            if (item is FileInfo file) file.MoveTo(Path.Combine(Path.GetDirectoryName(file.FullName), text));
+                            else
+                            {
+                                var directory = (DirectoryInfo) item;
+                                directory.MoveTo(Path.Combine(directory.Parent.FullName, text));
+                            }
+
+                            InvokeOnMainThread(() => {
+                                RefreshDirectory(this, EventArgs.Empty);
+                            });
+                        }
+                        catch (Exception exception)
+                        {
+                            InvokeOnMainThread(() => {
+                                this.ShowAlert("无法重命名此项目", exception.GetType().Name);
+                            });
+                        }
+                    });
+                });
+                rename.BackgroundColor = Colors.Indigo;
+
+                var delete = UITableViewRowAction.Create(UITableViewRowActionStyle.Destructive, "删除", (action, indexPath) => {
+                    TableView.SetEditing(false, true);
+
+                    var alert = UIAlertController.Create("删除此项收藏？", $"将从本地收藏中删除“{item.Name}”。"
+                        + Environment.NewLine + Environment.NewLine + "如果此项收藏是文件夹或包，其中的内容将被一同删除。", UIAlertControllerStyle.Alert);
+                    alert.AddAction(UIAlertAction.Create("删除", UIAlertActionStyle.Destructive, action => {
+                        try
+                        {
+                            if (item is DirectoryInfo directory) directory.Delete(true);
+                            else item.Delete();
+
+                            InvokeOnMainThread(() => {
+                                RefreshDirectory(this, EventArgs.Empty);
+                            });
+                        }
+                        catch (Exception exception)
+                        {
+                            InvokeOnMainThread(() => {
+                                this.ShowAlert("无法删除此项目", exception.GetType().Name);
+                            });
+                        }
+                    }));
+                    var ok = UIAlertAction.Create("取消", UIAlertActionStyle.Default, null);
+                    alert.AddAction(ok);
+                    alert.PreferredAction = ok;
+                    PresentViewController(alert, true, null);
+                });
+
+                return new[] { delete, rename };
+            }
+
+            return null;
+        }
+
+        // iOS 11.0+
         public override UISwipeActionsConfiguration GetTrailingSwipeActionsConfiguration(UITableView tableView, NSIndexPath indexPath)
         {
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0) return null;
@@ -261,6 +358,8 @@ namespace Unishare.Apps.DarwinMobile
 
         #endregion
 
+        #region Bar Button Items
+
         private void ShowHelp(object sender, EventArgs e)
         {
             this.ShowAlert("使用本地收藏管理共享文件", "查看个人云中其它设备上的文件时，您可以向右轻扫某个文件将其“收藏”，此文件将被保存至本地收藏。" +
@@ -269,76 +368,6 @@ namespace Unishare.Apps.DarwinMobile
                 Environment.NewLine + Environment.NewLine +
                 "连接个人云中其它设备后，本地收藏的文件将在其它设备上可见，您也可以将文件手动上传至其它设备。");
         }
-
-        private void RefreshDirectory(object sender, EventArgs e)
-        {
-            try
-            {
-                items = directory.EnumerateFileSystemInfos().ToList();
-            }
-            catch (IOException)
-            {
-                items = null;
-                this.ShowAlert("无法查看此文件夹", "此文件夹已被删除或内容异常。");
-            }
-
-            if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();
-            TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
-        }
-
-        #region Import
-
-        private void ImportFiles(object sender, EventArgs e)
-        {
-            var picker = new UIDocumentPickerViewController(new string[] { UTType.Content }, UIDocumentPickerMode.Open) {
-                AllowsMultipleSelection = true
-            };
-            picker.DidPickDocumentAtUrls += OnDocumentsPicked;
-            PresentViewController(picker, true, null);
-        }
-
-        private void OnDocumentsPicked(object sender, UIDocumentPickedAtUrlsEventArgs e)
-        {
-            var alert = UIAlertController.Create("正在导入……", null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, null);
-
-            Task.Run(() => {
-                var fails = 0;
-                foreach (var url in e.Urls)
-                {
-                    try
-                    {
-                        if (url.StartAccessingSecurityScopedResource())
-                        {
-                            var filePath = Path.Combine(directory.FullName, Path.GetFileName(url.Path));
-                            if (File.Exists(filePath))
-                            {
-                                File.Delete(filePath);
-                            }
-
-                            File.Copy(url.Path, filePath, false);
-                            url.StopAccessingSecurityScopedResource();
-
-                            items.Add(new FileInfo(filePath));
-                        }
-                        else fails += 1;
-                    }
-                    catch (IOException)
-                    {
-                        fails += 1;
-                    }
-                }
-
-                InvokeOnMainThread(() => {
-                    DismissViewController(true, () => {
-                        RefreshDirectory(this, EventArgs.Empty);
-                        if (fails > 0) this.ShowAlert($"{fails} 个文件导入失败", null);
-                    });
-                });
-            });
-        }
-
-        #endregion
 
         private void NewFolder(object sender, EventArgs e)
         {
@@ -365,6 +394,108 @@ namespace Unishare.Apps.DarwinMobile
                     });
                 }
             });
+        }
+
+        private void ImportFiles(object sender, EventArgs e)
+        {
+            var picker = new UIDocumentPickerViewController(new string[] { UTType.Data }, UIDocumentPickerMode.Import);
+            picker.SetAllowsMultipleSelection(true);
+            picker.SetShowFileExtensions();
+            picker.Delegate = this;
+            picker.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
+            PresentViewController(picker, true, null);
+        }
+
+        #endregion
+
+        #region IUIDocumentPickerDelegate
+
+        [Export("documentPicker:didPickDocumentsAtURLs:")]
+        public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl[] urls)
+        {
+            var alert = UIAlertController.Create("正在导入……", null, UIAlertControllerStyle.Alert);
+            PresentViewController(alert, true, null);
+
+            Task.Run(() => {
+                var fails = 0;
+                foreach (var url in urls)
+                {
+                    try
+                    {
+                        var shouldRelease = url.StartAccessingSecurityScopedResource();
+
+                        var filePath = Path.Combine(directory.FullName, Path.GetFileName(url.Path));
+                        if (File.Exists(filePath)) File.Delete(filePath);
+                        File.Copy(url.Path, filePath, false);
+                        items.Add(new FileInfo(filePath));
+
+                        if (shouldRelease) url.StopAccessingSecurityScopedResource();
+                    }
+                    catch (IOException)
+                    {
+                        fails += 1;
+                    }
+                }
+
+                InvokeOnMainThread(() => {
+                    DismissViewController(true, () => {
+                        RefreshDirectory(this, EventArgs.Empty);
+                        if (fails > 0) this.ShowAlert($"{fails} 个文件导入失败", null);
+                    });
+                });
+            });
+        }
+
+        [Export("documentPicker:didPickDocumentAtURL:")]
+        public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl url)
+        {
+            var alert = UIAlertController.Create("正在导入……", null, UIAlertControllerStyle.Alert);
+            PresentViewController(alert, true, null);
+
+            Task.Run(() => {
+                var failed = false;
+                try
+                {
+                    var shoudlRelease = url.StartAccessingSecurityScopedResource();
+
+                    var filePath = Path.Combine(directory.FullName, Path.GetFileName(url.Path));
+                    if (File.Exists(filePath)) File.Delete(filePath);
+                    File.Copy(url.Path, filePath, false);
+                    items.Add(new FileInfo(filePath));
+
+                    if (shoudlRelease) url.StopAccessingSecurityScopedResource();
+                }
+                catch (IOException)
+                {
+                    failed = true;
+                }
+
+
+                InvokeOnMainThread(() => {
+                    DismissViewController(true, () => {
+                        RefreshDirectory(this, EventArgs.Empty);
+                        if (failed) this.ShowAlert("文件导入失败", null);
+                    });
+                });
+            });
+        }
+
+        #endregion
+
+        private void RefreshDirectory(object sender, EventArgs e)
+        {
+            try
+            {
+                items = directory.EnumerateFileSystemInfos().ToList();
+            }
+            catch (IOException)
+            {
+                items = null;
+                this.ShowAlert("无法查看此文件夹", "此文件夹已被删除或内容异常。");
+            }
+
+            if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();
+            TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
         }
     }
 }

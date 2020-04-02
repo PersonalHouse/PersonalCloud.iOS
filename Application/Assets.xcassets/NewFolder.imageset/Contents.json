@@ -1,412 +1,413 @@
 {
   "images" : [
     {
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "filename" : "New Folder.pdf"
     },
     {
+      "idiom" : "universal",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "universal"
+      ]
     },
     {
+      "idiom" : "universal",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "universal"
+      ]
     },
     {
-      "filename" : "Picture@1x.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "idiom" : "universal",
+      "scale" : "1x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "universal",
-      "scale" : "1x"
+      ]
     },
     {
+      "idiom" : "universal",
+      "scale" : "1x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "universal",
-      "scale" : "1x"
+      ]
     },
     {
-      "filename" : "Picture@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "idiom" : "universal",
+      "scale" : "2x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "universal",
-      "scale" : "2x"
+      ]
     },
     {
+      "idiom" : "universal",
+      "scale" : "2x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "universal",
-      "scale" : "2x"
+      ]
     },
     {
-      "filename" : "Picture@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     },
     {
+      "idiom" : "universal",
+      "scale" : "3x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "universal",
-      "scale" : "3x"
+      ]
     },
     {
+      "idiom" : "universal",
+      "scale" : "3x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "universal",
-      "scale" : "3x"
+      ]
     },
     {
       "idiom" : "iphone"
     },
     {
+      "idiom" : "iphone",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "iphone"
+      ]
     },
     {
+      "idiom" : "iphone",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "iphone"
+      ]
     },
     {
       "idiom" : "iphone",
       "scale" : "1x"
     },
     {
+      "idiom" : "iphone",
+      "scale" : "1x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
+      ]
+    },
+    {
       "idiom" : "iphone",
+      "scale" : "1x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ]
+    },
+    {
+      "idiom" : "iphone",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "iphone",
+      "scale" : "2x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ]
+    },
+    {
+      "idiom" : "iphone",
+      "scale" : "2x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ]
+    },
+    {
+      "idiom" : "iphone",
+      "scale" : "3x"
+    },
+    {
+      "idiom" : "iphone",
+      "scale" : "3x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ]
+    },
+    {
+      "idiom" : "iphone",
+      "scale" : "3x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ]
+    },
+    {
+      "idiom" : "iphone",
+      "subtype" : "retina4",
       "scale" : "1x"
     },
     {
+      "idiom" : "iphone",
       "appearances" : [
         {
           "appearance" : "luminosity",
-          "value" : "dark"
+          "value" : "light"
         }
       ],
-      "idiom" : "iphone",
+      "subtype" : "retina4",
       "scale" : "1x"
     },
     {
       "idiom" : "iphone",
-      "scale" : "2x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "iphone",
-      "scale" : "2x"
-    },
-    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
+      "subtype" : "retina4",
+      "scale" : "1x"
+    },
+    {
       "idiom" : "iphone",
+      "subtype" : "retina4",
       "scale" : "2x"
     },
     {
       "idiom" : "iphone",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "subtype" : "retina4",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "iphone",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "subtype" : "retina4",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "iphone",
+      "subtype" : "retina4",
       "scale" : "3x"
     },
     {
+      "idiom" : "iphone",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
       ],
-      "idiom" : "iphone",
-      "scale" : "3x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "idiom" : "iphone",
+      "subtype" : "retina4",
       "scale" : "3x"
     },
     {
       "idiom" : "iphone",
-      "scale" : "1x",
-      "subtype" : "retina4"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "iphone",
-      "scale" : "1x",
-      "subtype" : "retina4"
-    },
-    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "iphone",
-      "scale" : "1x",
-      "subtype" : "retina4"
-    },
-    {
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "subtype" : "retina4"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "subtype" : "retina4"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "subtype" : "retina4"
-    },
-    {
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "subtype" : "retina4"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "subtype" : "retina4"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "subtype" : "retina4"
+      "subtype" : "retina4",
+      "scale" : "3x"
     },
     {
       "idiom" : "ipad"
     },
     {
+      "idiom" : "ipad",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "ipad"
+      ]
     },
     {
+      "idiom" : "ipad",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "ipad"
+      ]
     },
     {
       "idiom" : "ipad",
       "scale" : "1x"
     },
     {
+      "idiom" : "ipad",
+      "scale" : "1x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "ipad",
-      "scale" : "1x"
+      ]
     },
     {
+      "idiom" : "ipad",
+      "scale" : "1x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "ipad",
-      "scale" : "1x"
+      ]
     },
     {
       "idiom" : "ipad",
       "scale" : "2x"
     },
     {
+      "idiom" : "ipad",
+      "scale" : "2x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "ipad",
-      "scale" : "2x"
+      ]
     },
     {
+      "idiom" : "ipad",
+      "scale" : "2x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "ipad",
-      "scale" : "2x"
+      ]
     },
     {
       "idiom" : "car"
     },
     {
+      "idiom" : "car",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "car"
+      ]
     },
     {
+      "idiom" : "car",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "car"
+      ]
     },
     {
       "idiom" : "car",
       "scale" : "2x"
     },
     {
+      "idiom" : "car",
+      "scale" : "2x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "car",
-      "scale" : "2x"
+      ]
     },
     {
+      "idiom" : "car",
+      "scale" : "2x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "car",
-      "scale" : "2x"
+      ]
     },
     {
       "idiom" : "car",
       "scale" : "3x"
     },
     {
+      "idiom" : "car",
+      "scale" : "3x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "car",
-      "scale" : "3x"
+      ]
     },
     {
+      "idiom" : "car",
+      "scale" : "3x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "car",
-      "scale" : "3x"
+      ]
+    },
+    {
+      "idiom" : "watch"
     },
     {
       "idiom" : "watch",
@@ -426,6 +427,10 @@
     },
     {
       "idiom" : "watch",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "watch",
       "scale" : "2x",
       "screen-width" : "<=145"
     },
@@ -448,160 +453,156 @@
       "idiom" : "mac"
     },
     {
+      "idiom" : "mac",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "mac"
+      ]
     },
     {
+      "idiom" : "mac",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "mac"
+      ]
     },
     {
       "idiom" : "mac",
       "scale" : "1x"
     },
     {
+      "idiom" : "mac",
+      "scale" : "1x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ],
-      "idiom" : "mac",
-      "scale" : "1x"
+      ]
     },
     {
+      "idiom" : "mac",
+      "scale" : "1x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ],
-      "idiom" : "mac",
-      "scale" : "1x"
+      ]
     },
     {
-      "idiom" : "mac",
-      "scale" : "2x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
       "idiom" : "mac",
       "scale" : "2x"
     },
     {
+      "idiom" : "mac",
+      "scale" : "2x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ]
+    },
+    {
+      "idiom" : "mac",
+      "scale" : "2x",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
+      ]
+    },
+    {
+      "idiom" : "watch",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ]
+    },
+    {
+      "idiom" : "watch",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ]
+    },
+    {
+      "idiom" : "watch",
+      "scale" : "2x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ]
+    },
+    {
+      "idiom" : "watch",
+      "scale" : "2x",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ]
+    },
+    {
+      "idiom" : "watch",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
       ],
-      "idiom" : "mac",
+      "screen-width" : "<=145",
       "scale" : "2x"
     },
     {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "watch"
-    },
-    {
+      "idiom" : "watch",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "watch"
+      "screen-width" : "<=145",
+      "scale" : "2x"
     },
     {
+      "idiom" : "watch",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
       ],
-      "idiom" : "watch",
-      "scale" : "2x",
-      "screen-width" : "<=145"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "idiom" : "watch",
-      "scale" : "2x",
-      "screen-width" : "<=145"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "watch",
-      "scale" : "2x",
-      "screen-width" : ">145"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "idiom" : "watch",
-      "scale" : "2x",
-      "screen-width" : ">145"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "watch",
-      "scale" : "2x",
       "screen-width" : ">145",
-      "unassigned" : true
+      "scale" : "2x"
     },
     {
+      "idiom" : "watch",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "watch",
-      "scale" : "2x",
       "screen-width" : ">145",
-      "unassigned" : true
+      "scale" : "2x"
     }
   ],
   "info" : {
-    "author" : "xcode",
-    "version" : 1
+    "version" : 1,
+    "author" : "xcode"
   }
 }

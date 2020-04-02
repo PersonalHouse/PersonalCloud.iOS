@@ -8,6 +8,28 @@ namespace Unishare.Apps.DarwinCore
 {
     public static partial class UIKitExtensions
     {
+        #region Backward Compatibility
+
+        public static void SetPreferredAction(this UIAlertController alert, UIAlertAction action)
+        {
+            if (!UIDevice.CurrentDevice.CheckSystemVersion(9, 0)) return;
+            alert.PreferredAction = action;
+        }
+
+        public static void SetAllowsMultipleSelection(this UIDocumentPickerViewController picker, bool isAllowed)
+        {
+            if (!UIDevice.CurrentDevice.CheckSystemVersion(11, 0)) return;
+            picker.AllowsMultipleSelection = isAllowed;
+        }
+
+        public static void SetShowFileExtensions(this UIDocumentPickerViewController picker)
+        {
+            if (!UIDevice.CurrentDevice.CheckSystemVersion(11, 0)) return;
+            picker.ShouldShowFileExtensions = true;
+        }
+
+        #endregion
+
         public static string GetBundleVersion(this UIApplication application)
         {
             var version = NSBundle.MainBundle.ObjectForInfoDictionary("CFBundleVersion")?.ToString();
@@ -22,7 +44,7 @@ namespace Unishare.Apps.DarwinCore
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
             var ok = UIAlertAction.Create("好", UIAlertActionStyle.Default, null);
             alert.AddAction(ok);
-            alert.PreferredAction = ok;
+            alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }
 
@@ -31,7 +53,7 @@ namespace Unishare.Apps.DarwinCore
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
             var ok = UIAlertAction.Create("好", UIAlertActionStyle.Default, onDismiss);
             alert.AddAction(ok);
-            alert.PreferredAction = ok;
+            alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }
 
@@ -42,7 +64,7 @@ namespace Unishare.Apps.DarwinCore
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
             var ok = UIAlertAction.Create(dismissAction, actionIsDangerous ? UIAlertActionStyle.Destructive : UIAlertActionStyle.Default, onDismiss);
             alert.AddAction(ok);
-            alert.PreferredAction = ok;
+            alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }
 
@@ -54,7 +76,7 @@ namespace Unishare.Apps.DarwinCore
             }));
             var ok = UIAlertAction.Create("查看更改", UIAlertActionStyle.Default, null);
             alert.AddAction(ok);
-            alert.PreferredAction = ok;
+            alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }
 
@@ -74,7 +96,7 @@ namespace Unishare.Apps.DarwinCore
                 controller.PresentViewController(share, true, null);
             });
             alert.AddAction(ok);
-            alert.PreferredAction = ok;
+            alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }
 

@@ -24,21 +24,8 @@ namespace Unishare.Apps.DarwinMobile
         private const string HeaderPhotoSync = "相簿共享";
         private const string FooterPhotoSync = "由于系统限制，仅向其它设备提供 {0} 相簿只读权限。您无法通过向“相簿”共享文件夹中添加文件来将照片导入 {0} 相簿。";
         private const string HeaderCloud = "个人云";
-        private const string FooterCloudNone = "您的设备尚未加入任何个人云。点击右上角“+”按钮即可新建或加入。";
-        private const string HeaderDevice = "即传";
-        private const string FooterDeviceNone = "您尚未配置任何即传设备。点击右上角“+”按钮即可添加。";
-
-        private const string ActionAddCloud = "新建或加入个人云";
-        private const string ActionAddDevice = "连接到即传设备";
-
-        private const string AlertCloudLimitTitle = "您已加入个人云";
-        private const string AlertCloudLimitMessage = "当前版本每台设备仅支持加入单个个人云。如果您需要访问多个个人云，请等待版本更新。";
-
         private const string EnableFileSharing = "允许此设备分享文件";
-        private const string ManageSharedFiles = "管理共享文件夹";
         private const string EnablePhotoSharing = "允许此设备分享相簿";
-        private const string AutoBackupPhotos = "加入云自动备份";
-        private const string CloudActive = "已加入";
 
         private const string AlertPhotosAccessTitle = "无法访问相簿";
         private const string AlertPhotosAccessMessage = "您已拒绝个人云使用“照片”。请前往系统设置 App 更改隐私授权。";
@@ -74,7 +61,7 @@ namespace Unishare.Apps.DarwinMobile
 
         #endregion
 
-        #region TableView
+        #region TableView Data Source
 
         public override nint NumberOfSections(UITableView tableView) => 4;
 
@@ -172,6 +159,10 @@ namespace Unishare.Apps.DarwinMobile
 
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
+
+        #endregion
+
+        #region TableView Delegate
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {

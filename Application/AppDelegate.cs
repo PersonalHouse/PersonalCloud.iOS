@@ -51,10 +51,6 @@ namespace Unishare.Apps.DarwinMobile
                 options.Release = application.GetBundleVersion();
             });
 
-#if DEBUG
-            Crashes.SetEnabledAsync(false);
-#endif
-
             var databasePath = Path.Combine(PathHelpers.SharedLibrary, "Preferences.sqlite3");
             Globals.Database = new SQLiteConnection(databasePath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
             Globals.Database.CreateTable<KeyValueModel>();

@@ -1,7 +1,8 @@
 using System;
-using System.IO;
 
 using Foundation;
+
+using NSPersonalCloud;
 
 using UIKit;
 
@@ -26,7 +27,7 @@ namespace Unishare.Apps.DarwinMobile
 
         #endregion
 
-        #region TableView DataSource
+        #region TableView Data Source
 
         public override nint NumberOfSections(UITableView tableView) => 1;
 
@@ -64,6 +65,10 @@ namespace Unishare.Apps.DarwinMobile
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
 
+        #endregion
+
+        #region TableView Delegate
+
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
             tableView.DeselectRow(indexPath, true);
@@ -71,7 +76,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
                 var invalidCharHit = false;
-                foreach (var character in Path.GetInvalidFileNameChars())
+                foreach (var character in VirtualFileSystem.InvalidCharacters)
                 {
                     if (deviceName?.Contains(character) == true) invalidCharHit = true;
                 }

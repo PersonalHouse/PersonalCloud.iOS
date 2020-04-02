@@ -22,7 +22,7 @@ namespace Unishare.Apps.DarwinCore
             });
             prompt.AddAction(UIAlertAction.Create(cancelButton, UIAlertActionStyle.Cancel, null));
             prompt.AddAction(preferred);
-            prompt.PreferredAction = preferred;
+            prompt.SetPreferredAction(preferred);
             controller.PresentViewController(prompt, true, null);
         }
     }

@@ -42,9 +42,15 @@ namespace Unishare.Apps.DarwinMobile
             if (!int.TryParse(Globals.Database.LoadSetting(UserSettings.PhotoBackupInterval) ?? "-1", out backupIntervalHours)) backupIntervalHours = 0;
         }
 
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), NSIndexPath.FromRowSection(1, 0), NSIndexPath.FromRowSection(2, 0) }, UITableViewRowAnimation.Automatic);
+        }
+
         #endregion
 
-        #region Data Source
+        #region TableView Data Source
 
         public override nint NumberOfSections(UITableView tableView) => 1;
 
@@ -134,7 +140,8 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 3)
             {
-                PerformSegue(ViewPhotosSegue, this);
+                if (autoBackup) PerformSegue(ViewPhotosSegue, this);
+                else this.ShowAlert("定时备份未配置", "查看下次计划备份照片前必须先配置定时备份。");
                 return;
             }
 
@@ -146,7 +153,7 @@ namespace Unishare.Apps.DarwinMobile
                     return;
                 }
 
-                if (!Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
+                if (!autoBackup)
                 {
                     this.ShowAlert("定时备份未配置", "执行计划备份前必须先配置定时备份。");
                     return;
@@ -198,6 +205,7 @@ namespace Unishare.Apps.DarwinMobile
 
             Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "1");
             UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(backupIntervalHours * 3600);
+            autoBackup = true;
         }
 
         private void TurnOffAutoBackup(object obj)
@@ -205,6 +213,7 @@ namespace Unishare.Apps.DarwinMobile
             if (obj is UISwitch button && button.On) button.On = false;
             Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "0");
             UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
+            autoBackup = false;
         }
     }
 }

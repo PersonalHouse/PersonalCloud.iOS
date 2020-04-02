@@ -44,12 +44,7 @@ namespace Unishare.Apps.DarwinMobile
             RefreshControl.ValueChanged += RefreshTable;
             RefreshTable(this, EventArgs.Empty);
         }
-
-        public override void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-        }
-
+        
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
         {
             base.PrepareForSegue(segue, sender);

@@ -47,11 +47,23 @@ namespace Unishare.Apps.DarwinMobile
             RefreshDirectory(this, EventArgs.Empty);
         }
 
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+            Globals.CloudManager.PersonalClouds[0].OnNodeChangedEvent += OnDevicesRefreshed;
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+            Globals.CloudManager.PersonalClouds[0].OnNodeChangedEvent -= OnDevicesRefreshed;
+        }
+
         #endregion
 
-        #region Data Source
+        #region TableView Data Source
 
-        public override nint NumberOfSections(UITableView tableView) => 3;
+        public override nint NumberOfSections(UITableView tableView) => 2;
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
@@ -59,7 +71,6 @@ namespace Unishare.Apps.DarwinMobile
             {
                 0 => 0,
                 1 => (items?.Count ?? 0) + (workingPath == "/" ? 0 : 1),
-                2 => workingPath == "/" ? 0 : 1,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -68,9 +79,8 @@ namespace Unishare.Apps.DarwinMobile
         {
             return (int) section switch
             {
-                0 => workingPath == "/" ? null : "点击“保存”将自动备份相册到此文件夹。如果要使用子文件夹，请点击打开子文件夹后“保存”。如果自动备份执行时选定文件夹无法访问，自动备份将跳过本次执行。",
+                0 => workingPath == "/" ? "请打开备份存储设备上的个人云 App 并刷新列表。" : "点击“保存”将自动备份相册到此文件夹。如果要使用子文件夹，请点击打开子文件夹后“保存”。如果自动备份执行时选定文件夹无法访问，自动备份将跳过本次执行。",
                 1 => workingPath == "/" && (items?.Count ?? 0) == 0 ? "个人云内没有可访问设备" : null,
-                2 => null,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -115,6 +125,10 @@ namespace Unishare.Apps.DarwinMobile
 
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
+
+        #endregion
+
+        #region TableView Delegate
 
         public override void AccessoryButtonTapped(UITableView tableView, NSIndexPath indexPath)
         {
@@ -169,7 +183,7 @@ namespace Unishare.Apps.DarwinMobile
                         items = files.Where(x => x.Attributes.HasFlag(FileAttributes.Directory) && !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System)).ToList();
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                TableView.ReloadData();
+                                TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
                             });
                         });
                     }
@@ -181,7 +195,7 @@ namespace Unishare.Apps.DarwinMobile
                                 DismissViewController(true, () => {
                                     this.ShowAlert("远程设备忙", "此文件夹内容过多，无法在限定时间内收集内容详情。请稍后查看。");
                                     items = null;
-                                    TableView.ReloadData();
+                                    TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
                                 });
                             });
                             return;
@@ -191,7 +205,7 @@ namespace Unishare.Apps.DarwinMobile
                             DismissViewController(true, () => {
                                 this.ShowAlert("与远程设备通讯时遇到问题", exception.Message);
                                 items = null;
-                                TableView.ReloadData();
+                                TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
                             });
                         });
 
@@ -219,6 +233,11 @@ namespace Unishare.Apps.DarwinMobile
             }
             Globals.Database.SaveSetting(UserSettings.PhotoBackupPrefix, workingPath);
             NavigationController.DismissViewController(true, null);
+        }
+
+        private void OnDevicesRefreshed(object sender, EventArgs e)
+        {
+            if (workingPath == "/") InvokeOnMainThread(() => RefreshDirectory(this, EventArgs.Empty));
         }
     }
 }

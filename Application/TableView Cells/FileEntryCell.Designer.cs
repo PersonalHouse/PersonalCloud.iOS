@@ -20,11 +20,19 @@ namespace Unishare.Apps.DarwinMobile
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.NSLayoutConstraint LeadingMargin { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel NameLabel { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UILabel SizeLabel { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.NSLayoutConstraint TrailingMargin { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -37,6 +45,11 @@ namespace Unishare.Apps.DarwinMobile
                 IconImage = null;
             }
 
+            if (LeadingMargin != null) {
+                LeadingMargin.Dispose ();
+                LeadingMargin = null;
+            }
+
             if (NameLabel != null) {
                 NameLabel.Dispose ();
                 NameLabel = null;
@@ -45,6 +58,11 @@ namespace Unishare.Apps.DarwinMobile
             if (SizeLabel != null) {
                 SizeLabel.Dispose ();
                 SizeLabel = null;
+            }
+
+            if (TrailingMargin != null) {
+                TrailingMargin.Dispose ();
+                TrailingMargin = null;
             }
 
             if (TypeLabel != null) {
