@@ -337,22 +337,34 @@
             <Visible>false</Visible>
         </ImageAsset>
         <ImageAsset Include="Assets.xcassets\NavPhoto.imageset\Contents.json">
-        <Visible>false</Visible>
+            <Visible>false</Visible>
         </ImageAsset>
         <ImageAsset Include="Assets.xcassets\NavPhoto.imageset\Photos.pdf">
-        <Visible>false</Visible>
+            <Visible>false</Visible>
         </ImageAsset>
         <ImageAsset Include="Assets.xcassets\NewFolder.imageset\Contents.json">
-        <Visible>false</Visible>
+            <Visible>false</Visible>
         </ImageAsset>
         <ImageAsset Include="Assets.xcassets\NewFolder.imageset\New Folder.pdf">
-        <Visible>false</Visible>
+            <Visible>false</Visible>
         </ImageAsset>
         <ImageAsset Include="Assets.xcassets\ImportDocument.imageset\Contents.json">
-        <Visible>false</Visible>
+            <Visible>false</Visible>
         </ImageAsset>
         <ImageAsset Include="Assets.xcassets\ImportDocument.imageset\Tray Arrow-In.pdf">
-        <Visible>false</Visible>
+            <Visible>false</Visible>
+        </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\Home.imageset\Contents.json">
+            <Visible>false</Visible>
+        </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\Home.imageset\Home.pdf">
+            <Visible>false</Visible>
+        </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\NewFile.imageset\Contents.json">
+            <Visible>false</Visible>
+        </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\NewFile.imageset\Upload File.pdf">
+            <Visible>false</Visible>
         </ImageAsset>
     </ItemGroup>
     <ItemGroup />
@@ -425,10 +437,6 @@
         <Compile Include="Main Scene\HomeController.Designer.cs">
             <DependentUpon>HomeController.cs</DependentUpon>
         </Compile>
-        <Compile Include="Main Scene\DeviceDirectoryController.cs" />
-        <Compile Include="Main Scene\DeviceDirectoryController.Designer.cs">
-            <DependentUpon>DeviceDirectoryController.cs</DependentUpon>
-        </Compile>
         <Compile Include="Main Scene\ChooseFileController.cs" />
         <Compile Include="Main Scene\ChooseFileController.Designer.cs">
             <DependentUpon>ChooseFileController.cs</DependentUpon>
@@ -441,20 +449,26 @@
         <Compile Include="TableView Cells\AccentButtonCell.designer.cs">
             <DependentUpon>AccentButtonCell.cs</DependentUpon>
         </Compile>
-        <Compile Include="Backup Scene\PhotosBackupController.cs" />
-        <Compile Include="Backup Scene\PhotosBackupController.Designer.cs">
-            <DependentUpon>PhotosBackupController.cs</DependentUpon>
+        <Compile Include="Deprecated\DeviceDirectoryController.cs" />
+        <Compile Include="Deprecated\DeviceDirectoryController.Designer.cs">
+          <DependentUpon>DeviceDirectoryController.cs</DependentUpon>
         </Compile>
-        <Compile Include="Backup Scene\ChooseDeviceController.cs" />
-        <Compile Include="Backup Scene\ChooseDeviceController.Designer.cs">
-            <DependentUpon>ChooseDeviceController.cs</DependentUpon>
+        <Compile Include="PhotoLibraryExporter.cs" />
+        <Compile Include="Main Scene\ChooseDeviceController.cs" />
+        <Compile Include="Main Scene\ChooseDeviceController.Designer.cs">
+          <DependentUpon>ChooseDeviceController.cs</DependentUpon>
         </Compile>
-        <Compile Include="Backup Scene\PhotoLibraryExporter.cs" />
-        <Compile Include="Backup Scene\SinglePhotoPackage.cs" />
-        <Compile Include="Backup Scene\ViewPhotosController.cs" />
-        <Compile Include="Backup Scene\ViewPhotosController.Designer.cs">
-            <DependentUpon>ViewPhotosController.cs</DependentUpon>
+        <Compile Include="Main Scene\PhotosBackupController.cs" />
+        <Compile Include="Main Scene\PhotosBackupController.Designer.cs">
+          <DependentUpon>PhotosBackupController.cs</DependentUpon>
         </Compile>
+        <Compile Include="SinglePhotoPackage.cs" />
+        <Compile Include="Main Scene\ViewPhotosController.cs" />
+        <Compile Include="Main Scene\ViewPhotosController.Designer.cs">
+          <DependentUpon>ViewPhotosController.cs</DependentUpon>
+        </Compile>
+        <Compile Include="PathSelectedEventArgs.cs" />
+        <Compile Include="CloudExceptions.cs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
@@ -482,9 +496,10 @@
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Assets.xcassets\NavPhoto.imageset\" />
-        <Folder Include="Backup Scene\" />
         <Folder Include="Assets.xcassets\NewFolder.imageset\" />
         <Folder Include="Assets.xcassets\ImportDocument.imageset\" />
+        <Folder Include="Assets.xcassets\Home.imageset\" />
+        <Folder Include="Assets.xcassets\NewFile.imageset\" />
     </ItemGroup>
     <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

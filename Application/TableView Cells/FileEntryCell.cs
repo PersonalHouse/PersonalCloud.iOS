@@ -89,6 +89,13 @@ namespace Unishare.Apps.DarwinMobile
             SizeLabel.Text = sizeInBytes.Bytes().Humanize("0.00");
         }
 
+        public void Update(string fileName, UTI uti, string typeDescription)
+        {
+            Update(fileName);
+            Update(uti);
+            TypeLabel.Text = typeDescription;
+        }
+
         public void Update(string fileName, UTI uti)
         {
             Update(fileName);

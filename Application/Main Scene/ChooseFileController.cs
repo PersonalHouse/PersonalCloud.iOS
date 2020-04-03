@@ -24,6 +24,8 @@ namespace Unishare.Apps.DarwinMobile
         public RootFileSystem FileSystem { get; set; }
         public string WorkingPath { get; set; }
 
+        public event EventHandler FileUploaded;
+
         private DirectoryInfo directory;
         private List<FileSystemInfo> items;
 
@@ -138,6 +140,7 @@ namespace Unishare.Apps.DarwinMobile
                             var stream = new FileStream(item.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
                             var remotePath = Path.Combine(WorkingPath, fileName);
                             await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
+                            FileUploaded?.Invoke(this, EventArgs.Empty);
 
                             InvokeOnMainThread(() => {
                                 DismissViewController(true, () => NavigationController.DismissViewController(true, null));

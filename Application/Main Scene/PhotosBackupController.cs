@@ -48,6 +48,25 @@ namespace Unishare.Apps.DarwinMobile
             TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), NSIndexPath.FromRowSection(1, 0), NSIndexPath.FromRowSection(2, 0) }, UITableViewRowAnimation.Automatic);
         }
 
+        public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
+        {
+            base.PrepareForSegue(segue, sender);
+            if (segue.Identifier == ChooseDeviceSegue)
+            {
+                var navigation = (UINavigationController) segue.DestinationViewController;
+                var chooser = (ChooseDeviceController) navigation.TopViewController;
+                chooser.FileSystem = fileSystem;
+                chooser.NavigationTitle = "备份存储位置";
+                chooser.PathSelected += (o, e) => {
+                    Globals.Database.SaveSetting(UserSettings.PhotoBackupPrefix, e.Path);
+                    InvokeOnMainThread(() => {
+                        TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), NSIndexPath.FromRowSection(1, 0), NSIndexPath.FromRowSection(2, 0) }, UITableViewRowAnimation.Automatic);
+                    });
+                };
+                return;
+            }
+        }
+
         #endregion
 
         #region TableView Data Source

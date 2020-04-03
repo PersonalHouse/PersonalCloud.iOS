@@ -577,49 +577,6 @@ namespace Unishare.Apps.DarwinMobile
                 picker.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                 PresentViewController(picker, true, null);
             }));
-            alert.AddAction(UIAlertAction.Create("创建文件夹", UIAlertActionStyle.Default, action => {
-                this.CreatePrompt("输入文件夹名称", "将在当前文件夹下创建如下命名的子文件夹", null, "新建文件夹", "创建", "取消", text => {
-                    if (string.IsNullOrWhiteSpace(text))
-                    {
-                        this.ShowAlert("文件夹名称无效", null);
-                        return;
-                    }
-
-                    var alert = UIAlertController.Create("正在创建……", null, UIAlertControllerStyle.Alert);
-                    PresentViewController(alert, true, () => {
-                        Task.Run(async () => {
-                            try
-                            {
-                                var path = Path.Combine(workingPath, text);
-                                await FileSystem.CreateDirectoryAsync(path).ConfigureAwait(false);
-
-                                InvokeOnMainThread(() => {
-                                    DismissViewController(true, () => {
-                                        RefreshDirectory(this, EventArgs.Empty);
-                                    });
-                                });
-                            }
-                            catch (HttpRequestException exception)
-                            {
-                                InvokeOnMainThread(() => {
-                                    DismissViewController(true, () => {
-                                        this.ShowAlert("与远程设备通讯时遇到问题", exception.Message);
-                                    });
-                                });
-
-                            }
-                            catch (Exception exception)
-                            {
-                                InvokeOnMainThread(() => {
-                                    DismissViewController(true, () => {
-                                        this.ShowAlert("无法创建文件夹", exception.GetType().Name);
-                                    });
-                                });
-                            }
-                        });
-                    });
-                });
-            }));
             alert.AddAction(UIAlertAction.Create("返回", UIAlertActionStyle.Cancel, null));
             this.PresentActionSheet(alert, NavigationItem.RightBarButtonItem.UserInfoGetView());
         }
