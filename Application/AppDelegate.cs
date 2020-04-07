@@ -35,20 +35,18 @@ namespace Unishare.Apps.DarwinMobile
     {
         public UIWindow Window { get; private set; }
 
-        private IDisposable sentry;
         private CFNotificationObserverToken networkNotification;
 
-        [Export("application:didFinishLaunchingWithOptions:")]
-        public bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
+        [Export("application:willFinishLaunchingWithOptions:")]
+        public bool WillFinishLaunching(UIApplication application, NSDictionary launchOptions)
         {
             SQLitePCL.Batteries_V2.Init();
 
             AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
-            sentry = SentrySdk.Init(options =>
-            {
-                options.Dsn = new Dsn("https://d0a8d714e2984642a530aa7deaca3498@sentry.io/5174354");
-                options.Environment = "iOS";
-                options.Release = application.GetBundleVersion();
+            Globals.Loggers = new LoggerFactory().AddSentry(config => {
+                config.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@o209874.ingest.sentry.io/5174354";
+                config.Environment = "iOS";
+                config.Release = application.GetBundleVersion();
             });
 
             var databasePath = Path.Combine(PathHelpers.SharedLibrary, "Preferences.sqlite3");
@@ -71,8 +69,6 @@ namespace Unishare.Apps.DarwinMobile
                 sharingEnabled = true;
                 UIApplication.SharedApplication.IdleTimerDisabled = true;
             }
-
-            Globals.Loggers = new LoggerFactory().AddSentry();
 
             try
             {
@@ -101,7 +97,12 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Storage = new AppleDataStorage();
             Globals.CloudManager = new PCLocalService(Globals.Storage, Globals.Loggers, Globals.FileSystem);
             Task.Run(() => Globals.CloudManager.StartService());
+            return true;
+        }
 
+        [Export("application:didFinishLaunchingWithOptions:")]
+        public bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
+        {
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             if (Globals.Database.Table<CloudModel>().Count() > 0)
             {
@@ -113,16 +114,6 @@ namespace Unishare.Apps.DarwinMobile
                 application.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
             }
             Window.MakeKeyAndVisible();
-
-            try
-            {
-                networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
-            }
-            catch
-            {
-                // Network monitoring call can fail.
-            }
-
             return true;
         }
 
@@ -132,29 +123,37 @@ namespace Unishare.Apps.DarwinMobile
             try
             {
                 Globals.CloudManager?.StartNetwork(false);
+                networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
             }
-            catch (Exception exception)
+            catch
             {
-                Console.WriteLine(exception);
+                // Ignored.
+            }
+        }
+
+        [Export("applicationDidEnterBackground:")]
+        public void DidEnterBackground(UIApplication application)
+        {
+            try
+            {
+                if (networkNotification != null)
+                {
+                    CFNotificationCenter.Darwin.RemoveObserver(networkNotification);
+                    networkNotification = null;
+                }
+            }
+            catch
+            {
+                // Ignored.
             }
         }
 
         [Export("applicationWillTerminate:")]
         public void WillTerminate(UIApplication application)
         {
-            try
-            {
-                if (networkNotification != null) CFNotificationCenter.Darwin.RemoveObserver(networkNotification);
-            }
-            catch
-            {
-                // Network monitoring may have failed. Ignore.
-            }
-
             Globals.CloudManager?.Dispose();
             Globals.Database?.Dispose();
             Globals.Loggers?.Dispose();
-            sentry?.Dispose();
         }
 
         #region Background App Refresh
@@ -163,6 +162,14 @@ namespace Unishare.Apps.DarwinMobile
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
             SentrySdk.AddBreadcrumb("Background App Refresh triggered.");
+
+            var cloud = Globals.CloudManager.PersonalClouds?.FirstOrDefault();
+            if (cloud == null)
+            {
+                SentrySdk.CaptureMessage("Backup triggered while no Personal Cloud configured.", SentryLevel.Error);
+                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                return;
+            }
 
             var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
             if (string.IsNullOrEmpty(path))
@@ -181,10 +188,18 @@ namespace Unishare.Apps.DarwinMobile
             }
 
             Globals.CloudManager.NetworkRefeshNodes();
+            Task.Delay(TimeSpan.FromSeconds(15)).Wait();
 
-            var items = worker.StartBackup(Globals.CloudManager.PersonalClouds?.FirstOrDefault()?.RootFS, path).Result;
-            if (items > 0) completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
-            else completionHandler?.Invoke(UIBackgroundFetchResult.NoData);
+            try
+            {
+                var items = worker.StartBackup(cloud.RootFS, path).Result;
+                if (items > 0) completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+                else completionHandler?.Invoke(UIBackgroundFetchResult.NoData);
+            }
+            catch
+            {
+                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+            }
         }
 
         #endregion

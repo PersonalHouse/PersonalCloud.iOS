@@ -40,6 +40,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             base.ViewDidAppear(animated);
             directory.Refresh();
+            if (!directory.Exists) directory.Create();
             RefreshDirectory(this, EventArgs.Empty);
         }
 

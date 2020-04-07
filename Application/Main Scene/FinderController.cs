@@ -30,6 +30,7 @@ namespace Unishare.Apps.DarwinMobile
         private UIBarButtonItem HomeItem { get; set; }
         private UIBarButtonItem NewFolderItem { get; set; }
         private UIBarButtonItem NewFileItem { get; set; }
+        private UIBarButtonItem HelpItem { get; set; }
         private UIBarButtonItem AddDeviceItem { get; set; }
 
         private PersonalCloud cloud;
@@ -49,6 +50,7 @@ namespace Unishare.Apps.DarwinMobile
             HomeItem = new UIBarButtonItem(UIImage.FromBundle("Home"), UIBarButtonItemStyle.Bordered, GoHome);
             NewFolderItem = new UIBarButtonItem(UIImage.FromBundle("NewFolder"), UIBarButtonItemStyle.Bordered, CreateFolder);
             NewFileItem = new UIBarButtonItem(UIImage.FromBundle("NewFile"), UIBarButtonItemStyle.Bordered, UploadFile);
+            HelpItem = new UIBarButtonItem(UIImage.FromBundle("Help"), UIBarButtonItemStyle.Bordered, ShowHelp);
             AddDeviceItem = new UIBarButtonItem(UIBarButtonSystemItem.Add, AddDeviceOrService);
 
             lastNotificationTime = new DateTime(2020, 3, 1, 0, 0, 0, DateTimeKind.Local);
@@ -205,6 +207,14 @@ namespace Unishare.Apps.DarwinMobile
                 {
                     workingPath = Path.Combine(workingPath, item.Name);
                     RefreshDirectory(this, EventArgs.Empty);
+                    return;
+                }
+
+                if (item.Name.EndsWith(".PLAsset", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    this.ShowAlert("恢复相册备份", $"“{item.Name}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。" +
+                        Environment.NewLine + Environment.NewLine +
+                        "请轻扫并点击“收藏”以将此备份下载到本地，然后前往“本地收藏”恢复此备份。");
                     return;
                 }
 
@@ -398,6 +408,13 @@ namespace Unishare.Apps.DarwinMobile
             RefreshDirectory(this, EventArgs.Empty);
         }
 
+        private void ShowHelp(object sender, EventArgs args)
+        {
+            this.ShowAlert("管理其它设备上的文件", "同一网络内其它设备上的个人云 App 运行时，您可以直接管理其共享的文件。" + Environment.NewLine + Environment.NewLine +
+                "点击一台设备以查看其共享文件夹。左右轻扫文件或文件夹以执行删除等操作。使用屏幕顶部右侧的按钮创建新文件夹或上传新文件。" + Environment.NewLine + Environment.NewLine +
+                "要管理此设备上本地收藏的文件，请前往“本地收藏”页或打开系统“文件” App；不推荐在此页面访问本设备上的共享文件夹。");
+        }
+
         private void AddDeviceOrService(object sender, EventArgs args)
         {
             this.ShowAlert(Texts.FeatureUnavailable, Texts.FeatureUnavailableMessage);
@@ -484,8 +501,9 @@ namespace Unishare.Apps.DarwinMobile
             if (workingPath.Length == 1)
             {
                 NavigationItem.Title = "个人云";
-                NavigationItem.SetLeftBarButtonItem(null, true);
-                NavigationItem.SetRightBarButtonItems(new[] { AddDeviceItem }, true);
+                NavigationItem.SetLeftBarButtonItem(HelpItem, true);
+                NavigationItem.RightBarButtonItems = null;
+                // NavigationItem.SetRightBarButtonItems(new[] { AddDeviceItem }, true);
             }
             else
             {

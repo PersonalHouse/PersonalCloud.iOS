@@ -66,7 +66,7 @@ namespace Unishare.Apps.DarwinMobile
             }
 
             BackupTask = Task.Run(async () => {
-                var remotePath = Path.Combine(pathPrefix, Globals.Database.LoadSetting(UserSettings.DeviceName), "Photo Library/");
+                var remotePath = Path.Combine(pathPrefix, Globals.Database.LoadSetting(UserSettings.DeviceName), "Photos/");
                 try { await fileSystem.CreateDirectoryAsync(remotePath).ConfigureAwait(false); }
                 catch
                 {

@@ -32,6 +32,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             base.ViewDidLoad();
             fileSystem = Globals.CloudManager.PersonalClouds[0].RootFS;
+            NavigationItem.LeftBarButtonItem.Clicked += ShowHelp;
         }
 
         public override void ViewWillAppear(bool animated)
@@ -139,6 +140,10 @@ namespace Unishare.Apps.DarwinMobile
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
 
+        #endregion
+
+        #region TableView Delegate
+
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
             tableView.DeselectRow(indexPath, true);
@@ -191,6 +196,15 @@ namespace Unishare.Apps.DarwinMobile
 
         #endregion
 
+        private void ShowHelp(object sender, EventArgs e)
+        {
+            this.ShowAlert("定时备份照片至其它设备", "个人云支持完整备份本机 iOS 相册到一台个人云内的设备。" +
+                Environment.NewLine + Environment.NewLine +
+                "针对每张照片，自动备份会分别生成“相册备份归档”和“快速查看”格式。其中“相册备份归档”可用于通过个人云 App 还原至 iOS 相册，特殊类型（实况、人像、慢动作等）和所作修改将一并还原。“快速查看”格式可供在其它设备上查看，可能不支持特殊类型照片。" +
+                Environment.NewLine + Environment.NewLine +
+                "定时备份配置后默认每 1 小时运行一次。");
+        }
+
         private void ToggleAutoBackup(object sender, ToggledEventArgs e)
         {
             if (e.On)
@@ -222,16 +236,25 @@ namespace Unishare.Apps.DarwinMobile
                 return;
             }
 
-            Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "1");
             UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(backupIntervalHours * 3600);
-            autoBackup = true;
+            if (UIApplication.SharedApplication.BackgroundRefreshStatus == UIBackgroundRefreshStatus.Available)
+            {
+                Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "1");
+                autoBackup = true;
+            }
+            else
+            {
+                this.ShowAlert("后台 App 刷新已禁用", "个人云无法使用“后台 App 刷新”，定时备份已自动关闭。" +Environment.NewLine + Environment.NewLine +
+                    "请前往“设置” > “通用” > “后台 App 刷新”并打开“个人云”。如果您的设备已打开“访问限制”或处于“低电量模式”，后台 App 刷新将不工作。");
+                TurnOffAutoBackup(obj);
+            }
         }
 
         private void TurnOffAutoBackup(object obj)
         {
             if (obj is UISwitch button && button.On) button.On = false;
-            Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "0");
             UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
+            Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "0");
             autoBackup = false;
         }
     }
