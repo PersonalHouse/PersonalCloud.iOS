@@ -187,8 +187,18 @@ namespace Unishare.Apps.DarwinMobile
                 return;
             }
 
-            Globals.CloudManager.NetworkRefeshNodes();
-            Task.Delay(TimeSpan.FromSeconds(15)).Wait();
+            try
+            {
+                Globals.CloudManager.NetworkRefeshNodes();
+                Task.Delay(TimeSpan.FromSeconds(15)).Wait();
+            }
+            catch (Exception exception)
+            {
+                SentrySdk.CaptureMessage("Exception occurred while refreshing network status or waiting for response.", SentryLevel.Error);
+                SentrySdk.CaptureException(exception);
+                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                return;
+            }
 
             try
             {
