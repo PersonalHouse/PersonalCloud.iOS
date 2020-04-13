@@ -5,7 +5,7 @@ using NSPersonalCloud;
 using NSPersonalCloud.FileSharing.Aliyun;
 
 using UIKit;
-
+using Unishare.Apps.Common.Models;
 using Unishare.Apps.DarwinCore;
 using Unishare.Apps.DarwinMobile.Utilities;
 
@@ -77,6 +77,14 @@ namespace Unishare.Apps.DarwinMobile
                 return;
             }
 
+            if (Globals.Database.Find<AliYunOSS>(name) != null)
+            {
+                this.ShowAlert("同名服务已存在", "为避免数据冲突，请为此服务指定不同的名称。", action => {
+                    ServiceName.BecomeFirstResponder();
+                });
+                return;
+            }
+
             var alert = UIAlertController.Create("正在验证……", null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {
                 Task.Run(() => {
@@ -90,6 +98,7 @@ namespace Unishare.Apps.DarwinMobile
                     if (config.Verify())
                     {
                         Globals.Database.InsertOrReplace(config.ToModel(name));
+                        Globals.CloudManager.PersonalClouds[0].RootFS.ClientList[name] = new AliyunOSSFileSystemClient(config);
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
                                 NavigationController.DismissViewController(true, null);
