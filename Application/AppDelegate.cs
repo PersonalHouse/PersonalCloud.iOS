@@ -55,6 +55,7 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.CreateTable<CloudModel>();
             Globals.Database.CreateTable<NodeModel>();
             Globals.Database.CreateTable<PLAsset>();
+            Globals.Database.CreateTable<AliYunOSS>();
 
             Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 

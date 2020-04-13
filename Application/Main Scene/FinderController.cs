@@ -4,19 +4,21 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-
+using Aliyun.OSS;
 using Foundation;
 
 using MobileCoreServices;
 
 using NSPersonalCloud;
+using NSPersonalCloud.FileSharing.Aliyun;
 using NSPersonalCloud.Interfaces.Errors;
 using NSPersonalCloud.Interfaces.FileSystem;
-using NSPersonalCloud.RootFS;
 
 using UIKit;
 
+using Unishare.Apps.Common.Models;
 using Unishare.Apps.DarwinCore;
+using Unishare.Apps.DarwinMobile.Utilities;
 
 namespace Unishare.Apps.DarwinMobile
 {
@@ -26,6 +28,7 @@ namespace Unishare.Apps.DarwinMobile
 
         private const string UploadSegue = "ChooseLocalFile";
         private const string MoveToSegue = "ChooseMoveDestination";
+        private const string AddSegue = "AddStorageService";
 
         private UIBarButtonItem HomeItem { get; set; }
         private UIBarButtonItem NewFolderItem { get; set; }
@@ -34,10 +37,14 @@ namespace Unishare.Apps.DarwinMobile
         private UIBarButtonItem AddDeviceItem { get; set; }
 
         private PersonalCloud cloud;
-        private RootFileSystem fileSystem;
+        private IFileSystem fileSystem;
         private string workingPath;
         private List<FileSystemEntry> items;
 
+        private List<AliYunOSS> services;
+        private string servicePrefix;
+
+        private nint sections = 2;
         private DateTime lastNotificationTime;
         private bool refreshNow;
         private string pendingMoveSource;
@@ -57,6 +64,7 @@ namespace Unishare.Apps.DarwinMobile
             Globals.CloudManager.OnError += OnPersonalCloudError;
             cloud = Globals.CloudManager.PersonalClouds[0];
             fileSystem = cloud.RootFS;
+            services = Globals.Database.Table<AliYunOSS>().ToList();
 
             RefreshControl = new UIRefreshControl();
             RefreshControl.ValueChanged += RefreshDirectory;
@@ -66,7 +74,11 @@ namespace Unishare.Apps.DarwinMobile
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            if (refreshNow) RefreshDirectory(this, EventArgs.Empty);
+            if (refreshNow)
+            {
+                services = Globals.Database.Table<AliYunOSS>().ToList();
+                RefreshDirectory(this, EventArgs.Empty);
+            }
         }
 
         public override void ViewDidAppear(bool animated)
@@ -116,13 +128,24 @@ namespace Unishare.Apps.DarwinMobile
 
         #region TableView Data Source
 
-        public override nint NumberOfSections(UITableView tableView) => 1;
+        public override nint NumberOfSections(UITableView tableView) => sections;
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
             return (int) section switch
             {
                 0 => (items?.Count ?? 0) + (workingPath.Length == 1 ? 0 : 1),
+                1 => services.Count,
+                _ => throw new ArgumentOutOfRangeException(nameof(section))
+            };
+        }
+
+        public override string TitleForHeader(UITableView tableView, nint section)
+        {
+            return (int) section switch
+            {
+                0 => "设备",
+                1 => "第三方服务",
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -132,6 +155,7 @@ namespace Unishare.Apps.DarwinMobile
             return (int) section switch
             {
                 0 => (workingPath.Length == 1 && (items?.Count ?? 0) == 0) ? "个人云内没有可访问设备" : null,
+                1 => services?.Count == 0 ? "个人云没有连接第三方服务" : null,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -171,6 +195,15 @@ namespace Unishare.Apps.DarwinMobile
                 return cell;
             }
 
+            if (indexPath.Section == 1)
+            {
+                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var item = services[indexPath.Row];
+                cell.Update(item.Name, new UTI(UTType.Directory), "服务");
+                cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
+                return cell;
+            }
+
             throw new ArgumentOutOfRangeException(nameof(indexPath));
         }
 
@@ -194,8 +227,14 @@ namespace Unishare.Apps.DarwinMobile
 
             if (workingPath.Length != 1 && indexPath.Section == 0 && indexPath.Row == 0)
             {
-                workingPath = Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar));
-                if (string.IsNullOrEmpty(workingPath)) workingPath = "/";
+                var parent = Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar));
+                if (string.IsNullOrEmpty(parent) || parent.Length == 1)
+                {
+                    sections = 2;
+                    TableView.InsertSections(new NSIndexSet(1), UITableViewRowAnimation.Automatic);
+                    workingPath = "/";
+                }
+                else workingPath = parent;
                 RefreshDirectory(this, EventArgs.Empty);
                 return;
             }
@@ -205,6 +244,11 @@ namespace Unishare.Apps.DarwinMobile
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 if (item.IsDirectory)
                 {
+                    if (sections == 2)
+                    {
+                        sections = 1;
+                        TableView.DeleteSections(new NSIndexSet(1), UITableViewRowAnimation.Automatic);
+                    }
                     workingPath = Path.Combine(workingPath, item.Name);
                     RefreshDirectory(this, EventArgs.Empty);
                     return;
@@ -242,6 +286,19 @@ namespace Unishare.Apps.DarwinMobile
                     else this.ShowAlert("无法下载文件", exception.GetType().Name);
                 });
 
+                return;
+            }
+
+            if (indexPath.Section == 1)
+            {
+                sections = 1;
+                TableView.DeleteSections(new NSIndexSet(1), UITableViewRowAnimation.Automatic);
+
+                var item = services[indexPath.Row];
+                servicePrefix = "/" + item.Name;
+                fileSystem = new AliyunOSSFileSystemClient(item.ToConfig());
+                workingPath = servicePrefix + "/";
+                RefreshDirectory(this, EventArgs.Empty);
                 return;
             }
         }
@@ -404,6 +461,8 @@ namespace Unishare.Apps.DarwinMobile
 
         private void GoHome(object sender, EventArgs args)
         {
+            sections = 2;
+            TableView.InsertSections(new NSIndexSet(1), UITableViewRowAnimation.Automatic);
             workingPath = "/";
             RefreshDirectory(this, EventArgs.Empty);
         }
@@ -417,7 +476,8 @@ namespace Unishare.Apps.DarwinMobile
 
         private void AddDeviceOrService(object sender, EventArgs args)
         {
-            this.ShowAlert(Texts.FeatureUnavailable, Texts.FeatureUnavailableMessage);
+            refreshNow = true;
+            PerformSegue(AddSegue, this);
         }
 
         private void CreateFolder(object sender, EventArgs args)
@@ -502,8 +562,9 @@ namespace Unishare.Apps.DarwinMobile
             {
                 NavigationItem.Title = "个人云";
                 NavigationItem.SetLeftBarButtonItem(HelpItem, true);
-                NavigationItem.RightBarButtonItems = null;
-                // NavigationItem.SetRightBarButtonItems(new[] { AddDeviceItem }, true);
+                NavigationItem.SetRightBarButtonItems(new[] { AddDeviceItem }, true);
+                servicePrefix = null;
+                fileSystem = cloud.RootFS;
             }
             else
             {
@@ -512,6 +573,7 @@ namespace Unishare.Apps.DarwinMobile
             }
 
             if (!workingPath.EndsWith(Path.AltDirectorySeparatorChar)) workingPath += Path.AltDirectorySeparatorChar;
+            if (servicePrefix != null) workingPath.Replace(servicePrefix, string.Empty);
 
             var alert = UIAlertController.Create("正在加载……", null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {

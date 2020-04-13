@@ -10,11 +10,9 @@ using Foundation;
 using MobileCoreServices;
 
 using NSPersonalCloud.Interfaces.FileSystem;
-using NSPersonalCloud.RootFS;
 
 using UIKit;
 
-using Unishare.Apps.Common;
 using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile
@@ -25,7 +23,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public string NavigationTitle { get; set; }
         public string RootPath { get; set; } = "/";
-        public RootFileSystem FileSystem { get; set; }
+        public IFileSystem FileSystem { get; set; }
 
         public event EventHandler<PathSelectedEventArgs> PathSelected;
 

@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" 
-    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
@@ -373,6 +372,8 @@
         <ImageAsset Include="Assets.xcassets\Help.imageset\Help.pdf">
             <Visible>false</Visible>
         </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\ServiceAliYun.imageset\Contents.json" />
+        <ImageAsset Include="Assets.xcassets\ServiceAliYun.imageset\AliYun.pdf" />
     </ItemGroup>
     <ItemGroup />
     <ItemGroup>
@@ -476,6 +477,15 @@
         </Compile>
         <Compile Include="PathSelectedEventArgs.cs" />
         <Compile Include="CloudExceptions.cs" />
+        <Compile Include="Main Scene\AddConnectionController.cs" />
+        <Compile Include="Main Scene\AddConnectionController.Designer.cs">
+          <DependentUpon>AddConnectionController.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Main Scene\AliYunController.cs" />
+        <Compile Include="Main Scene\AliYunController.Designer.cs">
+          <DependentUpon>AliYunController.cs</DependentUpon>
+        </Compile>
+        <Compile Include="Utilities\Extensions.cs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
@@ -496,6 +506,10 @@
             <Project>{3ec42fe4-5cbd-44e6-9e33-bb48e823afb5}</Project>
             <Name>PersonalCloud</Name>
         </ProjectReference>
+        <ProjectReference Include="..\PersonalCloud.Core\src\Apps\Album\AlbumComon\AlbumComon.csproj">
+          <Project>{1C833A44-A615-449B-837A-6BD0DB4BD3F6}</Project>
+          <Name>AlbumComon</Name>
+        </ProjectReference>
     </ItemGroup>
     <ItemGroup>
         <BundleResource Include="Resources\Desktop %28Photos%29.ini" />
@@ -508,6 +522,8 @@
         <Folder Include="Assets.xcassets\Home.imageset\" />
         <Folder Include="Assets.xcassets\NewFile.imageset\" />
         <Folder Include="Assets.xcassets\Help.imageset\" />
+        <Folder Include="Assets.xcassets\ServiceAliYun.imageset\" />
+        <Folder Include="Utilities\" />
     </ItemGroup>
     <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

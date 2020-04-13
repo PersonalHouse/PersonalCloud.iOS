@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interface", "PersonalCloud.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apps.Common", "PersonalCloud.Apps.Common\Apps.Common.csproj", "{569E4750-33C6-474C-B1ED-6481B67B04B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlbumComon", "PersonalCloud.Core\src\Apps\Album\AlbumComon\AlbumComon.csproj", "{1C833A44-A615-449B-837A-6BD0DB4BD3F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,18 @@ Global
 		{569E4750-33C6-474C-B1ED-6481B67B04B9}.Release|iPhone.Build.0 = Release|Any CPU
 		{569E4750-33C6-474C-B1ED-6481B67B04B9}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{569E4750-33C6-474C-B1ED-6481B67B04B9}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Release|iPhone.Build.0 = Release|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +101,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3EC42FE4-5CBD-44E6-9E33-BB48E823AFB5} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 		{89D53D65-F9A8-4586-91E5-43474F791024} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
+		{1C833A44-A615-449B-837A-6BD0DB4BD3F6} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75FF636A-5B87-4C64-8C8D-6336F10D97D1}

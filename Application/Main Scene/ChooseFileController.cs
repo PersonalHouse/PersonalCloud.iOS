@@ -9,7 +9,7 @@ using Foundation;
 
 using MobileCoreServices;
 
-using NSPersonalCloud.RootFS;
+using NSPersonalCloud.Interfaces.FileSystem;
 
 using UIKit;
 
@@ -21,7 +21,7 @@ namespace Unishare.Apps.DarwinMobile
     {
         public ChooseFileController(IntPtr handle) : base(handle) { }
 
-        public RootFileSystem FileSystem { get; set; }
+        public IFileSystem FileSystem { get; set; }
         public string WorkingPath { get; set; }
 
         public event EventHandler FileUploaded;
