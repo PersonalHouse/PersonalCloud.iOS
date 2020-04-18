@@ -11,7 +11,7 @@ namespace Unishare.Apps.DarwinMobile
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            SelectedIndex = 1;
+            SelectedIndex = 2;
         }
     }
 }

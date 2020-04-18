@@ -20,7 +20,7 @@ namespace Unishare.Apps.DarwinMobile
         private const string RenameSegue = "Rename";
 
         private const string HeaderSharing = "文件共享";
-        private const string FooterSharing = "为保证峰值设备性能，“文件共享”打开时自动锁定将暂时禁用，且屏幕不会关闭；这将影响电池续航。手动锁定屏幕或离开当前网络可能中断共享。请在不用时退出 App 以恢复自动锁定。";
+        private const string FooterSharing = "为保证峰值设备性能，“文件共享”打开时自动锁定将暂时禁用，且屏幕不会关闭。";
         private const string HeaderPhotoSync = "相簿共享";
         private const string FooterPhotoSync = "由于系统限制，仅向其它设备提供 {0} 相簿只读权限。您无法通过向“相簿”共享文件夹中添加文件来将照片导入 {0} 相簿。";
         private const string HeaderCloud = "个人云";
@@ -302,7 +302,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             shareFiles = true;
             Globals.Database.SaveSetting(UserSettings.EnableSharing, "1");
-            Globals.FileSystem.RootPath = PathHelpers.Documents;
+            Globals.FileSystem.RootPath = Paths.Documents;
             UIApplication.SharedApplication.IdleTimerDisabled = true;
         }
 

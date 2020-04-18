@@ -21,11 +21,6 @@ namespace Unishare.Apps.DarwinMobile
         public override void AwakeFromNib()
         {
             base.AwakeFromNib();
-            if (UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Pad)
-            {
-                LeadingMargin.Constant = 20;
-                TrailingMargin.Constant = 20;
-            }
             SizeLabel.TextColor = Colors.PlaceholderText;
             TypeLabel.TextColor = Colors.PlaceholderText;
         }

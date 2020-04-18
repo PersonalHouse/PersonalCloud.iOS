@@ -54,10 +54,12 @@ namespace Unishare.Apps.DarwinMobile
             {
                 var waitable = new ManualResetEvent(false);
                 waitables.Add(waitable);
-                PHAssetResourceManager.DefaultManager.RequestData(original, options, data => {
+                PHAssetResourceManager.DefaultManager.RequestData(original, options, data =>
+                {
                     var bytes = data.ToArray();
                     standalone.Write(bytes, 0, bytes.Length);
-                }, error => {
+                }, error =>
+                {
                     if (error != null) lastError = error;
                     standalone.Flush();
                     waitable.Set();
@@ -73,10 +75,12 @@ namespace Unishare.Apps.DarwinMobile
                 var entryStream = archive.CreateEntry(entryName, CompressionLevel.NoCompression).Open();
                 var waitable = new ManualResetEvent(false);
                 waitables.Add(waitable);
-                PHAssetResourceManager.DefaultManager.RequestData(resource, options, data => {
+                PHAssetResourceManager.DefaultManager.RequestData(resource, options, data =>
+                {
                     var bytes = data.ToArray();
                     entryStream.Write(bytes, 0, bytes.Length);
-                }, error => {
+                }, error =>
+                {
                     if (error != null) lastError = error;
                     entryStream.Dispose();
                     waitable.Set();
@@ -105,7 +109,7 @@ namespace Unishare.Apps.DarwinMobile
 
             var resources = new List<string>();
 
-            var rootPath = Path.Combine(PathHelpers.Cache, Path.GetFileNameWithoutExtension(filePath));
+            var rootPath = Path.Combine(Paths.Temporary, Path.GetFileNameWithoutExtension(filePath));
             Directory.CreateDirectory(rootPath);
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
@@ -127,7 +131,8 @@ namespace Unishare.Apps.DarwinMobile
                 }
             }
 
-            PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() => {
+            PHPhotoLibrary.SharedPhotoLibrary.PerformChanges(() =>
+            {
                 var request = PHAssetCreationRequest.CreationRequestForAsset();
                 var options = new PHAssetResourceCreationOptions { ShouldMoveFile = true };
                 foreach (var path in resources)
@@ -137,11 +142,12 @@ namespace Unishare.Apps.DarwinMobile
                     {
                         var indexLeft = fileName.IndexOf('(') + 1;
                         var resourceType = fileName.Substring(indexLeft, fileName.IndexOf(')') - indexLeft);
-                        var type = (PHAssetResourceType) Enum.Parse(typeof(PHAssetResourceType), resourceType);
+                        var type = (PHAssetResourceType)Enum.Parse(typeof(PHAssetResourceType), resourceType);
                         request.AddResource(type, NSUrl.FromFilename(path), options);
                     }
                 }
-            }, (isSuccess, error) => {
+            }, (isSuccess, error) =>
+            {
                 try { Directory.Delete(rootPath, true); }
                 catch { }
 

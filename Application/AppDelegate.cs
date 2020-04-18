@@ -41,19 +41,19 @@ namespace Unishare.Apps.DarwinMobile
         public bool WillFinishLaunching(UIApplication application, NSDictionary launchOptions)
         {
             SQLitePCL.Batteries_V2.Init();
+            var appVersion = application.GetBundleVersion();
 
             AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
             Globals.Loggers = new LoggerFactory().AddSentry(config => {
                 config.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@o209874.ingest.sentry.io/5174354";
                 config.Environment = "iOS";
-                config.Release = application.GetBundleVersion();
+                config.Release = appVersion;
             });
 
-            var databasePath = Path.Combine(PathHelpers.SharedLibrary, "Preferences.sqlite3");
+            var databasePath = Path.Combine(Paths.SharedLibrary, "Preferences.sqlite3");
             Globals.Database = new SQLiteConnection(databasePath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
             Globals.Database.CreateTable<KeyValueModel>();
             Globals.Database.CreateTable<CloudModel>();
-            Globals.Database.CreateTable<NodeModel>();
             Globals.Database.CreateTable<PLAsset>();
             Globals.Database.CreateTable<AliYunOSS>();
 
@@ -71,17 +71,9 @@ namespace Unishare.Apps.DarwinMobile
                 UIApplication.SharedApplication.IdleTimerDisabled = true;
             }
 
-            try
-            {
-                if (!Directory.Exists(PathHelpers.Cache)) Directory.CreateDirectory(PathHelpers.Cache);
-                Directory.CreateDirectory(PathHelpers.SharedContainer);
-            }
-            catch
-            {
-                // Ignore.
-            }
+            Paths.CreateCommonDirectories();
 
-            Globals.FileSystem = new SandboxedFileSystem(sharingEnabled ? PathHelpers.Documents : null);
+            Globals.FileSystem = new SandboxedFileSystem(sharingEnabled ? Paths.Documents : null);
 
             if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
                 Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1"))
@@ -97,7 +89,17 @@ namespace Unishare.Apps.DarwinMobile
 
             Globals.Storage = new AppleDataStorage();
             Globals.CloudManager = new PCLocalService(Globals.Storage, Globals.Loggers, Globals.FileSystem);
-            Task.Run(() => Globals.CloudManager.StartService());
+            Task.Run(async () => {
+                if (!Globals.Database.CheckSetting(UserSettings.LastInstalledVersion, appVersion))
+                {
+                    var appsPath = Paths.WebApps;
+                    Directory.CreateDirectory(appsPath);
+                    await Globals.CloudManager.InstallApps(appsPath).ConfigureAwait(false);
+                    Globals.Database.SaveSetting(UserSettings.LastInstalledVersion, appVersion);
+                }
+
+                Globals.CloudManager.StartService();
+                });
             return true;
         }
 
@@ -115,6 +117,12 @@ namespace Unishare.Apps.DarwinMobile
                 application.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
             }
             Window.MakeKeyAndVisible();
+
+            if (networkNotification == null)
+            {
+                networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
+            }
+
             return true;
         }
 
@@ -123,8 +131,8 @@ namespace Unishare.Apps.DarwinMobile
         {
             try
             {
-                Globals.CloudManager?.StartNetwork(false);
                 networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
+                Globals.CloudManager?.StartNetwork(false);
             }
             catch
             {
@@ -223,9 +231,9 @@ namespace Unishare.Apps.DarwinMobile
             {
                 Globals.CloudManager?.StartNetwork(false);
             }
-            catch (Exception exception)
+            catch
             {
-                Console.WriteLine(exception);
+                // Ignored.
             }
         }
     }

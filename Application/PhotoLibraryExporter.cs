@@ -36,7 +36,8 @@ namespace Unishare.Apps.DarwinMobile
             }
 
             var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
-            var photos = collections.OfType<PHAssetCollection>().SelectMany(x => PHAsset.FetchAssets(x, null).OfType<PHAsset>().Select(x => {
+            var photos = collections.OfType<PHAssetCollection>().SelectMany(x => PHAsset.FetchAssets(x, null).OfType<PHAsset>().Select(x =>
+            {
                 var asset = new PLAsset { Asset = x };
                 asset.Refresh();
                 return asset;
@@ -65,7 +66,8 @@ namespace Unishare.Apps.DarwinMobile
                 return;
             }
 
-            BackupTask = Task.Run(async () => {
+            BackupTask = Task.Run(async () =>
+            {
                 var remotePath = Path.Combine(pathPrefix, Globals.Database.LoadSetting(UserSettings.DeviceName), "Photos/");
                 try { await fileSystem.CreateDirectoryAsync(remotePath).ConfigureAwait(false); }
                 catch
@@ -88,8 +90,8 @@ namespace Unishare.Apps.DarwinMobile
                 {
                     SentrySdk.AddBreadcrumb($"Backing up item: {photo.FileName}");
 
-                    var zipFile = Path.Combine(PathHelpers.Cache, photo.FileName + ".zip");
-                    var originalFile = Path.Combine(PathHelpers.Cache, photo.FileName);
+                    var zipFile = Path.Combine(Paths.Temporary, photo.FileName + ".zip");
+                    var originalFile = Path.Combine(Paths.Temporary, photo.FileName);
 
                     var zipStream = new FileStream(zipFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
                     var originalStream = new FileStream(originalFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);

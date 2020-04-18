@@ -10,16 +10,13 @@ using Foundation;
 using MobileCoreServices;
 
 using NSPersonalCloud;
-using NSPersonalCloud.FileSharing.Aliyun;
 using NSPersonalCloud.Interfaces.Errors;
 using NSPersonalCloud.Interfaces.FileSystem;
 using NSPersonalCloud.RootFS;
 
 using UIKit;
 
-using Unishare.Apps.Common.Models;
 using Unishare.Apps.DarwinCore;
-using Unishare.Apps.DarwinMobile.Utilities;
 
 namespace Unishare.Apps.DarwinMobile
 {
@@ -62,12 +59,6 @@ namespace Unishare.Apps.DarwinMobile
             cloud = Globals.CloudManager.PersonalClouds[0];
             fileSystem = cloud.RootFS;
 
-            var services = Globals.Database.Table<AliYunOSS>().ToList();
-            foreach (var service in services)
-            {
-                fileSystem.ClientList[service.Name] = new AliyunOSSFileSystemClient(service.ToConfig());
-            }
-
             RefreshControl = new UIRefreshControl();
             RefreshControl.ValueChanged += RefreshDirectory;
             GoHome(this, EventArgs.Empty);
@@ -97,28 +88,28 @@ namespace Unishare.Apps.DarwinMobile
             switch (segue.Identifier)
             {
                 case UploadSegue:
-                {
-                    var navigation = (UINavigationController) segue.DestinationViewController;
-                    var chooser = (ChooseFileController) navigation.TopViewController;
-                    chooser.FileSystem = fileSystem;
-                    chooser.WorkingPath = workingPath;
-                    chooser.FileUploaded += (o, e) => refreshNow = true;
-                    return;
-                }
+                    {
+                        var navigation = (UINavigationController)segue.DestinationViewController;
+                        var chooser = (ChooseFileController)navigation.TopViewController;
+                        chooser.FileSystem = fileSystem;
+                        chooser.WorkingPath = workingPath;
+                        chooser.FileUploaded += (o, e) => refreshNow = true;
+                        return;
+                    }
                 case MoveToSegue:
-                {
-                    var navigation = (UINavigationController) segue.DestinationViewController;
-                    var chooser = (ChooseDeviceController) navigation.TopViewController;
-                    chooser.FileSystem = fileSystem;
-                    chooser.NavigationTitle = "移动到……";
-                    var deviceRoot = workingPath.Substring(1);
-                    var nextSeparator = deviceRoot.IndexOf(Path.AltDirectorySeparatorChar);
-                    if (nextSeparator == -1) deviceRoot = "/" + deviceRoot;
-                    else deviceRoot = "/" + deviceRoot.Substring(0, nextSeparator);
-                    chooser.RootPath = deviceRoot;
-                    chooser.PathSelected += (o, e) => InvokeOnMainThread(() => MoveFile(e.Path));
-                    return;
-                }
+                    {
+                        var navigation = (UINavigationController)segue.DestinationViewController;
+                        var chooser = (ChooseDeviceController)navigation.TopViewController;
+                        chooser.FileSystem = fileSystem;
+                        chooser.NavigationTitle = "移动到……";
+                        var deviceRoot = workingPath.Substring(1);
+                        var nextSeparator = deviceRoot.IndexOf(Path.AltDirectorySeparatorChar);
+                        if (nextSeparator == -1) deviceRoot = "/" + deviceRoot;
+                        else deviceRoot = "/" + deviceRoot.Substring(0, nextSeparator);
+                        chooser.RootPath = deviceRoot;
+                        chooser.PathSelected += (o, e) => InvokeOnMainThread(() => MoveFile(e.Path));
+                        return;
+                    }
             }
         }
 
@@ -130,7 +121,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
-            return (int) section switch
+            return (int)section switch
             {
                 0 => (items?.Count ?? 0) + (workingPath.Length == 1 ? 0 : 1),
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
@@ -139,7 +130,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public override string TitleForFooter(UITableView tableView, nint section)
         {
-            return (int) section switch
+            return (int)section switch
             {
                 0 => (workingPath.Length == 1 && (items?.Count ?? 0) == 0) ? "无可访问设备或第三方服务" : null,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
@@ -150,7 +141,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (workingPath.Length != 1 && indexPath.Section == 0 && indexPath.Row == 0)
             {
-                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentPath = Path.GetFileName(Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar)).TrimEnd(Path.AltDirectorySeparatorChar));
                 if (string.IsNullOrEmpty(parentPath)) cell.Update(UIImage.FromBundle("DirectoryBack"), "返回顶层", "后退至设备列表", null);
                 else cell.Update(UIImage.FromBundle("DirectoryBack"), "返回上层", $"后退至“{parentPath}”", null);
@@ -160,7 +151,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 0)
             {
-                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 if (item.IsDirectory)
                 {
@@ -229,7 +220,7 @@ namespace Unishare.Apps.DarwinMobile
                     return;
                 }
 
-                var filePath = Path.Combine(PathHelpers.Cache, item.Name);
+                var filePath = Path.Combine(Paths.Temporary, item.Name);
                 if (File.Exists(filePath))
                 {
                     var fileInfo = new FileInfo(filePath);
@@ -246,9 +237,11 @@ namespace Unishare.Apps.DarwinMobile
                     }
                 }
 
-                PreparePlaceholder(item, filePath, url => {
+                PreparePlaceholder(item, filePath, url =>
+                {
                     this.PreviewFile(url);
-                }, exception => {
+                }, exception =>
+                {
                     if (exception is HttpRequestException http) this.ShowAlert("与远程设备通讯时遇到问题", http.Message);
                     else this.ShowAlert("无法下载文件", exception.GetType().Name);
                 });
@@ -288,13 +281,16 @@ namespace Unishare.Apps.DarwinMobile
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 if (!item.IsDirectory)
                 {
-                    var download = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "收藏", (action, indexPath) => {
+                    var download = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "收藏", (action, indexPath) =>
+                    {
                         TableView.SetEditing(false, true);
 
-                        var filePath = Path.Combine(PathHelpers.SharedContainer, item.Name);
-                        PreparePlaceholder(item, filePath, url => {
+                        var filePath = Path.Combine(Paths.Favorites, item.Name);
+                        PreparePlaceholder(item, filePath, url =>
+                        {
                             this.ShowAlert("已收藏", $"“{item.Name}”已加入收藏夹。");
-                        }, exception => {
+                        }, exception =>
+                        {
                             if (exception is HttpRequestException http) this.ShowAlert("与远程设备通讯时遇到问题", http.Message);
                             else this.ShowAlert("无法下载文件", exception.GetType().Name);
                         });
@@ -307,7 +303,8 @@ namespace Unishare.Apps.DarwinMobile
 
                 if (!item.Attributes.HasFlag(FileAttributes.Device))
                 {
-                    var move = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "移动", (action, indexPath) => {
+                    var move = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "移动", (action, indexPath) =>
+                    {
                         TableView.SetEditing(false, true);
                         pendingMoveSource = Path.Combine(workingPath, item.Name);
                         PerformSegue(MoveToSegue, this);
@@ -315,7 +312,8 @@ namespace Unishare.Apps.DarwinMobile
                     move.BackgroundColor = Colors.BlueButton;
                     actions.Add(move);
 
-                    var rename = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "重命名", (action, indexPath) => {
+                    var rename = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "重命名", (action, indexPath) =>
+                    {
                         TableView.SetEditing(false, true);
                         RenameEntry(item);
                     });
@@ -323,7 +321,8 @@ namespace Unishare.Apps.DarwinMobile
                     actions.Add(rename);
                 }
 
-                var delete = UITableViewRowAction.Create(UITableViewRowActionStyle.Destructive, "删除", (action, indexPath) => {
+                var delete = UITableViewRowAction.Create(UITableViewRowActionStyle.Destructive, "删除", (action, indexPath) =>
+                {
                     TableView.SetEditing(false, true);
                     DeleteEntry(item);
                 });
@@ -346,11 +345,14 @@ namespace Unishare.Apps.DarwinMobile
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 if (item.IsDirectory) return null;
 
-                var download = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, "收藏", (action, view, handler) => {
+                var download = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, "收藏", (action, view, handler) =>
+                {
                     handler?.Invoke(true);
-                    PreparePlaceholder(item, Path.Combine(PathHelpers.SharedContainer, item.Name), url => {
+                    PreparePlaceholder(item, Path.Combine(Paths.Favorites, item.Name), url =>
+                    {
                         (this).ShowAlert("已收藏", $"“{item.Name}”已加入收藏夹。");
-                    }, exception => {
+                    }, exception =>
+                    {
                         if (exception is HttpRequestException http) (this).ShowAlert("与远程设备通讯时遇到问题", http.Message);
                         else (this).ShowAlert("无法下载文件", exception.GetType().Name);
                     });
@@ -378,7 +380,8 @@ namespace Unishare.Apps.DarwinMobile
 
                 if (!item.Attributes.HasFlag(FileAttributes.Device))
                 {
-                    var move = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, "移动", (action, view, handler) => {
+                    var move = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, "移动", (action, view, handler) =>
+                    {
                         handler?.Invoke(true);
                         pendingMoveSource = Path.Combine(workingPath, item.Name);
                         PerformSegue(MoveToSegue, this);
@@ -386,7 +389,8 @@ namespace Unishare.Apps.DarwinMobile
                     move.BackgroundColor = Colors.BlueButton;
                     actions.Add(move);
 
-                    var rename = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, "重命名", (action, view, handler) => {
+                    var rename = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, "重命名", (action, view, handler) =>
+                    {
                         handler?.Invoke(true);
                         RenameEntry(item);
                     });
@@ -394,7 +398,8 @@ namespace Unishare.Apps.DarwinMobile
                     actions.Add(rename);
                 }
 
-                var delete = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Destructive, "删除", (action, view, handler) => {
+                var delete = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Destructive, "删除", (action, view, handler) =>
+                {
                     handler?.Invoke(true);
                     DeleteEntry(item);
                 });
@@ -434,7 +439,8 @@ namespace Unishare.Apps.DarwinMobile
 
         private void CreateFolder(object sender, EventArgs args)
         {
-            this.CreatePrompt("输入文件夹名称", "将在当前位置创建如下命名的子文件夹", null, "新文件夹", "创建", "取消", text => {
+            this.CreatePrompt("输入文件夹名称", "将在当前位置创建如下命名的子文件夹", null, "新文件夹", "创建", "取消", text =>
+            {
                 if (string.IsNullOrWhiteSpace(text))
                 {
                     this.ShowAlert("文件夹名称无效", null);
@@ -442,23 +448,29 @@ namespace Unishare.Apps.DarwinMobile
                 }
 
                 var alert = UIAlertController.Create("正在创建……", null, UIAlertControllerStyle.Alert);
-                PresentViewController(alert, true, () => {
-                    Task.Run(async () => {
+                PresentViewController(alert, true, () =>
+                {
+                    Task.Run(async () =>
+                    {
                         try
                         {
                             var path = Path.Combine(workingPath, text);
                             await fileSystem.CreateDirectoryAsync(path).ConfigureAwait(false);
 
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     RefreshDirectory(this, EventArgs.Empty);
                                 });
                             });
                         }
                         catch (HttpRequestException exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     this.ShowAlert("与远程设备通讯时遇到问题", exception.Message);
                                 });
                             });
@@ -466,8 +478,10 @@ namespace Unishare.Apps.DarwinMobile
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     this.ShowAlert("无法创建文件夹", exception.GetType().Name);
                                 });
                             });
@@ -480,10 +494,12 @@ namespace Unishare.Apps.DarwinMobile
         private void UploadFile(object sender, EventArgs args)
         {
             var choices = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            choices.AddAction(UIAlertAction.Create("上传本地收藏文件", UIAlertActionStyle.Default, action => {
+            choices.AddAction(UIAlertAction.Create("上传本地收藏文件", UIAlertActionStyle.Default, action =>
+            {
                 PerformSegue(UploadSegue, this);
             }));
-            choices.AddAction(UIAlertAction.Create("上传其它 App 的文件", UIAlertActionStyle.Default, action => {
+            choices.AddAction(UIAlertAction.Create("上传其它 App 的文件", UIAlertActionStyle.Default, action =>
+            {
                 var picker = new UIDocumentPickerViewController(new string[] { UTType.Data }, UIDocumentPickerMode.Import);
                 picker.SetAllowsMultipleSelection(false);
                 picker.SetShowFileExtensions();
@@ -515,6 +531,9 @@ namespace Unishare.Apps.DarwinMobile
                 NavigationItem.Title = "个人云";
                 NavigationItem.SetLeftBarButtonItem(HelpItem, true);
                 NavigationItem.SetRightBarButtonItems(new[] { AddDeviceItem }, true);
+
+                try { Globals.CloudManager.StartNetwork(false); }
+                catch { } // Ignored.
             }
             else
             {
@@ -525,20 +544,26 @@ namespace Unishare.Apps.DarwinMobile
             if (!workingPath.EndsWith(Path.AltDirectorySeparatorChar)) workingPath += Path.AltDirectorySeparatorChar;
 
             var alert = UIAlertController.Create("正在加载……", null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
+            PresentViewController(alert, true, () =>
+            {
+                Task.Run(async () =>
+                {
                     string title = null;
-                    if (workingPath.Length != 1 && !string.IsNullOrEmpty(Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar))))
+                    if (workingPath.Length != 1)
                     {
-                        title = workingPath.Substring(1, workingPath.IndexOf(Path.AltDirectorySeparatorChar));
+                        var deviceNameEnd = workingPath.IndexOf(Path.AltDirectorySeparatorChar, 1);
+                        if (deviceNameEnd != -1) title = workingPath.Substring(1, deviceNameEnd).Trim(Path.AltDirectorySeparatorChar);
                     }
 
                     try
                     {
                         var files = await fileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
-                        items = files.Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System)).ToList();
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        items = files.Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
+                                     .OrderByDescending(x => x.IsDirectory).ThenBy(x => x.Name).ToList();
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
                                 TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
                             });
@@ -546,8 +571,10 @@ namespace Unishare.Apps.DarwinMobile
                     }
                     catch (HttpRequestException exception)
                     {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 PresentViewController(CloudExceptions.Explain(exception), true, null);
                                 items = null;
                                 if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
@@ -557,8 +584,10 @@ namespace Unishare.Apps.DarwinMobile
                     }
                     catch (Exception exception)
                     {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 this.ShowAlert("无法打开文件夹", exception.GetType().Name);
                                 items = null;
                                 if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
@@ -581,7 +610,8 @@ namespace Unishare.Apps.DarwinMobile
                 var alert = UIAlertController.Create("替换本地同名文件？", $"本地收藏中已存在同名文件“{item.Name}”，收藏新文件将替换旧文件。" +
                     Environment.NewLine + Environment.NewLine +
                     "如果您想要同时保留新、旧收藏，请在本地收藏管理页面手动重命名冲突的文件。", UIAlertControllerStyle.Alert);
-                alert.AddAction(UIAlertAction.Create("替换", UIAlertActionStyle.Cancel, action => {
+                alert.AddAction(UIAlertAction.Create("替换", UIAlertActionStyle.Cancel, action =>
+                {
                     try { File.Delete(cachePath); }
                     catch { }
                     PrepareConnection(item, cachePath, onCompletion, onError);
@@ -602,7 +632,8 @@ namespace Unishare.Apps.DarwinMobile
             {
                 var alert = UIAlertController.Create("立即下载此文件？", "此文件尚未下载并且大小可能超过 100 MB，下载将需要一段时间。", UIAlertControllerStyle.Alert);
                 alert.AddAction(UIAlertAction.Create("取消", UIAlertActionStyle.Cancel, null));
-                var ok = UIAlertAction.Create("开始下载", UIAlertActionStyle.Default, action => {
+                var ok = UIAlertAction.Create("开始下载", UIAlertActionStyle.Default, action =>
+                {
                     DownloadFile(item, cachePath, onCompletion, onError);
                 });
                 alert.AddAction(ok);
@@ -623,8 +654,10 @@ namespace Unishare.Apps.DarwinMobile
             }
 
             var alert = UIAlertController.Create("正在下载……", null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
+            PresentViewController(alert, true, () =>
+            {
+                Task.Run(async () =>
+                {
                     try
                     {
                         var source = Path.Combine(workingPath, item.Name);
@@ -633,7 +666,8 @@ namespace Unishare.Apps.DarwinMobile
                         await target.DisposeAsync().ConfigureAwait(false);
 
                         var url = NSUrl.FromFilename(cachePath);
-                        InvokeOnMainThread(() => {
+                        InvokeOnMainThread(() =>
+                        {
                             DismissViewController(true, () => onCompletion?.Invoke(url));
                         });
                     }
@@ -642,7 +676,8 @@ namespace Unishare.Apps.DarwinMobile
                         try { File.Delete(cachePath); }
                         catch { }
 
-                        InvokeOnMainThread(() => {
+                        InvokeOnMainThread(() =>
+                        {
                             DismissViewController(true, () => onError?.Invoke(exception));
                         });
                     }
@@ -656,7 +691,8 @@ namespace Unishare.Apps.DarwinMobile
 
         private void RenameEntry(FileSystemEntry item)
         {
-            this.CreatePrompt("输入新名称", $"即将重命名“{item.Name}”", item.Name, item.Name, "保存新名称", "取消", text => {
+            this.CreatePrompt("输入新名称", $"即将重命名“{item.Name}”", item.Name, item.Name, "保存新名称", "取消", text =>
+            {
                 if (string.IsNullOrWhiteSpace(text))
                 {
                     this.ShowAlert("新名称无效", null);
@@ -666,31 +702,39 @@ namespace Unishare.Apps.DarwinMobile
                 if (text == item.Name) return;
 
                 var alert = UIAlertController.Create("正在重命名……", null, UIAlertControllerStyle.Alert);
-                PresentViewController(alert, true, () => {
-                    Task.Run(async () => {
+                PresentViewController(alert, true, () =>
+                {
+                    Task.Run(async () =>
+                    {
                         try
                         {
                             var path = Path.Combine(workingPath, item.Name);
                             await fileSystem.RenameAsync(path, text).ConfigureAwait(false);
 
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     RefreshDirectory(this, EventArgs.Empty);
                                 });
                             });
                         }
                         catch (HttpRequestException exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     PresentViewController(CloudExceptions.Explain(exception), true, null);
                                 });
                             });
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     this.ShowAlert("无法重命名此项目", exception.GetType().Name);
                                 });
                             });
@@ -704,8 +748,10 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (string.IsNullOrEmpty(pendingMoveSource)) return;
             var alert = UIAlertController.Create("正在移动……", null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
+            PresentViewController(alert, true, () =>
+            {
+                Task.Run(async () =>
+                {
                     try
                     {
                         var fileName = Path.GetFileName(pendingMoveSource);
@@ -713,22 +759,27 @@ namespace Unishare.Apps.DarwinMobile
                         await fileSystem.RenameAsync(pendingMoveSource, path).ConfigureAwait(false);
                         pendingMoveSource = null;
 
-                        InvokeOnMainThread(() => {
+                        InvokeOnMainThread(() =>
+                        {
                             DismissViewController(true, () => RefreshDirectory(this, EventArgs.Empty));
                         });
                     }
                     catch (HttpRequestException exception)
                     {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 PresentViewController(CloudExceptions.Explain(exception), true, null);
                             });
                         });
                     }
                     catch (Exception exception)
                     {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 this.ShowAlert("无法完成移动", exception.GetType().Name);
                             });
                         });
@@ -750,31 +801,23 @@ namespace Unishare.Apps.DarwinMobile
                 alert = UIAlertController.Create("删除此项目？", $"将从远程设备上删除“{item.Name}”。" +
                     Environment.NewLine + Environment.NewLine + "如果此项目是文件夹或包，其中的内容将被一同删除。", UIAlertControllerStyle.Alert);
             }
-            alert.AddAction(UIAlertAction.Create("删除", UIAlertActionStyle.Destructive, action => {
+            alert.AddAction(UIAlertAction.Create("删除", UIAlertActionStyle.Destructive, action =>
+            {
                 var progress = UIAlertController.Create("正在删除……", null, UIAlertControllerStyle.Alert);
-                PresentViewController(progress, true, () => {
-                    if (item.Attributes.HasFlag(FileAttributes.Device))
+                PresentViewController(progress, true, () =>
+                {
+                    Task.Run(async () =>
                     {
-                        Globals.Database.Delete<AliYunOSS>(item.Name);
-                        fileSystem.ClientList.Remove(item.Name, out _);
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                items.Remove(item);
-                                TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
-                            });
-                        });
-                        return;
-                    }
-
-                    Task.Run(async () => {
                         try
                         {
                             var path = Path.Combine(workingPath, item.Name);
                             if (item.IsDirectory) path += Path.AltDirectorySeparatorChar;
                             await fileSystem.DeleteAsync(path).ConfigureAwait(false);
 
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     items.Remove(item);
                                     TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
                                 });
@@ -782,16 +825,20 @@ namespace Unishare.Apps.DarwinMobile
                         }
                         catch (HttpRequestException exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     PresentViewController(CloudExceptions.Explain(exception), true, null);
                                 });
                             });
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     this.ShowAlert("无法删除此项目", exception.GetType().Name);
                                 });
                             });
@@ -812,7 +859,8 @@ namespace Unishare.Apps.DarwinMobile
             if (e.ErrorCode == ErrorCode.NeedUpdate && DateTime.Now - lastNotificationTime > TimeSpan.FromMinutes(1))
             {
                 lastNotificationTime = DateTime.Now;
-                InvokeOnMainThread(() => {
+                InvokeOnMainThread(() =>
+                {
                     this.ShowAlert("App 版本不匹配", "个人云内的设备已安装更新版本 App，请升级您设备上的个人云 App 以连接其它设备。");
                 });
                 return;
@@ -851,8 +899,10 @@ namespace Unishare.Apps.DarwinMobile
         private void UploadFileAt(NSUrl url)
         {
             var alert = UIAlertController.Create("正在上传……", null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
+            PresentViewController(alert, true, () =>
+            {
+                Task.Run(async () =>
+                {
                     var shouldRelease = url.StartAccessingSecurityScopedResource();
 
                     try
@@ -863,30 +913,37 @@ namespace Unishare.Apps.DarwinMobile
                         await fileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
                         if (shouldRelease) url.StopAccessingSecurityScopedResource();
 
-                        InvokeOnMainThread(() => {
+                        InvokeOnMainThread(() =>
+                        {
                             DismissViewController(true, () => RefreshDirectory(this, EventArgs.Empty));
                         });
                     }
                     catch (TaskCanceledException)
                     {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 this.ShowAlert("无法上传文件", "等待远程设备响应过程中超时。");
                             });
                         });
                     }
                     catch (HttpRequestException exception)
                     {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 PresentViewController(CloudExceptions.Explain(exception), true, null);
                             });
                         });
                     }
                     catch (Exception exception)
                     {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
+                        InvokeOnMainThread(() =>
+                        {
+                            DismissViewController(true, () =>
+                            {
                                 this.ShowAlert("无法上传此文件", exception.GetType().Name);
                             });
                         });

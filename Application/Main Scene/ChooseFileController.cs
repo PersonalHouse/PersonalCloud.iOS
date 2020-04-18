@@ -39,7 +39,7 @@ namespace Unishare.Apps.DarwinMobile
             NavigationItem.LeftBarButtonItem.Clicked += (o, e) => NavigationController.DismissViewController(true, null);
             RefreshControl = new UIRefreshControl();
             RefreshControl.ValueChanged += RefreshDirectory;
-            directory = new DirectoryInfo(PathHelpers.SharedContainer);
+            directory = new DirectoryInfo(Paths.Favorites);
         }
 
         public override void ViewDidAppear(bool animated)
@@ -57,7 +57,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
-            return (int) section switch
+            return (int)section switch
             {
                 0 => (items?.Count ?? 0) + (depth == 0 ? 0 : 1),
                 _ => throw new ArgumentNullException(nameof(section))
@@ -69,7 +69,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
-                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentName = depth == 1 ? "本地收藏" : directory.Parent.Name;
                 cell.Update(UIImage.FromBundle("DirectoryBack"), "返回上层", $"后退至“{parentName}”", null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
@@ -79,7 +79,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0)
             {
                 var item = items[depth == 0 ? indexPath.Row : (indexPath.Row - 1)];
-                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 if (item is FileInfo file)
                 {
                     cell.Update(file.Name, file.Length);
@@ -100,7 +100,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
-                var pathString = string.Join(" » ", directory.FullName.Replace(PathHelpers.SharedContainer, @"本地收藏/").Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
+                var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, @"本地收藏/").Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
                 this.ShowAlert("当前所在目录", pathString);
                 return;
             }
@@ -132,8 +132,10 @@ namespace Unishare.Apps.DarwinMobile
                 }
 
                 var alert = UIAlertController.Create("正在上传……", null, UIAlertControllerStyle.Alert);
-                PresentViewController(alert, true, () => {
-                    Task.Run(async () => {
+                PresentViewController(alert, true, () =>
+                {
+                    Task.Run(async () =>
+                    {
                         try
                         {
                             var fileName = Path.GetFileName(item.FullName);
@@ -142,14 +144,17 @@ namespace Unishare.Apps.DarwinMobile
                             await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
                             FileUploaded?.Invoke(this, EventArgs.Empty);
 
-                            InvokeOnMainThread(() => {
+                            InvokeOnMainThread(() =>
+                            {
                                 DismissViewController(true, () => NavigationController.DismissViewController(true, null));
                             });
                         }
                         catch (HttpRequestException exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     this.ShowAlert("与远程设备通讯时遇到问题", exception.Message);
                                 });
                             });
@@ -157,8 +162,10 @@ namespace Unishare.Apps.DarwinMobile
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
+                            InvokeOnMainThread(() =>
+                            {
+                                DismissViewController(true, () =>
+                                {
                                     this.ShowAlert("无法上传此文件", exception.GetType().Name);
                                 });
                             });

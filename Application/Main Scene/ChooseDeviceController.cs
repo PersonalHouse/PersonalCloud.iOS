@@ -177,7 +177,8 @@ namespace Unishare.Apps.DarwinMobile
                     try
                     {
                         var files = await FileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
-                        items = files.Where(x => x.Attributes.HasFlag(FileAttributes.Directory) && !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System)).ToList();
+                        items = files.Where(x => x.Attributes.HasFlag(FileAttributes.Directory) && !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
+                                     .OrderBy(x => x.Name).ToList();
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
                                 TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);

@@ -77,7 +77,7 @@ namespace Unishare.Apps.DarwinMobile
                 return;
             }
 
-            if (Globals.Database.Find<AliYunOSS>(name) != null)
+            if (Globals.Database.Find<AliYunOSS>(x => x.Name == name) != null)
             {
                 this.ShowAlert("同名服务已存在", "为避免数据冲突，请为此服务指定不同的名称。", action => {
                     ServiceName.BecomeFirstResponder();
@@ -97,13 +97,23 @@ namespace Unishare.Apps.DarwinMobile
 
                     if (config.Verify())
                     {
-                        Globals.Database.InsertOrReplace(config.ToModel(name));
-                        Globals.CloudManager.PersonalClouds[0].RootFS.ClientList[name] = new AliyunOSSFileSystemClient(config);
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                NavigationController.DismissViewController(true, null);
+                        try
+                        {
+                            Globals.CloudManager.AddStorageProvider(Globals.CloudManager.PersonalClouds[0].Id, name, config, StorageProviderVisibility.Private);
+                            InvokeOnMainThread(() => {
+                                DismissViewController(true, () => {
+                                    NavigationController.DismissViewController(true, null);
+                                });
                             });
-                        });
+                        }
+                        catch
+                        {
+                            InvokeOnMainThread(() => {
+                                DismissViewController(true, () => {
+                                    this.ShowAlert("内部错误", "将阿里云对象存储服务添加到个人云时出现问题，请重试。");
+                                });
+                            });
+                        }
                     }
                     else
                     {
