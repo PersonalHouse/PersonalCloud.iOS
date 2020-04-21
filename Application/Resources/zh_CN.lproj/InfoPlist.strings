@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  Apps.DarwinMobile
+
+  Created by Yi Ding on 4/21/20.
+  
+*/
+
+"CFBundleDisplayName" = "个人云";
+"NSCameraUsageDescription" = "扫描二维码需要访问“相机”";
+"NSPhotoLibraryUsageDescription" = "共享相簿需要访问“照片”";

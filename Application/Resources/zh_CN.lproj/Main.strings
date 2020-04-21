@@ -1,0 +1,255 @@
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "16t-zS-98n"; */
+"16t-zS-98n.text" = "标题";
+
+/* Class = "UILabel"; text = "Access Key Secret"; ObjectID = "1ZK-ge-dsf"; */
+"1ZK-ge-dsf.text" = "用户密钥";
+
+/* Class = "UITextField"; placeholder = "aliyuncs.com"; ObjectID = "2bK-yO-owT"; */
+"2bK-yO-owT.placeholder" = "aliyuncs.com";
+
+/* Class = "UILabel"; text = "Detail"; ObjectID = "3Xw-Ea-Rpr"; */
+"3Xw-Ea-Rpr.text" = "示例";
+
+/* Class = "UINavigationItem"; title = "Choose a Location"; ObjectID = "4Mc-Bt-k5f"; */
+"4Mc-Bt-k5f.title" = "选择存储位置";
+
+/* Class = "UILabel"; text = "File Type"; ObjectID = "6pr-o6-1DD"; */
+"6pr-o6-1DD.text" = "副标题";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "7bK-jA-Egm"; */
+"7bK-jA-Egm.text" = "标题";
+
+/* Class = "UITextField"; placeholder = "Required"; ObjectID = "7nV-u6-YHp"; */
+"7nV-u6-YHp.placeholder" = "必填项";
+
+/* Class = "UITabBarItem"; title = "Functions"; ObjectID = "7tz-RF-12s"; */
+"7tz-RF-12s.title" = "云端应用";
+
+/* Class = "UIButton"; normalTitle = "Create a Cloud"; ObjectID = "88p-54-0dv"; */
+"88p-54-0dv.normalTitle" = "创建个人云";
+
+/* Class = "UITextField"; placeholder = "1234AbCd"; ObjectID = "8XW-XC-nAP"; */
+"8XW-XC-nAP.placeholder" = "1234AbCd";
+
+/* Class = "UINavigationItem"; title = "Choose from Favorites"; ObjectID = "8eP-Rv-tpI"; */
+"8eP-Rv-tpI.title" = "选择本地收藏文件";
+
+/* Class = "UINavigationItem"; title = "Connect to..."; ObjectID = "9f3-VN-vL8"; */
+"9f3-VN-vL8.title" = "连接到……";
+
+/* Class = "UINavigationItem"; title = "Alibaba Cloud"; ObjectID = "AHY-F1-foY"; */
+"AHY-F1-foY.title" = "阿里云";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "Arc-rJ-qV4"; */
+"Arc-rJ-qV4.text" = "标题";
+
+/* Class = "UILabel"; text = "888.88 MB"; ObjectID = "Axs-GP-A8w"; */
+"Axs-GP-A8w.text" = "示例";
+
+/* Class = "UINavigationItem"; title = "Favorites"; ObjectID = "DIg-4k-bnV"; */
+"DIg-4k-bnV.title" = "本地收藏";
+
+/* Class = "UILabel"; text = "888.88 MB"; ObjectID = "DVG-6e-Prw"; */
+"DVG-6e-Prw.text" = "示例";
+
+/* Class = "UITextField"; placeholder = "Required"; ObjectID = "EF9-Pt-Xu7"; */
+"EF9-Pt-Xu7.placeholder" = "必填项";
+
+/* Class = "UILabel"; text = "Name"; ObjectID = "EmL-hd-oF7"; */
+"EmL-hd-oF7.text" = "名称";
+
+/* Class = "UINavigationItem"; title = "Pending Items"; ObjectID = "FVA-mi-DGt"; */
+"FVA-mi-DGt.title" = "备份项目";
+
+/* Class = "UILabel"; text = "Invitation Code"; ObjectID = "FkU-vs-WYZ"; */
+"FkU-vs-WYZ.text" = "邀请码";
+
+/* Class = "UITabBarItem"; title = "Cloud"; ObjectID = "GPj-yQ-dqS"; */
+"GPj-yQ-dqS.title" = "个人云";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "Gsg-pk-DBb"; */
+"Gsg-pk-DBb.text" = "标题";
+
+/* Class = "UILabel"; text = "888.88 MB"; ObjectID = "H3a-Ol-erC"; */
+"H3a-Ol-erC.text" = "示例";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "H4m-46-zgf"; */
+"H4m-46-zgf.normalTitle" = "完成";
+
+/* Class = "UITextField"; placeholder = "bucket0"; ObjectID = "HLF-mo-ClP"; */
+"HLF-mo-ClP.placeholder" = "bucket0";
+
+/* Class = "UILabel"; text = "File Type"; ObjectID = "I7J-zt-5Cv"; */
+"I7J-zt-5Cv.text" = "副标题";
+
+/* Class = "UITabBarItem"; title = "Backup"; ObjectID = "IGT-1o-Pue"; */
+"IGT-1o-Pue.title" = "相册备份";
+
+/* Class = "UITableViewSection"; footerTitle = "Enter a name that others will use to identify this device. For best compatibility across platforms, use a name that is short, unique, and has no special characters. (That means no Emojis. ☹️)"; ObjectID = "Kul-QX-hP5"; */
+"Kul-QX-hP5.footerTitle" = "加入个人云后，其它设备将显示上述名称用以识别这台设备。为保证其它设备可以正常访问，请使用简短、不包含特殊字符、且不与其它设备重复的名称。";
+
+/* Class = "UILabel"; text = "Cloud Name"; ObjectID = "Kwr-hb-dzA"; */
+"Kwr-hb-dzA.text" = "云名称";
+
+/* Class = "UITextField"; placeholder = "Required"; ObjectID = "M4u-Mr-hMT"; */
+"M4u-Mr-hMT.placeholder" = "必填项";
+
+/* Class = "UITextField"; placeholder = "Required"; ObjectID = "Okw-sD-bZU"; */
+"Okw-sD-bZU.placeholder" = "必填项";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "P2w-Nx-26J"; */
+"P2w-Nx-26J.text" = "标题";
+
+/* Class = "UITextField"; placeholder = "Required"; ObjectID = "PEe-8X-FFc"; */
+"PEe-8X-FFc.placeholder" = "必填项";
+
+/* Class = "UITextField"; placeholder = "HuNtEr2"; ObjectID = "PHd-HD-CbE"; */
+"PHd-HD-CbE.placeholder" = "HuNtEr2";
+
+/* Class = "UINavigationItem"; title = "Preferences"; ObjectID = "PqY-e8-VcE"; */
+"PqY-e8-VcE.title" = "设置";
+
+/* Class = "UITableViewSection"; footerTitle = "Enter the code shown on other devices."; ObjectID = "Pv4-zd-PLe"; */
+"Pv4-zd-PLe.footerTitle" = "通过其它设备生成邀请码。";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "QDi-KV-pTk"; */
+"QDi-KV-pTk.text" = "标题";
+
+/* Class = "UILabel"; text = "Bucket"; ObjectID = "QKE-Sl-gK4"; */
+"QKE-Sl-gK4.text" = "存储空间";
+
+/* Class = "UILabel"; text = "Detail"; ObjectID = "QcI-9f-KkY"; */
+"QcI-9f-KkY.text" = "示例";
+
+/* Class = "UIButton"; normalTitle = "Enroll This Device"; ObjectID = "QkQ-UF-n85"; */
+"QkQ-UF-n85.normalTitle" = "加入个人云";
+
+/* Class = "UILabel"; text = "I have already created Personal Cloud on other devices..."; ObjectID = "S0j-tB-4Qd"; */
+"S0j-tB-4Qd.text" = "已在其它设备上创建个人云？将此设备……";
+
+/* Class = "UILabel"; text = "Endpoint"; ObjectID = "TV6-7p-KRf"; */
+"TV6-7p-KRf.text" = "域名";
+
+/* Class = "UILabel"; text = "I’m new to Personal Cloud..."; ObjectID = "Twa-k4-UlH"; */
+"Twa-k4-UlH.text" = "这是您首次使用个人云吗？您可以……";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "Uy1-7P-Vea"; */
+"Uy1-7P-Vea.text" = "标题";
+
+/* Class = "UILabel"; text = "File Type"; ObjectID = "V9C-k9-5rv"; */
+"V9C-k9-5rv.text" = "副标题";
+
+/* Class = "UILabel"; text = "Alibaba Cloud OSS"; ObjectID = "Vce-kL-Wip"; */
+"Vce-kL-Wip.text" = "阿里云对象存储服务 (OSS)";
+
+/* Class = "UITableViewSection"; footerTitle = "Enter a name for your Personal Cloud. This name shows on all devices, and cannot be changed later. So choose wisely. (Or just use \"Wisely\".)"; ObjectID = "Vng-FJ-EeY"; */
+"Vng-FJ-EeY.footerTitle" = "所有加入的设备将通过上述名称识别此个人云。个人云在创建后无法更名，请谨慎命名。";
+
+/* Class = "UINavigationItem"; title = "Rename"; ObjectID = "YmO-bp-4d8"; */
+"YmO-bp-4d8.title" = "修改名称";
+
+/* Class = "UITableViewSection"; footerTitle = "Enter a name that others will use to identify this device. For best compatibility across platforms, use a name that is short, unique, and has no special characters. (That means no Emojis. ☹️)"; ObjectID = "YpO-1c-gfQ"; */
+"YpO-1c-gfQ.footerTitle" = "加入个人云后，其它设备将显示上述名称用以识别这台设备。为保证其它设备可以正常访问，请使用简短、不包含特殊字符、且不与其它设备重复的名称。";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "Zli-LT-fBl"; */
+"Zli-LT-fBl.text" = "标题";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "aMi-oQ-9hd"; */
+"aMi-oQ-9hd.text" = "标题";
+
+/* Class = "UITextField"; placeholder = "Alibaba"; ObjectID = "bZy-ul-V0Z"; */
+"bZy-ul-V0Z.placeholder" = "阿里云";
+
+/* Class = "UITextField"; text = "Alibaba"; ObjectID = "bZy-ul-V0Z"; */
+"bZy-ul-V0Z.text" = "阿里云";
+
+/* Class = "UILabel"; text = "File Type"; ObjectID = "bgg-Cg-FMV"; */
+"bgg-Cg-FMV.text" = "副标题";
+
+/* Class = "UINavigationItem"; title = "Photos Backup"; ObjectID = "dHr-iR-5Jr"; */
+"dHr-iR-5Jr.title" = "相册备份";
+
+/* Class = "UINavigationItem"; title = "Create Personal Cloud"; ObjectID = "dYt-lD-vvU"; */
+"dYt-lD-vvU.title" = "创建个人云";
+
+/* Class = "UILabel"; text = "File Name"; ObjectID = "eAG-kJ-y6k"; */
+"eAG-kJ-y6k.text" = "标题";
+
+/* Class = "UIButton"; normalTitle = "Submit"; ObjectID = "eXt-tY-YnS"; */
+"eXt-tY-YnS.normalTitle" = "完成";
+
+/* Class = "UINavigationItem"; title = "Functions"; ObjectID = "eac-dc-mzI"; */
+"eac-dc-mzI.title" = "云端应用";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "fN0-48-QJB"; */
+"fN0-48-QJB.text" = "标题";
+
+/* Class = "UITabBarItem"; title = "Favorites"; ObjectID = "gbc-MP-ucz"; */
+"gbc-MP-ucz.title" = "本地收藏";
+
+/* Class = "UILabel"; text = "File Name"; ObjectID = "grL-5N-ObT"; */
+"grL-5N-ObT.text" = "标题";
+
+/* Class = "UITableViewSection"; headerTitle = "Account"; ObjectID = "gxU-fd-ONY"; */
+"gxU-fd-ONY.headerTitle" = "帐户信息";
+
+/* Class = "UILabel"; text = "File Name"; ObjectID = "gyR-C3-gbp"; */
+"gyR-C3-gbp.text" = "标题";
+
+/* Class = "UILabel"; text = "888.88 MB"; ObjectID = "i2W-hb-nz5"; */
+"i2W-hb-nz5.text" = "示例";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "kFF-i6-UTK"; */
+"kFF-i6-UTK.normalTitle" = "按钮";
+
+/* Class = "UILabel"; text = "File Name"; ObjectID = "kfK-5t-tFJ"; */
+"kfK-5t-tFJ.text" = "标题";
+
+/* Class = "UILabel"; text = "Welcome to Your\nPersonal Cloud"; ObjectID = "l63-Sf-BXU"; */
+"l63-Sf-BXU.text" = "欢迎使用个人云";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "lSM-nq-6Cw"; */
+"lSM-nq-6Cw.text" = "标题";
+
+/* Class = "UITabBarItem"; title = "Preferences"; ObjectID = "ltH-23-dFR"; */
+"ltH-23-dFR.title" = "设置";
+
+/* Class = "UINavigationItem"; title = "Cloud"; ObjectID = "ltN-g4-dFN"; */
+"ltN-g4-dFN.title" = "个人云";
+
+/* Class = "UILabel"; text = "Detail"; ObjectID = "pQl-o6-vkF"; */
+"pQl-o6-vkF.text" = "示例";
+
+/* Class = "UILabel"; text = "File Name"; ObjectID = "pyA-Ec-Pro"; */
+"pyA-Ec-Pro.text" = "标题";
+
+/* Class = "UILabel"; text = "Device Name"; ObjectID = "q2K-kT-BqB"; */
+"q2K-kT-BqB.text" = "设备名称";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "qIQ-Vz-PFt"; */
+"qIQ-Vz-PFt.text" = "标题";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "sD6-u0-AzC"; */
+"sD6-u0-AzC.text" = "标题";
+
+/* Class = "UILabel"; text = "Device Name"; ObjectID = "uLw-Kc-P21"; */
+"uLw-Kc-P21.text" = "设备名称";
+
+/* Class = "UITableViewSection"; headerTitle = "Online Storage"; ObjectID = "urr-49-xf2"; */
+"urr-49-xf2.headerTitle" = "在线存储";
+
+/* Class = "UILabel"; text = "File Type"; ObjectID = "wMW-kb-7DE"; */
+"wMW-kb-7DE.text" = "副标题";
+
+/* Class = "UILabel"; text = "888.88 MB"; ObjectID = "xY9-XH-TRW"; */
+"xY9-XH-TRW.text" = "示例";
+
+/* Class = "UINavigationItem"; title = "Enroll This Device"; ObjectID = "xqT-Ma-Hft"; */
+"xqT-Ma-Hft.title" = "加入个人云";
+
+/* Class = "UILabel"; text = "Access Key ID"; ObjectID = "yR5-HO-2SZ"; */
+"yR5-HO-2SZ.text" = "用户 ID";
+
+/* Class = "UILabel"; text = "Detail"; ObjectID = "yqG-GH-abl"; */
+"yqG-GH-abl.text" = "示例";

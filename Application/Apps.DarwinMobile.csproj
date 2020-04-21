@@ -9,8 +9,8 @@
         <OutputType>Exe</OutputType>
         <RootNamespace>Unishare.Apps.DarwinMobile</RootNamespace>
         <AssemblyName>Unishare.Apps.DarwinMobile</AssemblyName>
-        <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
         <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
+        <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
         <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -95,7 +95,7 @@
             <Version>1.6.292</Version>
         </PackageReference>
         <PackageReference Include="Humanizer.Core">
-            <Version>2.7.9</Version>
+            <Version>2.8.2</Version>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Logging">
             <Version>3.1.3</Version>
@@ -377,18 +377,25 @@
         <ImageAsset Include="Assets.xcassets\Help.imageset\Help.pdf">
             <Visible>false</Visible>
         </ImageAsset>
-        <ImageAsset Include="Assets.xcassets\ServiceAliYun.imageset\Contents.json" />
-        <ImageAsset Include="Assets.xcassets\ServiceAliYun.imageset\AliYun.pdf" />
-        <ImageAsset Include="Assets.xcassets\Function.imageset\Contents.json" />
-        <ImageAsset Include="Assets.xcassets\Function.imageset\Function.pdf" />
+        <ImageAsset Include="Assets.xcassets\ServiceAliYun.imageset\Contents.json">
+            <Visible>false</Visible>
+        </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\ServiceAliYun.imageset\AliYun.pdf">
+            <Visible>false</Visible>
+        </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\Function.imageset\Contents.json">
+            <Visible>false</Visible>
+        </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\Function.imageset\Function.pdf">
+            <Visible>false</Visible>
+        </ImageAsset>
     </ItemGroup>
     <ItemGroup />
     <ItemGroup>
-        <InterfaceDefinition Include="LaunchScreen.storyboard" />
-        <InterfaceDefinition Include="Main.storyboard" />
+        <InterfaceDefinition Include="Resources\Base.lproj\LaunchScreen.storyboard" />
+        <InterfaceDefinition Include="Resources\Base.lproj\Main.storyboard" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="Info.plist" />
         <None Include="Entitlements.plist" />
         <None Include="Deprecated\AVScannerController.cs" />
         <None Include="Deprecated\AVScannerController.designer.cs">
@@ -396,6 +403,7 @@
         </None>
         <None Include="Deprecated\AVScannerController.xib" />
         <None Include="Deprecated\BarcodeDetectedEventArgs.cs" />
+        <None Include="Info.plist" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="AppDelegate.cs" />
@@ -534,17 +542,25 @@
     <ItemGroup>
         <BundleResource Include="Resources\Desktop %28Photos%29.ini" />
         <BundleResource Include="Resources\Desktop %28Album%29.ini" />
+        <BundleResource Include="Resources\zh_CN.lproj\InfoPlist.strings">
+          <Optimize>true</Optimize>
+        </BundleResource>
+        <BundleResource Include="Resources\zh_CN.lproj\Localizable.strings">
+          <Optimize>true</Optimize>
+        </BundleResource>
+        <BundleResource Include="Resources\Base.lproj\InfoPlist.strings">
+          <Optimize>true</Optimize>
+        </BundleResource>
+        <BundleResource Include="Resources\Base.lproj\Localizable.strings">
+          <Optimize>true</Optimize>
+        </BundleResource>
+        <BundleResource Include="Resources\zh_CN.lproj\Main.strings" />
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Assets.xcassets\NavPhoto.imageset\" />
-        <Folder Include="Assets.xcassets\NewFolder.imageset\" />
-        <Folder Include="Assets.xcassets\ImportDocument.imageset\" />
-        <Folder Include="Assets.xcassets\Home.imageset\" />
-        <Folder Include="Assets.xcassets\NewFile.imageset\" />
-        <Folder Include="Assets.xcassets\Help.imageset\" />
-        <Folder Include="Assets.xcassets\ServiceAliYun.imageset\" />
         <Folder Include="Utilities\" />
-        <Folder Include="Assets.xcassets\Function.imageset\" />
+        <Folder Include="Resources\" />
+        <Folder Include="Resources\zh_CN.lproj\" />
+        <Folder Include="Resources\Base.lproj\" />
     </ItemGroup>
     <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

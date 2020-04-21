@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  Apps.DarwinMobile
+
+  Created by Yi Ding on 4/21/20.
+  
+*/
+
+"CFBundleDisplayName" = "Personal Cloud";
+"NSCameraUsageDescription" = "Allow Camera access to scan a QR code and connect to Personal Cloud or storage providers.";
+"NSPhotoLibraryUsageDescription" = "Allow Photos access to backup your photo library to a Personal Cloud.";
