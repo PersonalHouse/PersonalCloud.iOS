@@ -47,17 +47,17 @@ namespace Unishare.Apps.DarwinMobile
             }
             if (string.IsNullOrWhiteSpace(deviceName) || invalidCharHit)
             {
-                this.ShowAlert(Texts.InvalidDeviceName, Texts.InvalidDeviceNameMessage);
+                this.ShowAlert(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(cloudName))
             {
-                this.ShowAlert("云名称无效", "个人云名称不能为空。");
+                this.ShowAlert(this.Localize("Settings.BadCloudName"), this.Localize("Settings.CloudNameCannotBeEmpty"));
                 return;
             }
 
-            var alert = UIAlertController.Create("正在创建个人云……", null, UIAlertControllerStyle.Alert);
+            var alert = UIAlertController.Create(this.Localize("Welcome.Creating"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {
                 Task.Run(async () => {
                     try
@@ -66,7 +66,7 @@ namespace Unishare.Apps.DarwinMobile
                         Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                this.ShowAlert("已创建", $"您已创建并加入个人云“{cloudName}”。", action => {
+                                this.ShowAlert(this.Localize("Welcome.Created"), string.Format(this.Localize("Welcome.CreatedCloud.Formattable"), cloudName), action => {
                                     NavigationController.DismissViewController(true, null);
                                 });
                             });
@@ -75,7 +75,7 @@ namespace Unishare.Apps.DarwinMobile
                     catch
                     {
                         InvokeOnMainThread(() => {
-                            DismissViewController(true, () => this.ShowAlert("无法创建个人云", "出现 App 内部错误。"));
+                            DismissViewController(true, () => this.ShowAlert(this.Localize("Error.CreateCloud"), null));
                         });
                     }
                 });

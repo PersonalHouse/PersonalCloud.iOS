@@ -42,7 +42,7 @@ namespace Unishare.Apps.DarwinCore
         public static void ShowAlert(this UIViewController controller, string title, string message)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
-            var ok = UIAlertAction.Create("好", UIAlertActionStyle.Default, null);
+            var ok = UIAlertAction.Create(Localize("Global.OKAction"), UIAlertActionStyle.Default, null);
             alert.AddAction(ok);
             alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
@@ -51,7 +51,7 @@ namespace Unishare.Apps.DarwinCore
         public static void ShowAlert(this UIViewController controller, string title, string message, Action<UIAlertAction> onDismiss)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
-            var ok = UIAlertAction.Create("好", UIAlertActionStyle.Default, onDismiss);
+            var ok = UIAlertAction.Create(Localize("Global.OKAction"), UIAlertActionStyle.Default, onDismiss);
             alert.AddAction(ok);
             alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
@@ -70,11 +70,11 @@ namespace Unishare.Apps.DarwinCore
 
         public static void ShowDiscardConfirmation(this UIViewController controller, UIViewController parent = null)
         {
-            var alert = UIAlertController.Create("放弃所做更改？", "您有尚未保存的更改，要保存这些更改后再返回，请勿直接使用“返回”或“取消”按钮。", UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create("立即放弃", UIAlertActionStyle.Destructive, action => {
+            var alert = UIAlertController.Create(Localize("Global.DiscardChanges.Short"), Localize("Global.DiscardChanges.Long"), UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(Localize("Global.DiscardChanges.Confirm"), UIAlertActionStyle.Destructive, action => {
                 (parent ?? controller.NavigationController)?.DismissViewController(true, null);
             }));
-            var ok = UIAlertAction.Create("查看更改", UIAlertActionStyle.Default, null);
+            var ok = UIAlertAction.Create(Localize("Global.DiscardChanges.Back"), UIAlertActionStyle.Default, null);
             alert.AddAction(ok);
             alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
@@ -88,10 +88,9 @@ namespace Unishare.Apps.DarwinCore
             preview.Delegate = @delegate;
             if (preview.PresentPreview(true)) return;
 
-            var alert = UIAlertController.Create("无法预览此类文件", "已安装的 App 均不提供此类文件的预览，即时预览已取消。" +
-                Environment.NewLine + Environment.NewLine + "您仍然可以将文件分享给他人或在其它 App 中打开。如果您前往其它 App，文件和相簿共享可能中断。", UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create("返回", UIAlertActionStyle.Cancel, null));
-            var ok = UIAlertAction.Create("分享到…", UIAlertActionStyle.Default, action => {
+            var alert = UIAlertController.Create(Localize("Global.NoPreview.Short"), Localize("Global.NoPreview.Long"), UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(Localize("Global.BackAction"), UIAlertActionStyle.Cancel, null));
+            var ok = UIAlertAction.Create(Localize("Global.NoPreview.OpenIn"), UIAlertActionStyle.Default, action => {
                 var share = new UIActivityViewController(new[] { url }, null);
                 controller.PresentViewController(share, true, null);
             });
@@ -109,6 +108,16 @@ namespace Unishare.Apps.DarwinCore
                 popover.SourceRect = anchor?.Bounds ?? controller.View.Bounds;
             }
             controller.PresentViewController(alert, true, null);
+        }
+
+        private static string Localize(string key, string defaultValue = null)
+        {
+            return NSBundle.MainBundle.GetLocalizedString(key, defaultValue ?? "LOCALIZABLE_TEXT");
+        }
+
+        public static string Localize(this UIViewController controller, string key, string defaultValue = null)
+        {
+            return Localize(key, defaultValue);
         }
     }
 }

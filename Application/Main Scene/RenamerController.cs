@@ -42,8 +42,11 @@ namespace Unishare.Apps.DarwinMobile
 
         public override string TitleForFooter(UITableView tableView, nint section)
         {
-            if (section != 0) return null;
-            return Texts.DeviceNameHint;
+            return (int) section switch
+            {
+                0 => this.Localize("Settings.DeviceNameHint"),
+                _ => throw new ArgumentOutOfRangeException(nameof(section)),
+            };
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
@@ -51,14 +54,14 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 0)
             {
                 var cell = (TitleEditorCell) tableView.DequeueReusableCell(TitleEditorCell.Identifier, indexPath);
-                cell.Update(Texts.DeviceName, Texts.DeviceNamePlaceholder, UpdateName, deviceName);
+                cell.Update(this.Localize("Settings.DeviceName"), null, UpdateName, deviceName);
                 return cell;
             }
 
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
                 var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                cell.Update("保存新名称", Colors.BlueButton, true);
+                cell.Update(this.Localize("Settings.SaveDeviceName"), Colors.BlueButton, true);
                 return cell;
             }
 
@@ -82,7 +85,7 @@ namespace Unishare.Apps.DarwinMobile
                 }
                 if (string.IsNullOrWhiteSpace(deviceName) || invalidCharHit)
                 {
-                    this.ShowAlert(Texts.InvalidDeviceName, Texts.InvalidDeviceNameMessage);
+                    this.ShowAlert(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
                     return;
                 }
 

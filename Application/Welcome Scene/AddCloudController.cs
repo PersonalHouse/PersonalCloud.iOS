@@ -49,17 +49,17 @@ namespace Unishare.Apps.DarwinMobile
             }
             if (string.IsNullOrWhiteSpace(deviceName) || invalidCharHit)
             {
-                this.ShowAlert(Texts.InvalidDeviceName, Texts.InvalidDeviceNameMessage);
+                this.ShowAlert(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
                 return;
             }
 
             if (inviteCode?.Length != 4)
             {
-                this.ShowAlert(Texts.InvalidInvitation, Texts.InvalidInvitationMessage);
+                this.ShowAlert(this.Localize("Settings.BadInvitation"), this.Localize("Settings.EnterValidInvitation"));
                 return;
             }
 
-            var alert = UIAlertController.Create("正在获取信息……", null, UIAlertControllerStyle.Alert);
+            var alert = UIAlertController.Create(this.Localize("Welcome.Verifying"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {
                 Task.Run(async () => {
                     try
@@ -68,7 +68,7 @@ namespace Unishare.Apps.DarwinMobile
                         Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                this.ShowAlert(Texts.AcceptedByCloud, string.Format(Texts.AcceptedByCloudMessage, result.DisplayName), action => {
+                                this.ShowAlert(this.Localize("Welcome.Accepted"), string.Format(this.Localize("Welcome.AcceptedByCloud.Formattable"), result.DisplayName), action => {
                                     NavigationController?.DismissViewController(true, null);
                                 });
                             });
@@ -77,19 +77,19 @@ namespace Unishare.Apps.DarwinMobile
                     catch (NoDeviceResponseException)
                     {
                         InvokeOnMainThread(() => {
-                            DismissViewController(true, () => this.ShowAlert("无法查询云信息", "未发现可以加入的个人云。"));
+                            DismissViewController(true, () => this.ShowAlert(this.Localize("Error.EnrollDevice"), this.Localize("Error.NoCloudInNetwork")));
                         });
                     }
                     catch (InviteNotAcceptedException)
                     {
                         InvokeOnMainThread(() => {
-                            DismissViewController(true, () => this.ShowAlert(Texts.InvalidInvitation, Texts.InvalidInvitationMessage));
+                            DismissViewController(true, () => this.ShowAlert(this.Localize("Error.EnrollDevice"), this.Localize("Settings.EnterValidInvitation")));
                         });
                     }
                     catch
                     {
                         InvokeOnMainThread(() => {
-                            DismissViewController(true, () => this.ShowAlert("无法查询云信息", "出现 App 内部错误。"));
+                            DismissViewController(true, () => this.ShowAlert(this.Localize("Error.EnrollDevice"), null));
                         });
                     }
                 });

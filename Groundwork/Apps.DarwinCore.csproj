@@ -44,7 +44,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PathHelpers.cs" />
     <Compile Include="SandboxedFileSystem.cs" />
-    <Compile Include="Texts.cs" />
     <Compile Include="UIKitExtensions.cs" />
     <Compile Include="UTI.cs" />
     <Compile Include="Colors.cs" />
