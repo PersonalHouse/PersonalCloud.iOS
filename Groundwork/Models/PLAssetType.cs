@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Unishare.Apps.DarwinCore.Models
+﻿namespace Unishare.Apps.DarwinCore.Models
 {
     public enum PLAssetType : long
     {
@@ -12,14 +10,14 @@ namespace Unishare.Apps.DarwinCore.Models
 
     public static class PLAssetTypeExtensions
     {
-        public static string ToChineseString(this PLAssetType type)
+        public static string ToLocalizedString(this PLAssetType type)
         {
             return type switch
             {
-                PLAssetType.Image => "照片",
-                PLAssetType.Video => "视频",
-                PLAssetType.Audio => "音乐",
-                _ => "未知格式"
+                PLAssetType.Image => UIKitExtensions.Localize("PLAsset.Photo"),
+                PLAssetType.Video => UIKitExtensions.Localize("PLAsset.Video"),
+                PLAssetType.Audio => UIKitExtensions.Localize("PLAsset.Audio"),
+                _ => UIKitExtensions.Localize("PLAsset.UnknownType")
             };
         }
     }

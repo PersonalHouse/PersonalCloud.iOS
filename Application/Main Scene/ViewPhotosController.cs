@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Foundation;
 
 using UIKit;
-
+using Unishare.Apps.DarwinCore;
 using Unishare.Apps.DarwinCore.Models;
 
 namespace Unishare.Apps.DarwinMobile
@@ -38,8 +38,8 @@ namespace Unishare.Apps.DarwinMobile
 
         public override string TitleForFooter(UITableView tableView, nint section)
         {
-            if (photos == null) return "正在加载……";
-            if (photos.Count == 0) return "无新增或失败项目需要备份";
+            if (photos == null) return this.Localize("Global.LoadingStatus");
+            if (photos.Count == 0) return this.Localize("Backup.NoNewItems");
             return null;
         }
 

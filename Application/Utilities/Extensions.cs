@@ -1,6 +1,7 @@
 ﻿using NSPersonalCloud.FileSharing.Aliyun;
 
 using Unishare.Apps.Common.Models;
+using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile.Utilities
 {
@@ -8,7 +9,7 @@ namespace Unishare.Apps.DarwinMobile.Utilities
     {
         public static AliYunOSS ToModel(this OssConfig config, string serviceName)
         {
-            if (string.IsNullOrEmpty(serviceName)) serviceName = "阿里云";
+            if (string.IsNullOrEmpty(serviceName)) serviceName = UIKitExtensions.Localize("AliYun.Title");
             return new AliYunOSS {
                 Name = serviceName,
                 Endpoint = config.OssEndpoint,

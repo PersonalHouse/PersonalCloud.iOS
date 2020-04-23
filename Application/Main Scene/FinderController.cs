@@ -239,7 +239,7 @@ namespace Unishare.Apps.DarwinMobile
                 PreparePlaceholder(item, filePath, url => {
                     this.PreviewFile(url);
                 }, exception => {
-                    if (exception is HttpRequestException http) this.ShowAlert(this.Localize("Error.RemoteHTTP"), http.Message);
+                    if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
                     else this.ShowAlert(this.Localize("Error.Download"), exception.GetType().Name);
                 });
 
@@ -285,7 +285,7 @@ namespace Unishare.Apps.DarwinMobile
                         PreparePlaceholder(item, filePath, url => {
                             this.ShowAlert(this.Localize("Finder.AddedToFavorite"), string.Format(this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
                         }, exception => {
-                            if (exception is HttpRequestException http) this.ShowAlert(this.Localize("Error.RemoteHTTP"), http.Message);
+                            if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
                             else this.ShowAlert(this.Localize("Error.Download"), exception.GetType().Name);
                         });
                     });
@@ -341,7 +341,7 @@ namespace Unishare.Apps.DarwinMobile
                     PreparePlaceholder(item, Path.Combine(Paths.Favorites, item.Name), url => {
                         this.ShowAlert(this.Localize("Finder.AddedToFavorite"), string.Format(this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
                     }, exception => {
-                        if (exception is HttpRequestException http) (this).ShowAlert(this.Localize("Error.RemoteHTTP"), http.Message);
+                        if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
                         else this.ShowAlert(this.Localize("Error.Download"), exception.GetType().Name);
                     });
                 });
@@ -447,7 +447,7 @@ namespace Unishare.Apps.DarwinMobile
                         {
                             InvokeOnMainThread(() => {
                                 DismissViewController(true, () => {
-                                    this.ShowAlert(this.Localize("Error.RemoteHTTP"), exception.Message);
+                                    PresentViewController(CloudExceptions.Explain(exception), true, null);
                                 });
                             });
 

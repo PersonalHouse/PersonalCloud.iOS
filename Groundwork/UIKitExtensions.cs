@@ -110,7 +110,7 @@ namespace Unishare.Apps.DarwinCore
             controller.PresentViewController(alert, true, null);
         }
 
-        private static string Localize(string key, string defaultValue = null)
+        public static string Localize(string key, string defaultValue = null)
         {
             return NSBundle.MainBundle.GetLocalizedString(key, defaultValue ?? "LOCALIZABLE_TEXT");
         }

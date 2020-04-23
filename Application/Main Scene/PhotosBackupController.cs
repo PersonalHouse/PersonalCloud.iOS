@@ -57,7 +57,7 @@ namespace Unishare.Apps.DarwinMobile
                 var navigation = (UINavigationController) segue.DestinationViewController;
                 var chooser = (ChooseDeviceController) navigation.TopViewController;
                 chooser.FileSystem = fileSystem;
-                chooser.NavigationTitle = "备份存储位置";
+                chooser.NavigationTitle = this.Localize("Backup.ChooseBackupLocation");
                 chooser.PathSelected += (o, e) => {
                     Globals.Database.SaveSetting(UserSettings.PhotoBackupPrefix, e.Path);
                     InvokeOnMainThread(() => {
@@ -79,7 +79,6 @@ namespace Unishare.Apps.DarwinMobile
             return (int) section switch
             {
                 0 => 5,
-                1 => 3,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -88,8 +87,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             return (int) section switch
             {
-                0 => "自动备份",
-                1 => "手动备份",
+                0 => this.Localize("Backup.AutoBackup"),
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -99,7 +97,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 0)
             {
                 var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
-                cell.Update("定时备份照片", autoBackup);
+                cell.Update(this.Localize("Backup.EnableAutoBackup"), autoBackup);
                 cell.Accessory = UITableViewCellAccessory.None;
                 cell.Clicked += ToggleAutoBackup;
                 return cell;
@@ -108,7 +106,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
                 var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
-                cell.Update("选择存储位置", string.IsNullOrEmpty(backupPath) ? null : "已设置", true);
+                cell.Update(this.Localize("Backup.ChooseLocation"), string.IsNullOrEmpty(backupPath) ? null : this.Localize("Backup.SetUpDone"), true);
                 cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 return cell;
             }
@@ -116,7 +114,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 2)
             {
                 var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
-                cell.Update("设置间隔时间", backupIntervalHours < 1 ? null : "1 小时", true);
+                cell.Update(this.Localize("Backup.Interval"), backupIntervalHours < 1 ? null : string.Format(this.Localize("Backup.Interval.Formattable"), 1), true);
                 cell.Accessory = UITableViewCellAccessory.None;
                 return cell;
             }
@@ -124,7 +122,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 3)
             {
                 var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                cell.Update("查看下次备份项目", true);
+                cell.Update(this.Localize("Backup.ViewItems"), true);
                 cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 return cell;
             }
@@ -132,7 +130,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 4)
             {
                 var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
-                cell.Update("立即执行计划备份", Colors.BlueButton, true);
+                cell.Update(this.Localize("Backup.BackupNow"), Colors.BlueButton, true);
                 cell.Accessory = UITableViewCellAccessory.None;
                 return cell;
             }
@@ -158,14 +156,13 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 2)
             {
-                this.ShowAlert("无法设置间隔时间", "尚不支持调整备份间隔时间。");
                 return;
             }
 
             if (indexPath.Section == 0 && indexPath.Row == 3)
             {
                 if (autoBackup) PerformSegue(ViewPhotosSegue, this);
-                else this.ShowAlert("定时备份未配置", "查看下次计划备份照片前必须先配置定时备份。");
+                else this.ShowAlert(this.Localize("Backup.NotSetUp"), this.Localize("Backup.SetUpBeforeViewingItems"));
                 return;
             }
 
@@ -173,13 +170,13 @@ namespace Unishare.Apps.DarwinMobile
             {
                 if ((Globals.BackupWorker?.BackupTask?.IsCompleted ?? true) != true)
                 {
-                    this.ShowAlert("无法启动新备份", "当前有计划备份正在执行。");
+                    this.ShowAlert(this.Localize("Backup.CannotExecute"), this.Localize("Backup.AlreadyRunning"));
                     return;
                 }
 
                 if (!autoBackup)
                 {
-                    this.ShowAlert("定时备份未配置", "执行计划备份前必须先配置定时备份。");
+                    this.ShowAlert(this.Localize("Backup.NotSetUp"), this.Localize("Backup.SetUpBeforeExecuting"));
                     return;
                 }
 
@@ -187,7 +184,7 @@ namespace Unishare.Apps.DarwinMobile
                     if (Globals.BackupWorker == null) Globals.BackupWorker = new PhotoLibraryExporter();
                     Globals.BackupWorker.StartBackup(fileSystem, backupPath);
                 });
-                this.ShowAlert("备份已启动", "计划备份正在执行。您可以继续使用个人云。");
+                this.ShowAlert(this.Localize("Backup.Executed"), this.Localize("Backup.NewBackupInProgress"));
                 return;
             }
 
@@ -198,11 +195,7 @@ namespace Unishare.Apps.DarwinMobile
 
         private void ShowHelp(object sender, EventArgs e)
         {
-            this.ShowAlert("定时备份照片至其它设备", "个人云支持完整备份本机 iOS 相册到一台个人云内的设备。" +
-                Environment.NewLine + Environment.NewLine +
-                "针对每张照片，自动备份会分别生成“相册备份归档”和“快速查看”格式。其中“相册备份归档”可用于通过个人云 App 还原至 iOS 相册，特殊类型（实况、人像、慢动作等）和所作修改将一并还原。“快速查看”格式可供在其它设备上查看，可能不支持特殊类型照片。" +
-                Environment.NewLine + Environment.NewLine +
-                "定时备份配置后默认每 1 小时运行一次。");
+            this.ShowAlert(this.Localize("Help.Backup"), this.Localize("Help.BackupPhotos"));
         }
 
         private void ToggleAutoBackup(object sender, ToggledEventArgs e)
@@ -213,7 +206,7 @@ namespace Unishare.Apps.DarwinMobile
                     if (status == PHAuthorizationStatus.Authorized) InvokeOnMainThread(() => TurnOnAutoBackup(sender));
                     else InvokeOnMainThread(() => {
                         TurnOffAutoBackup(sender);
-                        this.ShowAlert("无法设置定时备份", "您已拒绝个人云访问“照片”，请前往系统设置 App 更改隐私授权。");
+                        this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Permission.Photos"));
                     });
                 });
             }
@@ -225,14 +218,14 @@ namespace Unishare.Apps.DarwinMobile
             if (string.IsNullOrEmpty(backupPath))
             {
                 TurnOffAutoBackup(obj);
-                this.ShowAlert("无法使用定时备份", "您尚未选择备份存储位置，请点击“选择存储位置”。");
+                this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoBackupLocation"));
                 return;
             }
 
             if (backupIntervalHours < 1)
             {
                 TurnOffAutoBackup(obj);
-                this.ShowAlert("无法使用定时备份", "您尚未设置备份间隔时间，请点击“设置间隔时间”。");
+                this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoInterval"));
                 return;
             }
 
@@ -244,8 +237,7 @@ namespace Unishare.Apps.DarwinMobile
             }
             else
             {
-                this.ShowAlert("后台 App 刷新已禁用", "个人云无法使用“后台 App 刷新”，定时备份已自动关闭。" +Environment.NewLine + Environment.NewLine +
-                    "请前往“设置” > “通用” > “后台 App 刷新”并打开“个人云”。如果您的设备已打开“访问限制”或处于“低电量模式”，后台 App 刷新将不工作。");
+                this.ShowAlert(this.Localize("Backup.BackgroundRefreshDisabled"), this.Localize("Permission.BackgroundRefresh"));
                 TurnOffAutoBackup(obj);
             }
         }

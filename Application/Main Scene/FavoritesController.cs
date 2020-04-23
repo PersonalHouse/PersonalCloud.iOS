@@ -52,7 +52,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
-            return (int)section switch
+            return (int) section switch
             {
                 0 => (items?.Count ?? 0) + (depth == 0 ? 0 : 1),
                 _ => throw new ArgumentNullException(nameof(section))
@@ -61,9 +61,9 @@ namespace Unishare.Apps.DarwinMobile
 
         public override string TitleForFooter(UITableView tableView, nint section)
         {
-            return (int)section switch
+            return (int) section switch
             {
-                0 => (items?.Count ?? 0) == 0 ? "如需了解详情，请使用“帮助”按钮。" : null,
+                0 => (items?.Count ?? 0) == 0 ? this.Localize("Favorites.Hint") : null,
                 _ => throw new ArgumentNullException(nameof(section))
             };
         }
@@ -72,9 +72,9 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
-                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
-                var parentName = depth == 1 ? "本地收藏" : directory.Parent.Name;
-                cell.Update(UIImage.FromBundle("DirectoryBack"), "返回上层", $"后退至“{parentName}”", null);
+                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var parentName = depth == 1 ? this.Localize("Favorites.Title") : directory.Parent.Name;
+                cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(this.Localize("Finder.ReturnTo.Formattable"), parentName), null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
                 return cell;
             }
@@ -82,7 +82,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0)
             {
                 var item = items[depth == 0 ? indexPath.Row : (indexPath.Row - 1)];
-                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 if (item is FileInfo file)
                 {
                     cell.Update(file.Name, file.Length);
@@ -107,8 +107,8 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
-                var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, @"本地收藏/").Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                this.ShowAlert("当前所在目录", pathString);
+                var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, this.Localize("Favorites.Root")).Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
+                this.ShowAlert(this.Localize("Finder.CurrentDirectory"), pathString);
                 return;
             }
         }
@@ -140,35 +140,26 @@ namespace Unishare.Apps.DarwinMobile
 
                 if (Path.GetExtension(item.FullName)?.ToUpperInvariant() == ".PLASSET")
                 {
-                    var alert = UIAlertController.Create("恢复相册备份？", $"“{item.Name}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。"
-                                                         + Environment.NewLine + Environment.NewLine
-                                                         + "您可以立即恢复此备份，相册中目前所有照片均不会受到影响。", UIAlertControllerStyle.Alert);
-                    alert.AddAction(UIAlertAction.Create("取消", UIAlertActionStyle.Cancel, null));
-                    var restore = UIAlertAction.Create("恢复备份", UIAlertActionStyle.Default, action =>
-                    {
-                        Task.Run(() =>
-                        {
-                            SinglePhotoPackage.RestoreFromArchive(item.FullName, () =>
-                            {
-                                InvokeOnMainThread(() =>
-                                {
-                                    var completionAlert = UIAlertController.Create("相册备份恢复成功", $"“{item.Name}”已导入本机相册。", UIAlertControllerStyle.Alert);
-                                    completionAlert.AddAction(UIAlertAction.Create("删除备份", UIAlertActionStyle.Destructive, action =>
-                                    {
+                    var alert = UIAlertController.Create(this.Localize("Backup.RestoreFromPLAsset"), string.Format(this.Localize("Backup.RestoreThisPhoto.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                    alert.AddAction(UIAlertAction.Create(this.Localize("Global.CancelAction"), UIAlertActionStyle.Cancel, null));
+                    var restore = UIAlertAction.Create(this.Localize("Backup.Restore"), UIAlertActionStyle.Default, action => {
+                        Task.Run(() => {
+                            SinglePhotoPackage.RestoreFromArchive(item.FullName, () => {
+                                InvokeOnMainThread(() => {
+                                    var completionAlert = UIAlertController.Create(this.Localize("Backup.Restored"), string.Format(this.Localize("Backup.AddedToPhotos.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                                    completionAlert.AddAction(UIAlertAction.Create(this.Localize("Backup.DeleteBackup"), UIAlertActionStyle.Destructive, action => {
                                         try { item.Delete(); }
                                         catch { }
                                         RefreshDirectory(this, EventArgs.Empty);
                                     }));
-                                    var ok = UIAlertAction.Create("好", UIAlertActionStyle.Default, null);
+                                    var ok = UIAlertAction.Create(this.Localize("Global.OKAction"), UIAlertActionStyle.Default, null);
                                     completionAlert.AddAction(ok);
                                     completionAlert.PreferredAction = ok;
                                     PresentViewController(completionAlert, true, null);
                                 });
-                            }, error =>
-                            {
-                                InvokeOnMainThread(() =>
-                                {
-                                    this.ShowAlert("相册备份恢复失败", error?.LocalizedDescription ?? "未能完成操作，因为发生了未知错误。");
+                            }, error => {
+                                InvokeOnMainThread(() => {
+                                    this.ShowAlert(this.Localize("Error.RestorePhotos"), error?.LocalizedDescription ?? this.Localize("Error.Generic"));
                                 });
                             });
                         });
@@ -208,15 +199,13 @@ namespace Unishare.Apps.DarwinMobile
             {
                 var item = items[depth == 0 ? indexPath.Row : (indexPath.Row - 1)];
 
-                var rename = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, "重命名", (action, indexPath) =>
-                {
+                var rename = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, this.Localize("Finder.Rename"), (action, indexPath) => {
                     TableView.SetEditing(false, true);
 
-                    this.CreatePrompt("输入新名称", $"即将重命名“{item.Name}”", item.Name, item.Name, "保存新名称", "取消", text =>
-                    {
+                    this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
                         if (string.IsNullOrWhiteSpace(text))
                         {
-                            this.ShowAlert("新名称无效", null);
+                            this.ShowAlert(this.Localize("Finder.BadFileName"), null);
                             return;
                         }
 
@@ -227,53 +216,46 @@ namespace Unishare.Apps.DarwinMobile
                             if (item is FileInfo file) file.MoveTo(Path.Combine(Path.GetDirectoryName(file.FullName), text));
                             else
                             {
-                                var directory = (DirectoryInfo)item;
+                                var directory = (DirectoryInfo) item;
                                 directory.MoveTo(Path.Combine(directory.Parent.FullName, text));
                             }
 
-                            InvokeOnMainThread(() =>
-                            {
+                            InvokeOnMainThread(() => {
                                 RefreshDirectory(this, EventArgs.Empty);
                             });
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() =>
-                            {
-                                this.ShowAlert("无法重命名此项目", exception.GetType().Name);
+                            InvokeOnMainThread(() => {
+                                this.ShowAlert(this.Localize("Error.Rename"), exception.GetType().Name);
                             });
                         }
                     });
                 });
                 rename.BackgroundColor = Colors.Indigo;
 
-                var delete = UITableViewRowAction.Create(UITableViewRowActionStyle.Destructive, "删除", (action, indexPath) =>
-                {
+                var delete = UITableViewRowAction.Create(UITableViewRowActionStyle.Destructive, this.Localize("Finder.Delete"), (action, indexPath) => {
                     TableView.SetEditing(false, true);
 
-                    var alert = UIAlertController.Create("删除此项收藏？", $"将从本地收藏中删除“{item.Name}”。"
-                        + Environment.NewLine + Environment.NewLine + "如果此项收藏是文件夹或包，其中的内容将被一同删除。", UIAlertControllerStyle.Alert);
-                    alert.AddAction(UIAlertAction.Create("删除", UIAlertActionStyle.Destructive, action =>
-                    {
+                    var alert = UIAlertController.Create(this.Localize("Favorites.DeleteFile"), string.Format(this.Localize("Favorites.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                    alert.AddAction(UIAlertAction.Create(this.Localize("Finder.Delete"), UIAlertActionStyle.Destructive, action => {
                         try
                         {
                             if (item is DirectoryInfo directory) directory.Delete(true);
                             else item.Delete();
 
-                            InvokeOnMainThread(() =>
-                            {
+                            InvokeOnMainThread(() => {
                                 RefreshDirectory(this, EventArgs.Empty);
                             });
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() =>
-                            {
-                                this.ShowAlert("无法删除此项目", exception.GetType().Name);
+                            InvokeOnMainThread(() => {
+                                this.ShowAlert(this.Localize("Error.Delete"), exception.GetType().Name);
                             });
                         }
                     }));
-                    var ok = UIAlertAction.Create("取消", UIAlertActionStyle.Default, null);
+                    var ok = UIAlertAction.Create(this.Localize("Global.CancelAction"), UIAlertActionStyle.Default, null);
                     alert.AddAction(ok);
                     alert.PreferredAction = ok;
                     PresentViewController(alert, true, null);
@@ -294,15 +276,13 @@ namespace Unishare.Apps.DarwinMobile
             {
                 var item = items[depth == 0 ? indexPath.Row : (indexPath.Row - 1)];
 
-                var rename = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, "重命名", (action, view, handler) =>
-                {
+                var rename = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, this.Localize("Finder.Rename"), (action, view, handler) => {
                     handler?.Invoke(true);
 
-                    this.CreatePrompt("输入新名称", $"即将重命名“{item.Name}”", item.Name, item.Name, "保存新名称", "取消", text =>
-                    {
+                    this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
                         if (string.IsNullOrWhiteSpace(text))
                         {
-                            this.ShowAlert("新名称无效", null);
+                            this.ShowAlert(this.Localize("Finder.BadFileName"), null);
                             return;
                         }
 
@@ -313,53 +293,46 @@ namespace Unishare.Apps.DarwinMobile
                             if (item is FileInfo file) file.MoveTo(Path.Combine(Path.GetDirectoryName(file.FullName), text));
                             else
                             {
-                                var directory = (DirectoryInfo)item;
+                                var directory = (DirectoryInfo) item;
                                 directory.MoveTo(Path.Combine(directory.Parent.FullName, text));
                             }
 
-                            InvokeOnMainThread(() =>
-                            {
+                            InvokeOnMainThread(() => {
                                 RefreshDirectory(this, EventArgs.Empty);
                             });
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() =>
-                            {
-                                this.ShowAlert("无法重命名此项目", exception.GetType().Name);
+                            InvokeOnMainThread(() => {
+                                this.ShowAlert(this.Localize("Error.Rename"), exception.GetType().Name);
                             });
                         }
                     });
                 });
                 rename.BackgroundColor = Colors.Indigo;
 
-                var delete = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Destructive, "删除", (action, view, handler) =>
-                {
+                var delete = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Destructive, this.Localize("Finder.Delete"), (action, view, handler) => {
                     handler?.Invoke(true);
 
-                    var alert = UIAlertController.Create("删除此项收藏？", $"将从本地收藏中删除“{item.Name}”。"
-                        + Environment.NewLine + Environment.NewLine + "如果此项收藏是文件夹或包，其中的内容将被一同删除。", UIAlertControllerStyle.Alert);
-                    alert.AddAction(UIAlertAction.Create("删除", UIAlertActionStyle.Destructive, action =>
-                    {
+                    var alert = UIAlertController.Create(this.Localize("Favorites.DeleteFile"), string.Format(this.Localize("Favorites.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                    alert.AddAction(UIAlertAction.Create(this.Localize("Finder.Delete"), UIAlertActionStyle.Destructive, action => {
                         try
                         {
                             if (item is DirectoryInfo directory) directory.Delete(true);
                             else item.Delete();
 
-                            InvokeOnMainThread(() =>
-                            {
+                            InvokeOnMainThread(() => {
                                 RefreshDirectory(this, EventArgs.Empty);
                             });
                         }
                         catch (Exception exception)
                         {
-                            InvokeOnMainThread(() =>
-                            {
-                                this.ShowAlert("无法删除此项目", exception.GetType().Name);
+                            InvokeOnMainThread(() => {
+                                this.ShowAlert(this.Localize("Error.Delete"), exception.GetType().Name);
                             });
                         }
                     }));
-                    var ok = UIAlertAction.Create("取消", UIAlertActionStyle.Default, null);
+                    var ok = UIAlertAction.Create(this.Localize("Global.CancelAction"), UIAlertActionStyle.Default, null);
                     alert.AddAction(ok);
                     alert.PreferredAction = ok;
                     PresentViewController(alert, true, null);
@@ -386,20 +359,15 @@ namespace Unishare.Apps.DarwinMobile
 
         private void ShowHelp(object sender, EventArgs e)
         {
-            this.ShowAlert("使用本地收藏管理共享文件", "查看个人云中其它设备上的文件时，您可以向右轻扫某个文件将其“收藏”，此文件将被保存至本地收藏。" +
-                Environment.NewLine + Environment.NewLine +
-                "本地收藏存储在这台设备上，使您可以在不连接其它设备的情况下查看和编辑。" +
-                Environment.NewLine + Environment.NewLine +
-                "连接个人云中其它设备后，本地收藏的文件将在其它设备上可见，您也可以将文件手动上传至其它设备。");
+            this.ShowAlert(this.Localize("Help.Favorites"), this.Localize("Help.ManageFavorites"));
         }
 
         private void NewFolder(object sender, EventArgs e)
         {
-            this.CreatePrompt("输入文件夹名称", "将在当前文件夹下创建如下命名的子文件夹", null, "新建文件夹", "创建", "取消", text =>
-            {
+            this.CreatePrompt(this.Localize("Finder.NewFolderName"), this.Localize("Finder.NewFolderHere"), null, this.Localize("Finder.NewFolderPlaceholder"), this.Localize("Finder.CreateNewFolder"), this.Localize("Global.CancelAction"), text => {
                 if (string.IsNullOrWhiteSpace(text))
                 {
-                    this.ShowAlert("文件夹名称无效", null);
+                    this.ShowAlert(this.Localize("Finder.BadFolderName"), null);
                     return;
                 }
 
@@ -408,16 +376,14 @@ namespace Unishare.Apps.DarwinMobile
                     var path = Path.Combine(directory.FullName, text);
                     Directory.CreateDirectory(path);
 
-                    InvokeOnMainThread(() =>
-                    {
+                    InvokeOnMainThread(() => {
                         RefreshDirectory(this, EventArgs.Empty);
                     });
                 }
                 catch (Exception exception)
                 {
-                    InvokeOnMainThread(() =>
-                    {
-                        this.ShowAlert("无法创建文件夹", exception.Message);
+                    InvokeOnMainThread(() => {
+                        this.ShowAlert(this.Localize("Error.NewFolder"), exception.Message);
                     });
                 }
             });
@@ -440,11 +406,10 @@ namespace Unishare.Apps.DarwinMobile
         [Export("documentPicker:didPickDocumentsAtURLs:")]
         public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl[] urls)
         {
-            var alert = UIAlertController.Create("正在导入……", null, UIAlertControllerStyle.Alert);
+            var alert = UIAlertController.Create(this.Localize("Favorites.Importing"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, null);
 
-            Task.Run(() =>
-            {
+            Task.Run(() => {
                 var fails = 0;
                 foreach (var url in urls)
                 {
@@ -465,12 +430,10 @@ namespace Unishare.Apps.DarwinMobile
                     }
                 }
 
-                InvokeOnMainThread(() =>
-                {
-                    DismissViewController(true, () =>
-                    {
+                InvokeOnMainThread(() => {
+                    DismissViewController(true, () => {
                         RefreshDirectory(this, EventArgs.Empty);
-                        if (fails > 0) this.ShowAlert($"{fails} 个文件导入失败", null);
+                        if (fails > 0) this.ShowAlert(string.Format(this.Localize("Error.Import.Formattable"), fails), null);
                     });
                 });
             });
@@ -479,11 +442,10 @@ namespace Unishare.Apps.DarwinMobile
         [Export("documentPicker:didPickDocumentAtURL:")]
         public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl url)
         {
-            var alert = UIAlertController.Create("正在导入……", null, UIAlertControllerStyle.Alert);
+            var alert = UIAlertController.Create(this.Localize("Favorites.Importing"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, null);
 
-            Task.Run(() =>
-            {
+            Task.Run(() => {
                 var failed = false;
                 try
                 {
@@ -502,12 +464,10 @@ namespace Unishare.Apps.DarwinMobile
                 }
 
 
-                InvokeOnMainThread(() =>
-                {
-                    DismissViewController(true, () =>
-                    {
+                InvokeOnMainThread(() => {
+                    DismissViewController(true, () => {
                         RefreshDirectory(this, EventArgs.Empty);
-                        if (failed) this.ShowAlert("文件导入失败", null);
+                        if (failed) this.ShowAlert(this.Localize("Error.Import"), null);
                     });
                 });
             });
@@ -524,7 +484,7 @@ namespace Unishare.Apps.DarwinMobile
             catch (IOException)
             {
                 items = null;
-                this.ShowAlert("无法查看此文件夹", "此文件夹已被删除或内容异常。");
+                this.ShowAlert(this.Localize("Error.RefreshDirectory"), this.Localize("Favorites.BadFolder"));
             }
 
             if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();

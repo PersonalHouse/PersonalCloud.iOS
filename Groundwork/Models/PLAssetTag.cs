@@ -33,22 +33,22 @@ namespace Unishare.Apps.DarwinCore.Models
             return flags.ToArray();
         }
 
-        public static string ToChineseString(this PLAssetTags[] tags)
+        public static string ToLocalizedString(this PLAssetTags[] tags)
         {
             return string.Join("、", tags.Select(x => {
                 return x switch
                 {
                     PLAssetTags.None => throw new ArgumentOutOfRangeException(),
-                    PLAssetTags.Panorama => "全景",
-                    PLAssetTags.HDR => "HDR",
-                    PLAssetTags.Screenshot => "截屏",
-                    PLAssetTags.LivePhoto => "实况",
-                    PLAssetTags.Bokeh => "人像",
-                    PLAssetTags.UltraWide => "超广角",
-                    PLAssetTags.AutoComposition => "自动构图",
-                    PLAssetTags.Online => "云端",
-                    PLAssetTags.SloMo => "慢动作",
-                    PLAssetTags.TimeLapse => "延时摄影",
+                    PLAssetTags.Panorama => UIKitExtensions.Localize("PLAsset.Panorama"),
+                    PLAssetTags.HDR => UIKitExtensions.Localize("PLAsset.HDR"),
+                    PLAssetTags.Screenshot => UIKitExtensions.Localize("PLAsset.Screenshot"),
+                    PLAssetTags.LivePhoto => UIKitExtensions.Localize("PLAsset.LivePhoto"),
+                    PLAssetTags.Bokeh => UIKitExtensions.Localize("PLAsset.Portrait"),
+                    PLAssetTags.UltraWide => UIKitExtensions.Localize("PLAsset.UltraWide"),
+                    PLAssetTags.AutoComposition => UIKitExtensions.Localize("PLAsset.AutoComposition"),
+                    PLAssetTags.Online => UIKitExtensions.Localize("PLAsset.Online"),
+                    PLAssetTags.SloMo => UIKitExtensions.Localize("PLAsset.SloMo"),
+                    PLAssetTags.TimeLapse => UIKitExtensions.Localize("PLAsset.TimeLapse"),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }));

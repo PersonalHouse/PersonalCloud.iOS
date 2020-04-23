@@ -79,8 +79,8 @@ namespace Unishare.Apps.DarwinMobile
         {
             return (int) section switch
             {
-                0 => workingPath.Length != 1 ? "点击“保存”将使用此文件夹。如果要使用子文件夹，请打开子文件夹后点击“保存”。" : null,
-                1 => (workingPath.Length == 1 && (items?.Count ?? 0) == 0) ? "个人云内没有可访问设备" : null,
+                0 => workingPath.Length != 1 ? this.Localize("Help.SelectPath") : null,
+                1 => (workingPath.Length == 1 && (items?.Count ?? 0) == 0) ? this.Localize("Finder.EmptyRoot") : null,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -91,8 +91,8 @@ namespace Unishare.Apps.DarwinMobile
             {
                 var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentPath = Path.GetFileName(Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar)).TrimEnd(Path.AltDirectorySeparatorChar));
-                if (string.IsNullOrEmpty(parentPath)) cell.Update(UIImage.FromBundle("DirectoryBack"), "返回顶层", "后退至设备列表", null);
-                else cell.Update(UIImage.FromBundle("DirectoryBack"), "返回上层", $"后退至“{parentPath}”", null);
+                if (string.IsNullOrEmpty(parentPath)) cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoHome"), this.Localize("Finder.ReturnToRoot"), null);
+                else cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(this.Localize("Finder.ReturnTo.Formattable"), parentPath), null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
                 return cell;
             }
@@ -132,7 +132,7 @@ namespace Unishare.Apps.DarwinMobile
             if (workingPath.Length != 1 && indexPath.Section == 1 && indexPath.Row == 0)
             {
                 var pathString = string.Join(" » ", workingPath.Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                this.ShowAlert("当前所在目录", pathString);
+                this.ShowAlert(this.Localize("Finder.CurrentDirectory"), pathString);
                 return;
             }
         }
@@ -146,7 +146,7 @@ namespace Unishare.Apps.DarwinMobile
                 var parent = Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar));
                 if (!parent.StartsWith(RootPath))
                 {
-                    this.ShowAlert("无法返回上一层", "您要执行的操作必须在此文件夹或更下层级文件夹完成，因此不允许您后退至上一层级。");
+                    this.ShowAlert(this.Localize("SelectPath.Restricted"), this.Localize("SelectPath.CannotGoBack"));
                     return;
                 }
                 workingPath = parent;
@@ -171,7 +171,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();
 
-            var alert = UIAlertController.Create("正在加载……", null, UIAlertControllerStyle.Alert);
+            var alert = UIAlertController.Create(this.Localize("Global.LoadingStatus"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {
                 Task.Run(async () => {
                     try
@@ -187,21 +187,9 @@ namespace Unishare.Apps.DarwinMobile
                     }
                     catch (HttpRequestException exception)
                     {
-                        if (exception.Message.Contains("429"))
-                        {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
-                                    this.ShowAlert("远程设备忙", "此文件夹内容过多，无法在限定时间内收集内容详情。请稍后查看。");
-                                    items = null;
-                                    TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
-                                });
-                            });
-                            return;
-                        }
-
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                this.ShowAlert("与远程设备通讯时遇到问题", exception.Message);
+                                PresentViewController(CloudExceptions.Explain(exception), true, null);
                                 items = null;
                                 TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
                             });
@@ -212,7 +200,7 @@ namespace Unishare.Apps.DarwinMobile
                     {
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                this.ShowAlert("无法打开文件夹", exception.GetType().Name);
+                                this.ShowAlert(this.Localize("Error.RefreshDirectory"), exception.GetType().Name);
                                 items = null;
                                 TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
                             });
@@ -226,7 +214,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (workingPath == "/")
             {
-                this.ShowAlert("存储位置无效", "无法将数据存储在当前位置，请至少选择一台设备。");
+                this.ShowAlert(this.Localize("SelectPath.BadPath"), this.Localize("SelectPath.ChooseADevice"));
                 return;
             }
             NavigationController.DismissViewController(true, () => {

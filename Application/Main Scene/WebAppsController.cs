@@ -7,6 +7,8 @@ using NSPersonalCloud.Interfaces.Apps;
 
 using UIKit;
 
+using Unishare.Apps.DarwinCore;
+
 namespace Unishare.Apps.DarwinMobile
 {
     public partial class WebAppsController : UITableViewController
@@ -42,7 +44,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             return (int) section switch
             {
-                0 => apps?.Count > 0 ? null : "无云端应用",
+                0 => apps?.Count > 0 ? null : this.Localize("Apps.NoWebApps"),
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }

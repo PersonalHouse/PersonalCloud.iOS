@@ -27,7 +27,14 @@
 "Error.EnrollDevice" = "无法加入个人云";
 "Error.NoCloudInNetwork" = "未发现可以加入的个人云。";
 "Error.Invite" = "无法生成邀请码";
-"Error.RemoteHTTP" = "与远程设备通讯时遇到问题";
+"Error.RemoteHTTP" = "执行操作时遇到问题";
+"Error.RemoteHTTP.400" = "无法完成此操作。";
+"Error.RemoteHTTP.401" = "远程设备拒绝处理您的请求。\n\n如果您正在访问网络存储服务，请检查您的凭据或帐户是否仍然有效。如果您正在访问其它个人设备，请重启个人云 App 后再试。";
+"Error.RemoteHTTP.403" = "无权操作指定文件或文件夹。\n\n如果您正在访问网络存储服务，请检查您的凭据或帐户是否仍然有效。如果您正在访问其它个人设备，指定设备配置可能存在问题。";
+"Error.RemoteHTTP.404" = "指定文件或文件夹已不存在，无法完成此操作。";
+"Error.RemoteHTTP.429" = "远程设备正忙，无法即时处理此文件或文件夹。请稍候再试。";
+"Error.RemoteHTTP.500" = "执行操作时出现未知问题，请稍候再试或联系技术支持。";
+"Error.RemoteHTTP.501" = "远程文件管理系统不支持此操作";
 "Error.Download" = "无法下载文件";
 "Error.IOConflict" = "文件访问冲突，请重试。";
 "Error.NewFolder" = "无法创建文件夹";
@@ -39,11 +46,38 @@
 "Error.RefreshDirectory" = "无法打开文件夹";
 "Error.OldVersion.Short" = "App 版本不匹配";
 "Error.OldVersion.Long" = "个人云内的设备已安装更新版本 App，请升级您设备上的个人云 App 以连接其它设备。";
+"Error.Internal" = "内部错误，请重试。";
+"Error.Authentication" = "认证失败";
+"Error.RestorePhotos" = "相册备份恢复失败";
+"Error.Generic" = "未能完成操作，因为发生了未知错误。";
+"Error.Import" = "文件导入失败";
+"Error.Import.Formattable" = "{0} 个文件导入失败";
 
 "Permission.Photos" = "您已拒绝个人云使用“照片”。请前往系统设置 App 更改隐私授权。";
+"Permission.BackgroundRefresh" = "个人云无法使用“后台 App 刷新”，定时备份已自动关闭。\n\n请前往“设置” > “通用” > “后台 App 刷新”并打开“个人云”。如果您的设备已打开“访问限制”或处于“低电量模式”，后台 App 刷新将不工作。";
 
 "Help.Finder" = "管理其它设备上的文件";
 "Help.BrowseInFinder" = "同一网络内其它设备上的个人云 App 运行时，您可以直接管理其共享的文件。\n\n点击一台设备以查看其共享文件夹。左右轻扫文件或文件夹以执行删除等操作。使用屏幕顶部右侧的按钮创建新文件夹或上传新文件。\n\n要管理此设备上本地收藏的文件，请前往“本地收藏”页或打开系统“文件” App；不推荐在此页面访问本设备上的共享文件夹。";
+"Help.SelectPath" = "点击“保存”将使用此文件夹。如果要使用子文件夹，请打开子文件夹后点击“保存”。";
+"Help.Favorites" = "使用本地收藏管理共享文件";
+"Help.ManageFavorites" = "查看个人云中其它设备上的文件时，您可以向右轻扫某个文件将其“收藏”，此文件将被保存至本地收藏。\n\n本地收藏存储在这台设备上，使您可以在不连接其它设备的情况下查看和编辑。\n\n连接个人云中其它设备后，本地收藏的文件将在其它设备上可见，您也可以将文件上传至其它设备。";
+"Help.Backup" = "定时备份照片至其它设备";
+"Help.BackupPhotos" = "个人云支持完整备份本机 iOS 相册到一台个人云内的设备。\n\n针对每张照片，自动备份会分别生成“相册备份归档”和“快速查看”格式。其中“相册备份归档”可用于通过个人云 App 还原至 iOS 相册，特殊类型（实况、人像、慢动作等）和所作修改将一并还原。“快速查看”格式可供在其它设备上查看，可能不支持特殊类型照片。\n\n定时备份配置后默认每 1 小时运行一次。";
+
+"PLAsset.Photo" = "照片";
+"PLAsset.Video" = "视频";
+"PLAsset.Audio" = "音乐";
+"PLAsset.UnknownType" = "未知格式";
+"PLAsset.Panorama" = "全景";
+"PLAsset.HDR" = "HDR";
+"PLAsset.Screenshot" = "截屏";
+"PLAsset.LivePhoto" = "实况";
+"PLAsset.Portrait" = "人像";
+"PLAsset.UltraWide" = "超广角";
+"PLAsset.AutoComposition" = "自动构图";
+"PLAsset.Online" = "云端";
+"PLAsset.SloMo" = "慢动作";
+"PLAsset.TimeLapse" = "延时摄影";
 
 "Finder.Title" = "个人云";
 "Finder.EmptyRoot" = "无可访问设备或第三方服务";
@@ -94,6 +128,33 @@
 
 "Backup.RestoreFromPLAsset" = "恢复相册备份";
 "Backup.DownloadBeforeRestore.Formattable" = "“{0}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。\n\n请轻扫并点击“收藏”以将此备份下载到本地，然后前往“本地收藏”恢复此备份。";
+"Backup.RestoreThisPhoto.Formattable" = "“{0}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。\n\n您可以立即恢复此备份，相册中目前所有照片均不会受到影响。";
+"Backup.Restore" = "恢复备份";
+"Backup.Restored" = "相册备份恢复成功";
+"Backup.AddedToPhotos.Formattable" = "“{item.Name}”已导入本机相册。";
+"Backup.DeleteBackup" = "删除备份";
+"Backup.ChooseBackupLocation" = "备份存储位置";
+"Backup.AutoBackup" = "自动备份";
+"Backup.ManualBackup" = "手动备份";
+"Backup.EnableAutoBackup" = "定时备份照片";
+"Backup.ChooseLocation" = "选择存储位置";
+"Backup.SetUpDone" = "已设置";
+"Backup.Interval" = "设置间隔时间";
+"Backup.Interval.Formattable" = "{0} 小时";
+"Backup.ViewItems" = "查看下次备份项目";
+"Backup.BackupNow" = "立即执行计划备份";
+"Backup.NotSetUp" = "定时备份未配置";
+"Backup.SetUpBeforeViewingItems" = "查看下次计划备份照片前必须先配置定时备份。";
+"Backup.SetUpBeforeExecuting" = "执行计划备份前必须先配置定时备份。";
+"Backup.CannotSetUp" = "无法设置定时备份";
+"Backup.NoBackupLocation" = "您尚未选择备份存储位置，请点击“选择存储位置”。";
+"Backup.NoInterval" = "您尚未设置备份间隔时间，请点击“设置间隔时间”。";
+"Backup.BackgroundRefreshDisabled" = "后台 App 刷新已禁用";
+"Backup.CannotExecute" = "无法启动新备份";
+"Backup.AlreadyRunning" = "当前有计划备份正在执行。";
+"Backup.Executed" = "备份已启动";
+"Backup.NewBackupInProgress" = "计划备份正在执行。您可以继续使用个人云。";
+"Backup.NoNewItems" = "无新增或失败项目需要备份";
 
 "Welcome.Creating" = "正在创建个人云……";
 "Welcome.Created" = "已创建";
@@ -129,3 +190,33 @@
 "Settings.EnablePhotoSharing" = "允许此设备分享相簿";
 "Settings.WritingToPhotosRestricted.Formattable" = "由于系统限制，仅向其它设备提供 {0} 相簿只读权限。您无法通过向“相簿”共享文件夹中添加文件来将照片导入 {0} 相簿。";
 "Settings.CannotReadPhotos" = "无法访问相簿";
+
+"Online.ServiceAlreadyExists" = "同名服务已存在";
+"Online.ChooseADiffrentName" = "为避免数据冲突，请为此服务指定不同的名称。";
+"Online.Verifying" = "正在验证……";
+
+"AliYun.Title" = "阿里云";
+"AliYun.BadName" = "服务无名称";
+"AliYun.NameCannotBeEmpty" = "您必须填写“服务名称”才能将此服务添加到个人云。";
+"AliYun.BadCredential" = "帐户信息不完整";
+"AliYun.BadEndpoint" = "您必须填写“域名”（也称“访问域名”、Endpoint 或 Extranet Endpoint）才能连接到阿里云。";
+"AliYun.BadBucket" = "您必须填写“存储空间”（也称 Bucket）才能连接到阿里云。";
+"AliYun.BadUserID" = "您必须填写“用户 ID”（也称 Access Key ID）才能连接到阿里云。";
+"AliYun.BadUserSecret" = "您必须填写“访问密钥”（也称 Access Key Secret）才能连接到阿里云。";
+"AliYun.CannotAddService" = "无法将阿里云添加到个人云";
+"AliYun.Unauthorized" = "您提供的帐户信息无法连接到有效的阿里云对象存储服务。请检查后重试。";
+
+"SelectPath.Restricted" = "无法返回上一层";
+"SelectPath.CannotGoBack" = "您要执行的操作必须在此文件夹或更下层级文件夹完成，因此不允许您后退至上一层级。";
+"SelectPath.BadPath" = "存储位置无效";
+"SelectPath.ChooseADevice" = "无法将数据存储在当前位置，请至少选择一台设备。";
+
+"Favorites.Title" = "本地收藏";
+"Favorites.Hint" = "如需了解详情，请使用“帮助”按钮。";
+"Favorites.Root" = "本地收藏/";
+"Favorites.DeleteFile" = "删除此项收藏？";
+"Favorites.DeleteContents.Formattable" = "将从本地收藏中删除“{0}”。\n\n如果此项收藏是文件夹或包，其中的内容将被一同删除。";
+"Favorites.BadFolder" = "此文件夹已被删除或内容异常。";
+"Favorites.Importing" = "正在导入……";
+
+"Apps.NoWebApps" = "无云端应用";

@@ -5,15 +5,15 @@ using NSPersonalCloud;
 using NSPersonalCloud.FileSharing.Aliyun;
 
 using UIKit;
+
 using Unishare.Apps.Common.Models;
 using Unishare.Apps.DarwinCore;
-using Unishare.Apps.DarwinMobile.Utilities;
 
 namespace Unishare.Apps.DarwinMobile
 {
     public partial class AliYunController : UITableViewController
     {
-        public AliYunController (IntPtr handle) : base (handle) { }
+        public AliYunController(IntPtr handle) : base(handle) { }
 
         #region Lifecycle
 
@@ -35,7 +35,7 @@ namespace Unishare.Apps.DarwinMobile
             }
             if (string.IsNullOrEmpty(name) || invalidCharHit)
             {
-                this.ShowAlert("服务无名称", "您必须填写“服务名称”才能将此服务添加到个人云。", action => {
+                this.ShowAlert(this.Localize("AliYun.BadName"), this.Localize("AliYun.NameCannotBeEmpty"), action => {
                     AYEndpoint.BecomeFirstResponder();
                 });
                 return;
@@ -44,7 +44,7 @@ namespace Unishare.Apps.DarwinMobile
             var endpoint = AYEndpoint.Text;
             if (string.IsNullOrEmpty(endpoint))
             {
-                this.ShowAlert("帐户信息不完整", "您必须填写“域名”（也称“访问域名”、Endpoint 或 Extranet Endpoint）才能连接到阿里云。", action => {
+                this.ShowAlert(this.Localize("AliYun.BadCredential"), this.Localize("AliYun.BadEndpoint"), action => {
                     AYEndpoint.BecomeFirstResponder();
                 });
                 return;
@@ -53,7 +53,7 @@ namespace Unishare.Apps.DarwinMobile
             var bucket = AYBucket.Text;
             if (string.IsNullOrEmpty(bucket))
             {
-                this.ShowAlert("帐户信息不完整", "您必须填写“存储空间”（也称 Bucket）才能连接到阿里云。", action => {
+                this.ShowAlert(this.Localize("AliYun.BadCredential"), this.Localize("AliYun.BadBucket"), action => {
                     AYBucket.BecomeFirstResponder();
                 });
                 return;
@@ -62,7 +62,7 @@ namespace Unishare.Apps.DarwinMobile
             var accessId = AYAccessID.Text;
             if (string.IsNullOrEmpty(accessId))
             {
-                this.ShowAlert("帐户信息不完整", "您必须填写“用户 ID”（也称 Access Key ID）才能连接到阿里云。", action => {
+                this.ShowAlert(this.Localize("AliYun.BadCredential"), this.Localize("AliYun.BadUserID"), action => {
                     AYAccessID.BecomeFirstResponder();
                 });
                 return;
@@ -71,7 +71,7 @@ namespace Unishare.Apps.DarwinMobile
             var accessSecret = AYAccessSecret.Text;
             if (string.IsNullOrEmpty(accessSecret))
             {
-                this.ShowAlert("帐户信息不完整", "您必须填写“访问密钥”（也称 Access Key Secret）才能连接到阿里云。", action => {
+                this.ShowAlert(this.Localize("AliYun.BadCredential"), this.Localize("AliYun.BadUserSecret"), action => {
                     AYAccessSecret.BecomeFirstResponder();
                 });
                 return;
@@ -79,13 +79,13 @@ namespace Unishare.Apps.DarwinMobile
 
             if (Globals.Database.Find<AliYunOSS>(x => x.Name == name) != null)
             {
-                this.ShowAlert("同名服务已存在", "为避免数据冲突，请为此服务指定不同的名称。", action => {
+                this.ShowAlert(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADiffrentName"), action => {
                     ServiceName.BecomeFirstResponder();
                 });
                 return;
             }
 
-            var alert = UIAlertController.Create("正在验证……", null, UIAlertControllerStyle.Alert);
+            var alert = UIAlertController.Create(this.Localize("Online.Verifying"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {
                 Task.Run(() => {
                     var config = new OssConfig {
@@ -110,7 +110,7 @@ namespace Unishare.Apps.DarwinMobile
                         {
                             InvokeOnMainThread(() => {
                                 DismissViewController(true, () => {
-                                    this.ShowAlert("内部错误", "将阿里云对象存储服务添加到个人云时出现问题，请重试。");
+                                    this.ShowAlert(this.Localize("AliYun.CannotAddService"), this.Localize("Error.Internal"));
                                 });
                             });
                         }
@@ -119,7 +119,7 @@ namespace Unishare.Apps.DarwinMobile
                     {
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                this.ShowAlert("认证失败", "您提供的帐户信息无法连接到有效的阿里云对象存储服务。请检查后重试。");
+                                this.ShowAlert(this.Localize("Error.Authentication"), this.Localize("AliYun.Unauthorized"));
                             });
                         });
                     }

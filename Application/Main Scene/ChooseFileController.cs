@@ -70,8 +70,8 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
                 var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
-                var parentName = depth == 1 ? "本地收藏" : directory.Parent.Name;
-                cell.Update(UIImage.FromBundle("DirectoryBack"), "返回上层", $"后退至“{parentName}”", null);
+                var parentName = depth == 1 ? this.Localize("Favorites.Title") : directory.Parent.Name;
+                cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(this.Localize("Finder.ReturnTo.Formattable"), parentName), null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
                 return cell;
             }
@@ -100,8 +100,8 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
-                var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, @"本地收藏/").Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                this.ShowAlert("当前所在目录", pathString);
+                var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, this.Localize("Favorites.Root")).Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
+                this.ShowAlert(this.Localize("Finder.CurrentDirectory"), pathString);
                 return;
             }
         }
@@ -131,7 +131,7 @@ namespace Unishare.Apps.DarwinMobile
                     return;
                 }
 
-                var alert = UIAlertController.Create("正在上传……", null, UIAlertControllerStyle.Alert);
+                var alert = UIAlertController.Create(this.Localize("Finder.Uploading"), null, UIAlertControllerStyle.Alert);
                 PresentViewController(alert, true, () =>
                 {
                     Task.Run(async () =>
@@ -155,7 +155,7 @@ namespace Unishare.Apps.DarwinMobile
                             {
                                 DismissViewController(true, () =>
                                 {
-                                    this.ShowAlert("与远程设备通讯时遇到问题", exception.Message);
+                                    PresentViewController(CloudExceptions.Explain(exception), true, null);
                                 });
                             });
 
@@ -166,7 +166,7 @@ namespace Unishare.Apps.DarwinMobile
                             {
                                 DismissViewController(true, () =>
                                 {
-                                    this.ShowAlert("无法上传此文件", exception.GetType().Name);
+                                    this.ShowAlert(this.Localize("Error.Upload"), exception.GetType().Name);
                                 });
                             });
                         }
@@ -189,7 +189,7 @@ namespace Unishare.Apps.DarwinMobile
             catch (IOException)
             {
                 items = null;
-                this.ShowAlert("无法查看此文件夹", "此文件夹已被删除或内容异常。");
+                this.ShowAlert(this.Localize("Error.RefreshDirectory"), this.Localize("Favorites.BadFolder"));
             }
 
             if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();

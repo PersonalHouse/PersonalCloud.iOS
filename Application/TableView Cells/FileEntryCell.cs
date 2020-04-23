@@ -40,8 +40,8 @@ namespace Unishare.Apps.DarwinMobile
             IconImage.Image = null;
             IconImage.ContentMode = UIViewContentMode.ScaleAspectFill;
             NameLabel.Text = photo.FileName;
-            var type = photo.Type.ToChineseString();
-            var tags = photo.Tags.Unpack().ToChineseString();
+            var type = photo.Type.ToLocalizedString();
+            var tags = photo.Tags.Unpack().ToLocalizedString();
             if (!string.IsNullOrEmpty(tags)) TypeLabel.Text = tags;
             else TypeLabel.Text = type;
             SizeLabel.Text = null;
