@@ -79,7 +79,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (Globals.Database.Find<AliYunOSS>(x => x.Name == name) != null)
             {
-                this.ShowAlert(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADiffrentName"), action => {
+                this.ShowAlert(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADifferentName"), action => {
                     ServiceName.BecomeFirstResponder();
                 });
                 return;

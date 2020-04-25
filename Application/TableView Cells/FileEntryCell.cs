@@ -29,7 +29,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             var description = uti.ToString();
             if (!string.IsNullOrEmpty(description)) TypeLabel.Text = description;
-            else TypeLabel.Text = "未知文件类型";
+            else TypeLabel.Text = UIKitExtensions.Localize("Finder.UnknownFileType");
 
             if (Images.FromUTI(uti) is UIImage image) IconImage.Image = image;
             else IconImage.Image = UIImage.FromBundle("UnknownFile");
@@ -69,7 +69,7 @@ namespace Unishare.Apps.DarwinMobile
             var extension = Path.GetExtension(fileName);
             if (string.IsNullOrEmpty(extension))
             {
-                TypeLabel.Text = "未知文件类型";
+                TypeLabel.Text = UIKitExtensions.Localize("Finder.UnknownFileType");
                 IconImage.Image = UIImage.FromBundle("UnknownFile");
                 return;
             }

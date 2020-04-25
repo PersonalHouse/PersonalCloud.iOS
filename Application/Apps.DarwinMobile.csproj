@@ -506,6 +506,7 @@
           <DependentUpon>WebAppsController.cs</DependentUpon>
         </Compile>
         <Compile Include="GlobalSuppressions.cs" />
+        <Compile Include="TableView Cells\UTI.cs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">

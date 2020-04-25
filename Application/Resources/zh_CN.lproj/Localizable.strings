@@ -34,7 +34,7 @@
 "Error.RemoteHTTP.404" = "指定文件或文件夹已不存在，无法完成此操作。";
 "Error.RemoteHTTP.429" = "远程设备正忙，无法即时处理此文件或文件夹。请稍候再试。";
 "Error.RemoteHTTP.500" = "执行操作时出现未知问题，请稍候再试或联系技术支持。";
-"Error.RemoteHTTP.501" = "远程文件管理系统不支持此操作";
+"Error.RemoteHTTP.501" = "远程文件管理系统不支持此操作。";
 "Error.Download" = "无法下载文件";
 "Error.IOConflict" = "文件访问冲突，请重试。";
 "Error.NewFolder" = "无法创建文件夹";
@@ -80,6 +80,7 @@
 "PLAsset.TimeLapse" = "延时摄影";
 
 "Finder.Title" = "个人云";
+"Finder.UnknownFileType" = "未知文件类型";
 "Finder.EmptyRoot" = "无可访问设备或第三方服务";
 "Finder.Device" = "设备";
 "Finder.GoHome" = "返回顶层";
@@ -110,7 +111,7 @@
 "Finder.RemoveDevice" = "从个人云中移除此存储？";
 "Finder.RemoveCredentials.Formattable" = "移除“{0}”将同时删除已保存的连接和登录凭据。\n\n下次添加此存储时，您必须重新提供这些凭据。";
 "Finder.DeleteFile" = "删除此项目？";
-"Finder.DeleteContents.Formattable" = "将从远程设备上删除“{item.Name}”。\n\n如果此项目是文件夹或包，其中的内容将被一同删除。";
+"Finder.DeleteContents.Formattable" = "将从远程设备上删除“{0}”。\n\n如果此项目是文件夹或包，其中的内容将被一同删除。";
 "Finder.Deleting" = "正在删除……";
 "Finder.NewFolderName" = "输入文件夹名称";
 "Finder.NewFolderHere" = "将在当前位置创建如下命名的子文件夹";
@@ -126,12 +127,13 @@
 "Finder.ThirdPartyAppNotCompatible" = "来源 App 正在使用特殊方式交换此文件，个人云无法访问文件数据。";
 "Finder.Uploading" = "正在上传……";
 
+"Backup.FileType" = "相册备份归档";
 "Backup.RestoreFromPLAsset" = "恢复相册备份";
 "Backup.DownloadBeforeRestore.Formattable" = "“{0}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。\n\n请轻扫并点击“收藏”以将此备份下载到本地，然后前往“本地收藏”恢复此备份。";
 "Backup.RestoreThisPhoto.Formattable" = "“{0}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。\n\n您可以立即恢复此备份，相册中目前所有照片均不会受到影响。";
 "Backup.Restore" = "恢复备份";
 "Backup.Restored" = "相册备份恢复成功";
-"Backup.AddedToPhotos.Formattable" = "“{item.Name}”已导入本机相册。";
+"Backup.AddedToPhotos.Formattable" = "“{0}”已导入本机相册。";
 "Backup.DeleteBackup" = "删除备份";
 "Backup.ChooseBackupLocation" = "备份存储位置";
 "Backup.AutoBackup" = "自动备份";
@@ -192,7 +194,7 @@
 "Settings.CannotReadPhotos" = "无法访问相簿";
 
 "Online.ServiceAlreadyExists" = "同名服务已存在";
-"Online.ChooseADiffrentName" = "为避免数据冲突，请为此服务指定不同的名称。";
+"Online.ChooseADifferentName" = "为避免数据冲突，请为此服务指定不同的名称。";
 "Online.Verifying" = "正在验证……";
 
 "AliYun.Title" = "阿里云";

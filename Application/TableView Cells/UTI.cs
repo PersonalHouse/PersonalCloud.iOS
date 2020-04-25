@@ -19,9 +19,13 @@ namespace Unishare.Apps.DarwinCore
         public bool IsDynamic => UTType.IsDynamic(Id);
 
         public bool ConformsTo(UTI other) => other is null ? false : UTType.ConformsTo(Id, other.Id);
-        public bool ConformsTo(string other) => other is null ? false : UTType.ConformsTo(Id, other); 
+        public bool ConformsTo(string other) => other is null ? false : UTType.ConformsTo(Id, other);
 
-        public override string ToString() => UTType.GetDescription(Id);
+        public override string ToString()
+        {
+            if (Id == "com.daoyehuo.photolibraryresources") return UIKitExtensions.Localize("Backup.FileType");
+            return UTType.GetDescription(Id);
+        }
 
         #region Constructors
 

@@ -45,7 +45,6 @@
     <Compile Include="PathHelpers.cs" />
     <Compile Include="SandboxedFileSystem.cs" />
     <Compile Include="UIKitExtensions.cs" />
-    <Compile Include="UTI.cs" />
     <Compile Include="Colors.cs" />
     <Compile Include="Prompts.cs" />
     <Compile Include="Notifications.cs" />
