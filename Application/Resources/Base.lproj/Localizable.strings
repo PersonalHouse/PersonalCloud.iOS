@@ -138,7 +138,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Backup.ChooseBackupLocation" = "Backup Save Location";
 "Backup.AutoBackup" = "Automatic";
 "Backup.ManualBackup" = "Manual";
-"Backup.EnableAutoBackup" = "Enable Automatic Photos Backup";
+"Backup.EnableAutoBackup" = "Enable Photos Backup";
 "Backup.ChooseLocation" = "Save Location";
 "Backup.SetUpDone" = "Already Set";
 "Backup.Interval" = "Repeat";

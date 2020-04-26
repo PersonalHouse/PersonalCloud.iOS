@@ -118,8 +118,6 @@ namespace Unishare.Apps.DarwinMobile
             }
             Window.MakeKeyAndVisible();
 
-            Window.RootViewController.ShowAlert("Current Locale", NSLocale.CurrentLocale.LocaleIdentifier);
-
             if (networkNotification == null)
             {
                 networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
