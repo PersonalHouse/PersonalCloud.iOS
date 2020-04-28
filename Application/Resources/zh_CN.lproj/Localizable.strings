@@ -194,19 +194,29 @@
 "Settings.CannotReadPhotos" = "无法访问相簿";
 
 "Online.ServiceAlreadyExists" = "同名服务已存在";
+"Online.BadName" = "服务名称无效";
 "Online.ChooseADifferentName" = "为避免数据冲突，请为此服务指定不同的名称。";
+"Online.IllegalName" = "您必须填写服务名称。此名称不能与其它存储服务相同，且尽量不包含特殊字符。";
+"Online.BadCredential" = "帐户信息不完整";
 "Online.Verifying" = "正在验证……";
 
 "AliYun.Title" = "阿里云";
-"AliYun.BadName" = "服务无名称";
-"AliYun.NameCannotBeEmpty" = "您必须填写“服务名称”才能将此服务添加到个人云。";
-"AliYun.BadCredential" = "帐户信息不完整";
 "AliYun.BadEndpoint" = "您必须填写“域名”（也称“访问域名”、Endpoint 或 Extranet Endpoint）才能连接到阿里云。";
 "AliYun.BadBucket" = "您必须填写“存储空间”（也称 Bucket）才能连接到阿里云。";
 "AliYun.BadUserID" = "您必须填写“用户 ID”（也称 Access Key ID）才能连接到阿里云。";
 "AliYun.BadUserSecret" = "您必须填写“访问密钥”（也称 Access Key Secret）才能连接到阿里云。";
 "AliYun.CannotAddService" = "无法将阿里云添加到个人云";
-"AliYun.Unauthorized" = "您提供的帐户信息无法连接到有效的阿里云对象存储服务。请检查后重试。";
+"AliYun.Unauthorized" = "您提供的帐户信息无法连接到阿里云对象存储服务。请检查后重试。";
+
+"Azure.Title" = "Azure Blob 存储";
+"Azure.BadEndpoint" = "您必须填写 Endpoint URI 或 Endpoint Suffix 才能连接到 Azure Blob 存储。";
+"Azure.BadAccountName" = "您使用了 Endpoint Suffix 访问 Azure Blob 存储，还需要提供帐户名称（也称 Account Name）。如果您不知道或无法提供帐户名称，请使用 Endpoint URI 或导入连接字符串。";
+"Azure.BadAccountKey" = "您必须填写“帐户密钥”（也称 Account Key）或“共享访问签名”（也称 Shared Access Signature）才能连接到 Azure Blob 存储。";
+"Azure.BadContainer" = "您必须填写 Blob Container 才能连接到 Azure Blob 存储。";
+"Azure.BadAccount" = "帐户信息有误";
+"Azure.EndpointAndNameMismatch" = "您同时填写了 Endpoint URI 和“帐户名称”，但两者不匹配。请检查您的输入或重新导入连接字符串。";
+"Azure.CannotAddService" = "无法将 Azure Blob 存储添加到个人云";
+"Azure.Unauthorized" = "您提供的帐户信息无法连接到 Azure Blob 存储。请检查后重试。";
 
 "SelectPath.Restricted" = "无法返回上一层";
 "SelectPath.CannotGoBack" = "您要执行的操作必须在此文件夹或更下层级文件夹完成，因此不允许您后退至上一层级。";

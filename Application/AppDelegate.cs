@@ -44,7 +44,8 @@ namespace Unishare.Apps.DarwinMobile
             var appVersion = application.GetBundleVersion();
 
             AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
-            Globals.Loggers = new LoggerFactory().AddSentry(config => {
+            Globals.Loggers = new LoggerFactory().AddSentry(config =>
+            {
                 config.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@o209874.ingest.sentry.io/5174354";
                 config.Environment = "iOS";
                 config.Release = appVersion;
@@ -55,7 +56,8 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.CreateTable<KeyValueModel>();
             Globals.Database.CreateTable<CloudModel>();
             Globals.Database.CreateTable<PLAsset>();
-            Globals.Database.CreateTable<AliYunOSS>();
+            Globals.Database.CreateTable<AlibabaOSS>();
+            Globals.Database.CreateTable<AzureBlob>();
 
             Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
@@ -89,17 +91,18 @@ namespace Unishare.Apps.DarwinMobile
 
             Globals.Storage = new AppleDataStorage();
             Globals.CloudManager = new PCLocalService(Globals.Storage, Globals.Loggers, Globals.FileSystem);
-            Task.Run(async () => {
+            Task.Run(async () =>
+            {
                 if (!Globals.Database.CheckSetting(UserSettings.LastInstalledVersion, appVersion))
                 {
                     var appsPath = Paths.WebApps;
                     Directory.CreateDirectory(appsPath);
-                    await Globals.CloudManager.InstallApps(appsPath).ConfigureAwait(false);
+                    await PCLocalService.InstallApps(appsPath).ConfigureAwait(false);
                     Globals.Database.SaveSetting(UserSettings.LastInstalledVersion, appVersion);
                 }
 
                 Globals.CloudManager.StartService();
-                });
+            });
             return true;
         }
 

@@ -80,6 +80,7 @@
         <Reference Include="System.Net" />
         <Reference Include="System.Net.Http" />
         <Reference Include="Xamarin.iOS" />
+        <Reference Include="System.Web.Services" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json">
@@ -389,6 +390,8 @@
         <ImageAsset Include="Assets.xcassets\Function.imageset\Function.pdf">
             <Visible>false</Visible>
         </ImageAsset>
+        <ImageAsset Include="Assets.xcassets\ServiceAzure.imageset\Contents.json" />
+        <ImageAsset Include="Assets.xcassets\ServiceAzure.imageset\Azure Blob.pdf" />
     </ItemGroup>
     <ItemGroup />
     <ItemGroup>
@@ -507,6 +510,10 @@
         </Compile>
         <Compile Include="GlobalSuppressions.cs" />
         <Compile Include="TableView Cells\UTI.cs" />
+        <Compile Include="Main Scene\AzureBlobController.cs" />
+        <Compile Include="Main Scene\AzureBlobController.Designer.cs">
+          <DependentUpon>AzureBlobController.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
@@ -539,6 +546,10 @@
           <Project>{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}</Project>
           <Name>AlbumApp</Name>
         </ProjectReference>
+        <ProjectReference Include="..\PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj">
+          <Project>{6DB24509-11EC-4722-95BE-170A961734D8}</Project>
+          <Name>StorageClient.Azure</Name>
+        </ProjectReference>
     </ItemGroup>
     <ItemGroup>
         <BundleResource Include="Resources\Desktop %28Photos%29.ini" />
@@ -562,6 +573,7 @@
         <Folder Include="Resources\" />
         <Folder Include="Resources\zh_CN.lproj\" />
         <Folder Include="Resources\Base.lproj\" />
+        <Folder Include="Assets.xcassets\ServiceAzure.imageset\" />
     </ItemGroup>
     <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

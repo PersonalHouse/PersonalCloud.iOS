@@ -7,10 +7,10 @@ namespace Unishare.Apps.DarwinMobile.Utilities
 {
     public static class Extensions
     {
-        public static AliYunOSS ToModel(this OssConfig config, string serviceName)
+        public static AlibabaOSS ToModel(this OssConfig config, string serviceName)
         {
             if (string.IsNullOrEmpty(serviceName)) serviceName = UIKitExtensions.Localize("AliYun.Title");
-            return new AliYunOSS {
+            return new AlibabaOSS {
                 Name = serviceName,
                 Endpoint = config.OssEndpoint,
                 Bucket = config.BucketName,
@@ -19,7 +19,7 @@ namespace Unishare.Apps.DarwinMobile.Utilities
             };
         }
 
-        public static OssConfig ToConfig(this AliYunOSS model)
+        public static OssConfig ToConfig(this AlibabaOSS model)
         {
             return new OssConfig {
                 OssEndpoint = model.Endpoint,

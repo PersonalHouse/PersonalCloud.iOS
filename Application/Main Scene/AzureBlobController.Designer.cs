@@ -11,24 +11,24 @@ using UIKit;
 
 namespace Unishare.Apps.DarwinMobile
 {
-    [Register ("AliYunController")]
-    partial class AliYunController
+    [Register ("AzureBlobController")]
+    partial class AzureBlobController
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UITextField AccessKeyID { get; set; }
+        UIKit.UITextField AccountKey { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UITextField AccessKeySecret { get; set; }
+        UIKit.UITextField AccountName { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UITextField BucketName { get; set; }
+        UIKit.UITextField Container { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UITextField Endpoint { get; set; }
+        UIKit.UITextField EndpointSuffix { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -40,24 +40,24 @@ namespace Unishare.Apps.DarwinMobile
 
         void ReleaseDesignerOutlets ()
         {
-            if (AccessKeyID != null) {
-                AccessKeyID.Dispose ();
-                AccessKeyID = null;
+            if (AccountKey != null) {
+                AccountKey.Dispose ();
+                AccountKey = null;
             }
 
-            if (AccessKeySecret != null) {
-                AccessKeySecret.Dispose ();
-                AccessKeySecret = null;
+            if (AccountName != null) {
+                AccountName.Dispose ();
+                AccountName = null;
             }
 
-            if (BucketName != null) {
-                BucketName.Dispose ();
-                BucketName = null;
+            if (Container != null) {
+                Container.Dispose ();
+                Container = null;
             }
 
-            if (Endpoint != null) {
-                Endpoint.Dispose ();
-                Endpoint = null;
+            if (EndpointSuffix != null) {
+                EndpointSuffix.Dispose ();
+                EndpointSuffix = null;
             }
 
             if (SaveButton != null) {

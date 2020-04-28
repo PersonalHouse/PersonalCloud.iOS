@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageClient.Aliyun", "Per
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlbumApp", "PersonalCloud.Core\src\Apps\Album\AlbumApp\AlbumApp.csproj", "{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageClient.Azure", "PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj", "{6DB24509-11EC-4722-95BE-170A961734D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -122,6 +124,18 @@ Global
 		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|iPhone.Build.0 = Release|Any CPU
 		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Release|iPhone.Build.0 = Release|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{6DB24509-11EC-4722-95BE-170A961734D8}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,6 +146,7 @@ Global
 		{1C833A44-A615-449B-837A-6BD0DB4BD3F6} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 		{4436B0C5-EF64-4BB6-B479-4660111B7070} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
+		{6DB24509-11EC-4722-95BE-170A961734D8} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {75FF636A-5B87-4C64-8C8D-6336F10D97D1}

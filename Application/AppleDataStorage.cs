@@ -25,7 +25,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             var deviceName = Globals.Database.LoadSetting(UserSettings.DeviceName) ?? UIDevice.CurrentDevice.Name;
             return Globals.Database.Table<CloudModel>().Select(x => {
-                var providers = Globals.Database.Table<AliYunOSS>().Where(y => y.CloudId == x.Id).Select(y => {
+                var alibaba = Globals.Database.Table<AlibabaOSS>().Where(y => y.Cloud == x.Id).Select(y => {
                     var config = new OssConfig {
                         OssEndpoint = y.Endpoint,
                         BucketName = y.Bucket,
@@ -38,8 +38,22 @@ namespace Unishare.Apps.DarwinMobile
                         Visibility = (StorageProviderVisibility) y.Visibility,
                         Settings = JsonConvert.SerializeObject(config)
                     };
-                }).ToList();
-                if (providers is null) providers = new List<StorageProviderInfo>();
+                });
+                var azure = Globals.Database.Table<AzureBlob>().Where(y => y.Cloud == x.Id).Select(y => {
+                    var config = new AzureBlobConfig {
+                        ConnectionString = y.Parameters,
+                        BlobName = y.Container
+                    };
+                    return new StorageProviderInfo {
+                        Type = StorageProviderInstance.TypeAzure,
+                        Name = y.Name,
+                        Visibility = (StorageProviderVisibility) y.Visibility,
+                        Settings = JsonConvert.SerializeObject(config)
+                    };
+                });
+                var providers = new List<StorageProviderInfo>();
+                providers.AddRange(alibaba);
+                providers.AddRange(azure);
                 return new PersonalCloudInfo(providers) {
                     Id = x.Id.ToString("N"),
                     DisplayName = x.Name,
@@ -66,7 +80,8 @@ namespace Unishare.Apps.DarwinMobile
         public void SaveCloud(IEnumerable<PersonalCloudInfo> cloud)
         {
             Globals.Database.DeleteAll<CloudModel>();
-            Globals.Database.DeleteAll<AliYunOSS>();
+            Globals.Database.DeleteAll<AlibabaOSS>();
+            Globals.Database.DeleteAll<AzureBlob>();
             foreach (var item in cloud)
             {
                 var id = new Guid(item.Id);
@@ -84,15 +99,32 @@ namespace Unishare.Apps.DarwinMobile
                         case StorageProviderInstance.TypeAliYun:
                         {
                             var config = JsonConvert.DeserializeObject<OssConfig>(provider.Settings);
-                            Globals.Database.Insert(new AliYunOSS {
-                                CloudId = id,
+                            var model = new AlibabaOSS {
+                                Cloud = id,
                                 Name = provider.Name,
                                 Visibility = (int) provider.Visibility,
                                 Endpoint = config.OssEndpoint,
                                 Bucket = config.BucketName,
                                 AccessID = config.AccessKeyId,
                                 AccessSecret = config.AccessKeySecret
-                            });
+                            };
+                            if (model.Id == Guid.Empty) model.Id = Guid.NewGuid();
+                            Globals.Database.Insert(model);
+                            continue;
+                        }
+
+                        case StorageProviderInstance.TypeAzure:
+                        {
+                            var config = JsonConvert.DeserializeObject<AzureBlobConfig>(provider.Settings);
+                            var model = new AzureBlob {
+                                Cloud = id,
+                                Name = provider.Name,
+                                Visibility = (int) provider.Visibility,
+                                Parameters = config.ConnectionString,
+                                Container = config.BlobName
+                            };
+                            if (model.Id == Guid.Empty) model.Id = Guid.NewGuid();
+                            Globals.Database.Insert(model);
                             continue;
                         }
                     }
@@ -107,5 +139,20 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.SaveSetting(UserSettings.DeviceId, config.Id.ToString("N"));
             Globals.Database.SaveSetting(UserSettings.DevicePort, config.Port.ToString(CultureInfo.InvariantCulture));
         }
+
+        #region Apps
+
+        public void SaveApp(string appId, string cloudId, string config)
+        {
+            // Todo
+        }
+
+        public List<Tuple<string, string>> GetApp(string appId)
+        {
+            // Todo
+            return new List<Tuple<string, string>>();
+        }
+
+        #endregion
     }
 }

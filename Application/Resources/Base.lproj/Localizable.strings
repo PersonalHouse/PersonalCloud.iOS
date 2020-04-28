@@ -194,19 +194,29 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Settings.CannotReadPhotos" = "Cannot Read Photos Library";
 
 "Online.ServiceAlreadyExists" = "Name In Use";
+"Online.BadName" = "Invalid Service Name";
 "Online.ChooseADifferentName" = "An online storage with the same name already exists.";
+"Online.IllegalName" = "Choose a unique name for this online storage. Do not use special characters.";
+"Online.BadCredential" = "Missing Credentials";
 "Online.Verifying" = "Verifying...";
 
 "AliYun.Title" = "Alibaba Cloud";
-"AliYun.BadName" = "Missing Name";
-"AliYun.NameCannotBeEmpty" = "Choose a unique name for this online storage.";
-"AliYun.BadCredential" = "Missing Credentials";
 "AliYun.BadEndpoint" = "Fill in Endpoint (Extranet Endpoint) as shown on your Alibaba Cloud account page.";
 "AliYun.BadBucket" = "Fill in Bucket as shown on your Alibaba Cloud account page.";
 "AliYun.BadUserID" = "Fill in User ID (Access Key ID) as shown on your Alibaba Cloud account page.";
 "AliYun.BadUserSecret" = "Fill in User Secret (Access Key Secret) as shown on your Alibaba Cloud account page.";
-"AliYun.CannotAddService" = "Cannot Add Alibaba Cloud";
-"AliYun.Unauthorized" = "Your credentials cannot authenticate any valid Alibaba Cloud storage container.";
+"AliYun.CannotAddService" = "Cannot Connect to Alibaba Cloud";
+"AliYun.Unauthorized" = "Your credentials cannot be used to access any valid Alibaba Cloud OSS container.";
+
+"Azure.Title" = "Azure Blob Storage";
+"Azure.BadEndpoint" = "Endpoint URI or Endpoint Suffix is required.";
+"Azure.BadAccountName" = "When using Endpoint Suffix instead of fully qualified Endpoint URI, Account Name is required.";
+"Azure.BadAccountKey" = "Access Key or Shared Access Signature is required.";
+"Azure.BadContainer" = "Blob Container is required.";
+"Azure.BadAccount" = "Inconsistent Account Information";
+"Azure.EndpointAndNameMismatch" = "Endpoint is fully qualified URI but does not contain Account Name. Please enter your account information exactly as displayed on Azure Portal.";
+"Azure.CannotAddService" = "Cannot Connect to Azure Blob Storage";
+"Azure.Unauthorized" = "Your credentials cannot be used to access any valid Azure Blob Storage container.";
 
 "SelectPath.Restricted" = "Cannot Go Back";
 "SelectPath.CannotGoBack" = "The current operation restricts target location to this folder and its subfolders.";
