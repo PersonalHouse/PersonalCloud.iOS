@@ -796,7 +796,7 @@ Personal Cloud</string>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Required" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="Okw-sD-bZU">
                                                     <rect key="frame" x="207" y="11" width="187" height="22"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <textInputTraits key="textInputTraits" returnKeyType="done"/>
+                                                    <textInputTraits key="textInputTraits" returnKeyType="done" textContentType="one-time-code"/>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -1603,6 +1603,44 @@ Personal Cloud</string>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection headerTitle="Share Credentials" id="N6y-uZ-k4r">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" accessoryType="checkmark" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="6Qd-IX-wsr" style="IBUITableViewCellStyleDefault" id="Jc8-0l-Yau">
+                                        <rect key="frame" x="0.0" y="625.5" width="414" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Jc8-0l-Yau" id="Get-bo-lT9">
+                                            <rect key="frame" x="0.0" y="0.0" width="370" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Save to Personal Cloud" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="6Qd-IX-wsr">
+                                                    <rect key="frame" x="20" y="0.0" width="342" height="44"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="tzo-vO-tdc" style="IBUITableViewCellStyleDefault" id="x9W-fT-WQb">
+                                        <rect key="frame" x="0.0" y="669.5" width="414" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="x9W-fT-WQb" id="u3u-bL-Mxa">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Save on This Device Only" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="tzo-vO-tdc">
+                                                    <rect key="frame" x="20" y="0.0" width="374" height="44"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="q5K-7N-w6U" id="KAt-YZ-L4o"/>
@@ -1619,6 +1657,8 @@ Personal Cloud</string>
                         <outlet property="EndpointSuffix" destination="DBr-Pg-pnM" id="name-outlet-DBr-Pg-pnM"/>
                         <outlet property="SaveButton" destination="Bry-tc-tO3" id="name-outlet-Bry-tc-tO3"/>
                         <outlet property="ServiceName" destination="b86-2Q-8Xt" id="name-outlet-b86-2Q-8Xt"/>
+                        <outlet property="ShareCredentialsCell" destination="Jc8-0l-Yau" id="name-outlet-Jc8-0l-Yau"/>
+                        <outlet property="StoreCredentialsCell" destination="x9W-fT-WQb" id="name-outlet-x9W-fT-WQb"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="loR-aX-Ev2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1844,6 +1884,44 @@ Personal Cloud</string>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection headerTitle="Share Credentials" id="LRC-FR-R5J">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="checkmark" indentationWidth="10" textLabel="ywH-0l-Wo5" style="IBUITableViewCellStyleDefault" id="la0-nW-kgK">
+                                        <rect key="frame" x="0.0" y="622.5" width="414" height="43.5"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="la0-nW-kgK" id="bbV-jd-WOJ">
+                                            <rect key="frame" x="0.0" y="0.0" width="370" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Save to Personal Cloud" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ywH-0l-Wo5">
+                                                    <rect key="frame" x="20" y="0.0" width="342" height="43.5"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="Hbj-nW-1Tx" style="IBUITableViewCellStyleDefault" id="gVk-W4-C5l">
+                                        <rect key="frame" x="0.0" y="666" width="414" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="gVk-W4-C5l" id="IRh-O7-HnI">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Save on This Device Only" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Hbj-nW-1Tx">
+                                                    <rect key="frame" x="20" y="0.0" width="374" height="44"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="gNU-AF-2h1" id="k8n-ND-SDH"/>
@@ -1860,6 +1938,8 @@ Personal Cloud</string>
                         <outlet property="Endpoint" destination="ZKr-Lu-Xqs" id="name-outlet-ZKr-Lu-Xqs"/>
                         <outlet property="SaveButton" destination="GCH-TE-XYo" id="name-outlet-GCH-TE-XYo"/>
                         <outlet property="ServiceName" destination="bZy-ul-V0Z" id="name-outlet-bZy-ul-V0Z"/>
+                        <outlet property="ShareCredentialsCell" destination="la0-nW-kgK" id="name-outlet-la0-nW-kgK"/>
+                        <outlet property="StoreCredentialsCell" destination="gVk-W4-C5l" id="name-outlet-gVk-W4-C5l"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="j5B-vm-GxX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

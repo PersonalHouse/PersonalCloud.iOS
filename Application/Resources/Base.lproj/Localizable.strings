@@ -200,6 +200,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Online.BadCredential" = "Missing Credentials";
 "Online.Verifying" = "Verifying...";
 "Online.ClipboardNoData" = "No Account or Connection String Detected";
+"Online.PasteManually" = "Auto-Fill supports credentials shared from Personal Cloud app or copied from account management page. Paste in the account information form if you copied partial account info text.";
 
 "AliYun.Title" = "Alibaba Cloud";
 "AliYun.BadEndpoint" = "Fill in Endpoint (Extranet Endpoint) as shown on your Alibaba Cloud account page.";

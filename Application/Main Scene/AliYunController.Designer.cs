@@ -38,6 +38,14 @@ namespace Unishare.Apps.DarwinMobile
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UITextField ServiceName { get; set; }
 
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UITableViewCell ShareCredentialsCell { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UITableViewCell StoreCredentialsCell { get; set; }
+
         void ReleaseDesignerOutlets ()
         {
             if (AccessKeyID != null) {
@@ -68,6 +76,16 @@ namespace Unishare.Apps.DarwinMobile
             if (ServiceName != null) {
                 ServiceName.Dispose ();
                 ServiceName = null;
+            }
+
+            if (ShareCredentialsCell != null) {
+                ShareCredentialsCell.Dispose ();
+                ShareCredentialsCell = null;
+            }
+
+            if (StoreCredentialsCell != null) {
+                StoreCredentialsCell.Dispose ();
+                StoreCredentialsCell = null;
             }
         }
     }

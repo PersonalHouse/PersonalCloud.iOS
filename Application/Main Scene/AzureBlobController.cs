@@ -22,6 +22,8 @@ namespace Unishare.Apps.DarwinMobile
     {
         public AzureBlobController(IntPtr handle) : base(handle) { }
 
+        private StorageProviderVisibility visibility = StorageProviderVisibility.Public;
+
         #region Lifecycle
 
         public override void ViewDidLoad()
@@ -92,7 +94,24 @@ namespace Unishare.Apps.DarwinMobile
                     }
                 }
 
-                this.ShowAlert(this.Localize("Online.ClipboardNoData"), null);
+                this.ShowAlert(this.Localize("Online.ClipboardNoData"), this.Localize("Online.PasteManually"));
+                return;
+            }
+
+            if (indexPath.Section == 3 && indexPath.Row == 0)
+            {
+                visibility = StorageProviderVisibility.Public;
+                ShareCredentialsCell.Accessory = UITableViewCellAccessory.Checkmark;
+                StoreCredentialsCell.Accessory = UITableViewCellAccessory.None;
+                return;
+            }
+
+            if (indexPath.Section == 3 && indexPath.Row == 1)
+            {
+                visibility = StorageProviderVisibility.Private;
+                ShareCredentialsCell.Accessory = UITableViewCellAccessory.None;
+                StoreCredentialsCell.Accessory = UITableViewCellAccessory.Checkmark;
+                return;
             }
         }
 
