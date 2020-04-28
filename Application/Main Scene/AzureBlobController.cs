@@ -41,54 +41,58 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 1 && indexPath.Row == 0)
             {
                 var text = UIPasteboard.General.GetValue(UTType.PlainText)?.ToString()?.Trim();
-                if (text[0] == '{' && text[^1] == '}')
+                if (!string.IsNullOrEmpty(text) && text.Length > 1)
                 {
-                    try
+                    if (text[0] == '{' && text[^1] == '}')
                     {
-                        var model = JsonConvert.DeserializeObject<AzureBlobConfig>(text);
-
-                        text = model.ConnectionString;
-                        Container.Text = model.BlobName;
+                        try
+                        {
+                            var model = JsonConvert.DeserializeObject<AzureBlobConfig>(text);
+                            text = model.ConnectionString;
+                            Container.Text = model.BlobName;
+                        }
+                        catch
+                        {
+                            // Ignored.
+                        }
                     }
-                    catch
+
+                    if (Uri.IsWellFormedUriString(text, UriKind.Absolute))
                     {
-                        // Ignored.
+                        var uri = new Uri(text);
+                        EndpointSuffix.Text = uri.GetLeftPart(UriPartial.Path);
+                        AccountKey.Text = uri.Query.Substring(1);
+                        Container.Text = uri.LocalPath.Substring(1);
+                        return;
+                    }
+
+                    var pairs = new NameValueCollection();
+                    foreach (var pair in text.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        var splitIndex = pair.IndexOf('=', StringComparison.Ordinal);
+                        pairs.Add(pair.Substring(0, splitIndex), pair.Substring(splitIndex + 1));
+                    }
+
+                    if (pairs["BlobEndpoint"] is { } endpoint && Uri.IsWellFormedUriString(endpoint, UriKind.Absolute) && pairs["SharedAccessSignature"] is { } sas)
+                    {
+                        var uri = new Uri(endpoint);
+                        EndpointSuffix.Text = uri.GetLeftPart(UriPartial.Path);
+                        AccountKey.Text = sas;
+                        Container.Text = uri.LocalPath.Substring(1);
+                        return;
+                    }
+
+                    if (pairs["AccountName"] is { } account && pairs["AccountKey"] is { } key && pairs["EndpointSuffix"] is { } suffix)
+                    {
+                        EndpointSuffix.Text = suffix;
+                        AccountName.Text = account;
+                        AccountKey.Text = key;
+                        Container.BecomeFirstResponder();
+                        return;
                     }
                 }
 
-                if (Uri.IsWellFormedUriString(text, UriKind.Absolute))
-                {
-                    var uri = new Uri(text);
-                    EndpointSuffix.Text = uri.GetLeftPart(UriPartial.Path);
-                    AccountKey.Text = uri.Query.Substring(1);
-                    Container.Text = uri.LocalPath.Substring(1);
-                    return;
-                }
-
-                var pairs = new NameValueCollection();
-                foreach (var pair in text.Split(';', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    var splitIndex = pair.IndexOf('=', StringComparison.Ordinal);
-                    pairs.Add(pair.Substring(0, splitIndex), pair.Substring(splitIndex + 1));
-                }
-
-                if (pairs["BlobEndpoint"] is { } endpoint && Uri.IsWellFormedUriString(endpoint, UriKind.Absolute) && pairs["SharedAccessSignature"] is { } sas)
-                {
-                    var uri = new Uri(endpoint);
-                    EndpointSuffix.Text = uri.GetLeftPart(UriPartial.Path);
-                    AccountKey.Text = sas;
-                    Container.Text = uri.LocalPath.Substring(1);
-                    return;
-                }
-
-                if (pairs["AccountName"] is { } account && pairs["AccountKey"] is { } key && pairs["EndpointSuffix"] is { } suffix)
-                {
-                    EndpointSuffix.Text = suffix;
-                    AccountName.Text = account;
-                    AccountKey.Text = key;
-                    Container.BecomeFirstResponder();
-                    return;
-                }
+                this.ShowAlert(this.Localize("Online.ClipboardNoData"), null);
             }
         }
 

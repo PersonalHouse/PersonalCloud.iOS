@@ -1,8 +1,12 @@
 using System;
 using System.Threading.Tasks;
+
 using Foundation;
+
 using MobileCoreServices;
+
 using Newtonsoft.Json;
+
 using NSPersonalCloud;
 using NSPersonalCloud.FileSharing.Aliyun;
 
@@ -36,22 +40,27 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 1 && indexPath.Row == 0)
             {
                 var text = UIPasteboard.General.GetValue(UTType.PlainText)?.ToString()?.Trim();
-                if (text[0] == '{' && text[^1] == '}')
+                if (!string.IsNullOrEmpty(text) && text.Length > 1)
                 {
-                    try
+                    if (text[0] == '{' && text[^1] == '}')
                     {
-                        var model = JsonConvert.DeserializeObject<OssConfig>(text);
-
-                        Endpoint.Text = model.OssEndpoint;
-                        BucketName.Text = model.BucketName;
-                        AccessKeyID.Text = model.AccessKeyId;
-                        AccessKeySecret.Text = model.AccessKeySecret;
-                    }
-                    catch
-                    {
-                        // Ignored.
+                        try
+                        {
+                            var model = JsonConvert.DeserializeObject<OssConfig>(text);
+                            Endpoint.Text = model.OssEndpoint;
+                            BucketName.Text = model.BucketName;
+                            AccessKeyID.Text = model.AccessKeyId;
+                            AccessKeySecret.Text = model.AccessKeySecret;
+                            return;
+                        }
+                        catch
+                        {
+                            // Ignored.
+                        }
                     }
                 }
+
+                this.ShowAlert(this.Localize("Online.ClipboardNoData"), null);
             }
         }
 

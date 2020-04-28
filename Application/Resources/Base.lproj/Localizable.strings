@@ -199,6 +199,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Online.IllegalName" = "Choose a unique name for this online storage. Do not use special characters.";
 "Online.BadCredential" = "Missing Credentials";
 "Online.Verifying" = "Verifying...";
+"Online.ClipboardNoData" = "No Account or Connection String Detected";
 
 "AliYun.Title" = "Alibaba Cloud";
 "AliYun.BadEndpoint" = "Fill in Endpoint (Extranet Endpoint) as shown on your Alibaba Cloud account page.";
