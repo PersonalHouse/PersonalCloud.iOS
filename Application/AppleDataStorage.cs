@@ -15,6 +15,8 @@ using UIKit;
 using Unishare.Apps.Common;
 using Unishare.Apps.Common.Models;
 
+using VaslD.Utility.Cryptography;
+
 namespace Unishare.Apps.DarwinMobile
 {
     public class AppleDataStorage : IConfigStorage
@@ -29,9 +31,10 @@ namespace Unishare.Apps.DarwinMobile
                     var config = new OssConfig {
                         OssEndpoint = y.Endpoint,
                         BucketName = y.Bucket,
-                        AccessKeyId = y.AccessID,
-                        AccessKeySecret = y.AccessSecret
                     };
+                    using var cipher = new PasswordCipher(y.Id.ToString("N", CultureInfo.InvariantCulture), x.Key);
+                    config.AccessKeyId = cipher.DecryptContinuousText(y.AccessID);
+                    config.AccessKeySecret = cipher.DecryptContinuousText(y.AccessSecret);
                     return new StorageProviderInfo {
                         Type = StorageProviderInstance.TypeAliYun,
                         Name = y.Name,
@@ -41,9 +44,10 @@ namespace Unishare.Apps.DarwinMobile
                 });
                 var azure = Globals.Database.Table<AzureBlob>().Where(y => y.Cloud == x.Id).Select(y => {
                     var config = new AzureBlobConfig {
-                        ConnectionString = y.Parameters,
                         BlobName = y.Container
                     };
+                    using var cipher = new PasswordCipher(y.Id.ToString("N", CultureInfo.InvariantCulture), x.Key);
+                    config.ConnectionString = cipher.DecryptTextOnce(y.Parameters);
                     return new StorageProviderInfo {
                         Type = StorageProviderInstance.TypeAzure,
                         Name = y.Name,
@@ -55,7 +59,7 @@ namespace Unishare.Apps.DarwinMobile
                 providers.AddRange(alibaba);
                 providers.AddRange(azure);
                 return new PersonalCloudInfo(providers) {
-                    Id = x.Id.ToString("N"),
+                    Id = x.Id.ToString("N", CultureInfo.InvariantCulture),
                     DisplayName = x.Name,
                     NodeDisplayName = deviceName,
                     MasterKey = Convert.FromBase64String(x.Key),
@@ -69,7 +73,7 @@ namespace Unishare.Apps.DarwinMobile
             var id = Globals.Database.LoadSetting(UserSettings.DeviceId);
             if (id is null) return null;
 
-            var port = int.Parse(Globals.Database.LoadSetting(UserSettings.DevicePort));
+            var port = int.Parse(Globals.Database.LoadSetting(UserSettings.DevicePort), CultureInfo.InvariantCulture);
             if (port <= IPEndPoint.MinPort || port > IPEndPoint.MaxPort) throw new InvalidOperationException();
             return new ServiceConfiguration {
                 Id = new Guid(id),
@@ -100,15 +104,17 @@ namespace Unishare.Apps.DarwinMobile
                         {
                             var config = JsonConvert.DeserializeObject<OssConfig>(provider.Settings);
                             var model = new AlibabaOSS {
+                                // Todo: GUID
                                 Cloud = id,
                                 Name = provider.Name,
                                 Visibility = (int) provider.Visibility,
                                 Endpoint = config.OssEndpoint,
                                 Bucket = config.BucketName,
-                                AccessID = config.AccessKeyId,
-                                AccessSecret = config.AccessKeySecret
                             };
                             if (model.Id == Guid.Empty) model.Id = Guid.NewGuid();
+                            using var cipher = new PasswordCipher(model.Id.ToString("N", CultureInfo.InvariantCulture), item.MasterKey);
+                            model.AccessID = cipher.EncryptContinuousText(config.AccessKeyId);
+                            model.AccessSecret = cipher.EncryptContinuousText(config.AccessKeySecret);
                             Globals.Database.Insert(model);
                             continue;
                         }
@@ -117,13 +123,15 @@ namespace Unishare.Apps.DarwinMobile
                         {
                             var config = JsonConvert.DeserializeObject<AzureBlobConfig>(provider.Settings);
                             var model = new AzureBlob {
+                                // Todo: GUID
                                 Cloud = id,
                                 Name = provider.Name,
                                 Visibility = (int) provider.Visibility,
-                                Parameters = config.ConnectionString,
                                 Container = config.BlobName
                             };
                             if (model.Id == Guid.Empty) model.Id = Guid.NewGuid();
+                            using var cipher = new PasswordCipher(model.Id.ToString("N", CultureInfo.InvariantCulture), item.MasterKey);
+                            model.Parameters = cipher.EncryptTextOnce(config.ConnectionString);
                             Globals.Database.Insert(model);
                             continue;
                         }
@@ -136,7 +144,7 @@ namespace Unishare.Apps.DarwinMobile
 
         public void SaveConfiguration(ServiceConfiguration config)
         {
-            Globals.Database.SaveSetting(UserSettings.DeviceId, config.Id.ToString("N"));
+            Globals.Database.SaveSetting(UserSettings.DeviceId, config.Id.ToString("N", CultureInfo.InvariantCulture));
             Globals.Database.SaveSetting(UserSettings.DevicePort, config.Port.ToString(CultureInfo.InvariantCulture));
         }
 

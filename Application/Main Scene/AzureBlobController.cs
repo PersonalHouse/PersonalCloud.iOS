@@ -219,7 +219,7 @@ namespace Unishare.Apps.DarwinMobile
                     {
                         try
                         {
-                            Globals.CloudManager.AddStorageProvider(Globals.CloudManager.PersonalClouds[0].Id, name, config, StorageProviderVisibility.Private);
+                            Globals.CloudManager.AddStorageProvider(Globals.CloudManager.PersonalClouds[0].Id, name, config, visibility);
                             InvokeOnMainThread(() => {
                                 DismissViewController(true, () => {
                                     NavigationController.DismissViewController(true, null);

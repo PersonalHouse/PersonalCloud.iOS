@@ -11,6 +11,9 @@
 /* Class = "UINavigationItem"; title = "Choose a Location"; ObjectID = "4Mc-Bt-k5f"; */
 "4Mc-Bt-k5f.title" = "选择存储位置";
 
+/* Class = "UILabel"; text = "Save to Personal Cloud"; ObjectID = "6Qd-IX-wsr"; */
+"6Qd-IX-wsr.text" = "共享到个人云";
+
 /* Class = "UILabel"; text = "File Type"; ObjectID = "6pr-o6-1DD"; */
 "6pr-o6-1DD.text" = "副标题";
 
@@ -87,7 +90,10 @@
 "H4m-46-zgf.normalTitle" = "完成";
 
 /* Class = "UILabel"; text = "Name"; ObjectID = "HXZ-uK-hfS"; */
-"HXZ-uK-hfS.text" = "Name";
+"HXZ-uK-hfS.text" = "名称";
+
+/* Class = "UILabel"; text = "Save on This Device Only"; ObjectID = "Hbj-nW-1Tx"; */
+"Hbj-nW-1Tx.text" = "仅保存在本地";
 
 /* Class = "UILabel"; text = "File Type"; ObjectID = "I7J-zt-5Cv"; */
 "I7J-zt-5Cv.text" = "副标题";
@@ -101,11 +107,17 @@
 /* Class = "UILabel"; text = "Cloud Name"; ObjectID = "Kwr-hb-dzA"; */
 "Kwr-hb-dzA.text" = "云名称";
 
+/* Class = "UITableViewSection"; headerTitle = "Share Credentials"; ObjectID = "LRC-FR-R5J"; */
+"LRC-FR-R5J.headerTitle" = "共享帐户信息";
+
 /* Class = "UITextField"; placeholder = "Required"; ObjectID = "M4u-Mr-hMT"; */
 "M4u-Mr-hMT.placeholder" = "必填";
 
 /* Class = "UILabel"; text = "Auto-Fill Account from Clipboard"; ObjectID = "MUv-RZ-7L1"; */
 "MUv-RZ-7L1.text" = "导入已复制内容";
+
+/* Class = "UITableViewSection"; headerTitle = "Share Credentials"; ObjectID = "N6y-uZ-k4r"; */
+"N6y-uZ-k4r.headerTitle" = "共享帐户信息";
 
 /* Class = "UITextField"; placeholder = "Required"; ObjectID = "Okw-sD-bZU"; */
 "Okw-sD-bZU.placeholder" = "必填项";
@@ -284,6 +296,9 @@
 /* Class = "UILabel"; text = "Title"; ObjectID = "sD6-u0-AzC"; */
 "sD6-u0-AzC.text" = "标题";
 
+/* Class = "UILabel"; text = "Save on This Device Only"; ObjectID = "tzo-vO-tdc"; */
+"tzo-vO-tdc.text" = "仅保存在本地";
+
 /* Class = "UILabel"; text = "Device Name"; ObjectID = "uLw-Kc-P21"; */
 "uLw-Kc-P21.text" = "设备名称";
 
@@ -304,6 +319,9 @@
 
 /* Class = "UILabel"; text = "Detail"; ObjectID = "yqG-GH-abl"; */
 "yqG-GH-abl.text" = "示例";
+
+/* Class = "UILabel"; text = "Save to Personal Cloud"; ObjectID = "ywH-0l-Wo5"; */
+"ywH-0l-Wo5.text" = "共享到个人云";
 
 /* Class = "UILabel"; text = "Endpoint or Extranet Endpoint"; ObjectID = "zSW-p9-pOV"; */
 "zSW-p9-pOV.text" = "域名或外网域名";
