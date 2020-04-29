@@ -152,13 +152,21 @@ namespace Unishare.Apps.DarwinMobile
 
         public void SaveApp(string appId, string cloudId, string config)
         {
-            // Todo
+            var guid = new Guid(cloudId);
+            var old = Globals.Database.Find<WebApp>(x => x.Cloud == guid && x.Name == appId);
+            if (old != null) Globals.Database.Delete(old);
+            Globals.Database.Insert(new WebApp {
+                Cloud = new Guid(cloudId),
+                Name = appId,
+                Parameters = config
+            });
         }
 
-        public List<Tuple<string, string>> GetApp(string appId)
+        public List<(string, string)> GetApp(string appId)
         {
-            // Todo
-            return new List<Tuple<string, string>>();
+            return Globals.Database.Table<WebApp>().Where(x => x.Name == appId)
+                                   .Select(x => (x.Cloud.ToString("N", CultureInfo.InvariantCulture), x.Parameters))
+                                   .ToList();
         }
 
         #endregion

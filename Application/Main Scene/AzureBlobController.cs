@@ -13,7 +13,7 @@ using NSPersonalCloud.FileSharing.Aliyun;
 
 using UIKit;
 
-using Unishare.Apps.Common.Models;
+using Unishare.Apps.Common;
 using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile
@@ -173,7 +173,7 @@ namespace Unishare.Apps.DarwinMobile
                 return;
             }
 
-            if (Globals.Database.Find<AzureBlob>(x => x.Name == name) != null)
+            if (!Globals.Database.IsStorageNameUnique(name))
             {
                 this.ShowAlert(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADifferentName"), action => {
                     ServiceName.BecomeFirstResponder();
