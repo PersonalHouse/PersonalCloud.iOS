@@ -72,7 +72,8 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0)
             {
                 var app = apps[indexPath.Row];
-                UIApplication.SharedApplication.OpenUrl(NSUrl.FromString(app.WebAddress), (NSDictionary) null, (Action<bool>) null);
+                var url = Globals.CloudManager.PersonalClouds[0].GetWebAppUri(app);
+                UIApplication.SharedApplication.OpenUrl(NSUrl.FromString(url.AbsoluteUri), (NSDictionary) null, (Action<bool>) null);
                 return;
             }
 
