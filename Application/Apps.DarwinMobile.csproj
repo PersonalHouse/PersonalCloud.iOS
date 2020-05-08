@@ -27,7 +27,7 @@
         <MtouchLink>None</MtouchLink>
         <MtouchDebug>true</MtouchDebug>
         <CodesignKey>Apple Development: yehuo dao (QBY27565HZ)</CodesignKey>
-        <CodesignProvision>Personal Cloud App Development</CodesignProvision>
+        <CodesignProvision>Personal Cloud Development</CodesignProvision>
         <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -39,7 +39,7 @@
         <WarningLevel>4</WarningLevel>
         <MtouchLink>None</MtouchLink>
         <MtouchArch>x86_64</MtouchArch>
-        <CodesignProvision>Personal Cloud App Distribution</CodesignProvision>
+        <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
         <CodesignKey>Apple Distribution: Beijing Daoyehuo Technology Co.Ltd (N747QRT8C4)</CodesignKey>
         <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
         <LangVersion>latest</LangVersion>
@@ -57,7 +57,7 @@
         <CodesignKey>Apple Development: yehuo dao (QBY27565HZ)</CodesignKey>
         <MtouchDebug>true</MtouchDebug>
         <LangVersion>latest</LangVersion>
-        <CodesignProvision>Personal Cloud App Development</CodesignProvision>
+        <CodesignProvision>Personal Cloud Development</CodesignProvision>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
         <DebugType>none</DebugType>
@@ -68,7 +68,7 @@
         <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
         <MtouchArch>ARMv7, ARM64</MtouchArch>
         <CodesignKey>Apple Distribution: Beijing Daoyehuo Technology Co.Ltd (N747QRT8C4)</CodesignKey>
-        <CodesignProvision>Personal Cloud App Distribution</CodesignProvision>
+        <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
@@ -87,7 +87,7 @@
             <Version>12.0.3</Version>
         </PackageReference>
         <PackageReference Include="Microsoft.AppCenter.Analytics">
-            <Version>3.1.0</Version>
+            <Version>3.2.1</Version>
         </PackageReference>
         <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3">
             <Version>1.1.14</Version>
@@ -96,7 +96,7 @@
             <Version>1.6.292</Version>
         </PackageReference>
         <PackageReference Include="Humanizer.Core">
-            <Version>2.8.2</Version>
+            <Version>2.8.11</Version>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Logging">
             <Version>3.1.3</Version>
@@ -111,10 +111,10 @@
             <Version>2.1.1</Version>
         </PackageReference>
         <PackageReference Include="Microsoft.AppCenter.Crashes">
-            <Version>3.1.0</Version>
+            <Version>3.2.1</Version>
         </PackageReference>
         <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers">
-          <Version>2.9.8</Version>
+          <Version>3.0.0</Version>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>

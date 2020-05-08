@@ -796,7 +796,7 @@ Personal Cloud</string>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Required" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="Okw-sD-bZU">
                                                     <rect key="frame" x="207" y="11" width="187" height="22"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <textInputTraits key="textInputTraits" returnKeyType="done" textContentType="one-time-code"/>
+                                                    <textInputTraits key="textInputTraits" keyboardType="numberPad" returnKeyType="done" textContentType="one-time-code"/>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -2001,7 +2001,7 @@ Personal Cloud</string>
             </objects>
             <point key="canvasLocation" x="4689.8549999999996" y="1035.9380000000001"/>
         </scene>
-        <!--Functions-->
+        <!--Applications-->
         <scene sceneID="CTn-jC-IE0">
             <objects>
                 <tableViewController id="hlt-Oy-PTI" customClass="WebAppsController" sceneMemberID="viewController">
@@ -2033,17 +2033,17 @@ Personal Cloud</string>
                             <outlet property="delegate" destination="hlt-Oy-PTI" id="vPA-5P-p59"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Functions" id="eac-dc-mzI"/>
+                    <navigationItem key="navigationItem" title="Applications" id="eac-dc-mzI"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Mb-ON-tno" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2925" y="1704"/>
         </scene>
-        <!--Functions-->
+        <!--Applications-->
         <scene sceneID="mJo-kL-bui">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="YTD-J3-nmQ" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Functions" image="Function" id="7tz-RF-12s"/>
+                    <tabBarItem key="tabBarItem" title="Applications" image="Function" id="7tz-RF-12s"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="GKy-og-KJH">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>

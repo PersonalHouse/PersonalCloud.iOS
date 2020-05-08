@@ -479,7 +479,9 @@ namespace Unishare.Apps.DarwinMobile
         {
             try
             {
-                items = directory.EnumerateFileSystemInfos().ToList();
+                items = directory.EnumerateFileSystemInfos()
+                    .OrderByDescending(x => x.Attributes.HasFlag(FileAttributes.Directory))
+                    .ThenBy(x => x.Name).ToList();
             }
             catch (IOException)
             {

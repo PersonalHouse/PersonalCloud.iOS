@@ -9,11 +9,11 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.daoyehuo.UnishareTouch</string>
 	<key>CFBundleName</key>
-	<string>Unishare</string>
+	<string>Personal Cloud</string>
 	<key>CFBundleShortVersionString</key>
 	<string>2.2.1</string>
 	<key>CFBundleVersion</key>
-	<string>75</string>
+	<string>76</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleLocalizations</key>

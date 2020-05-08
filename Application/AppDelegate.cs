@@ -44,8 +44,7 @@ namespace Unishare.Apps.DarwinMobile
             var appVersion = application.GetBundleVersion();
 
             AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
-            Globals.Loggers = new LoggerFactory().AddSentry(config =>
-            {
+            Globals.Loggers = new LoggerFactory().AddSentry(config => {
                 config.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@o209874.ingest.sentry.io/5174354";
                 config.Environment = "iOS";
                 config.Release = appVersion;
@@ -59,6 +58,7 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.CreateTable<AlibabaOSS>();
             Globals.Database.CreateTable<AzureBlob>();
             Globals.Database.CreateTable<WebApp>();
+            Globals.Database.CreateTable<Launcher>();
 
             Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
@@ -90,20 +90,21 @@ namespace Unishare.Apps.DarwinMobile
                 Globals.BackupWorker = new PhotoLibraryExporter();
             }
 
+            var appsPath = Paths.WebApps;
+            Directory.CreateDirectory(appsPath);
             Globals.Storage = new AppleDataStorage();
-            Globals.CloudManager = new PCLocalService(Globals.Storage, Globals.Loggers, Globals.FileSystem);
-            Task.Run(async () =>
-            {
+            Globals.CloudManager = new PCLocalService(Globals.Storage, Globals.Loggers, Globals.FileSystem, appsPath);
+            Task.Run(async () => {
                 if (!Globals.Database.CheckSetting(UserSettings.LastInstalledVersion, appVersion))
                 {
-                    var appsPath = Paths.WebApps;
-                    Directory.CreateDirectory(appsPath);
-                    await PCLocalService.InstallApps(appsPath).ConfigureAwait(false);
+
+                    await Globals.CloudManager.InstallApps().ConfigureAwait(false);
                     Globals.Database.SaveSetting(UserSettings.LastInstalledVersion, appVersion);
                 }
 
                 Globals.CloudManager.StartService();
             });
+
             return true;
         }
 
@@ -231,14 +232,8 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (name != Notifications.NetworkChange) return;
 
-            try
-            {
-                Globals.CloudManager?.StartNetwork(false);
-            }
-            catch
-            {
-                // Ignored.
-            }
+            try { Globals.CloudManager?.StartNetwork(false); }
+            catch { } // Ignored.            
         }
     }
 }

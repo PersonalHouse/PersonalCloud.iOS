@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using NSPersonalCloud;
 using NSPersonalCloud.Config;
 using NSPersonalCloud.FileSharing.Aliyun;
+using NSPersonalCloud.Interfaces.Apps;
 
 using UIKit;
 
@@ -21,6 +22,8 @@ namespace Unishare.Apps.DarwinMobile
 {
     public class AppleDataStorage : IConfigStorage
     {
+        #region Cloud
+
         public event EventHandler CloudSaved;
 
         public IEnumerable<PersonalCloudInfo> LoadCloud()
@@ -58,34 +61,33 @@ namespace Unishare.Apps.DarwinMobile
                 var providers = new List<StorageProviderInfo>();
                 providers.AddRange(alibaba);
                 providers.AddRange(azure);
+                var launchers = Globals.Database.Table<Launcher>().Where(y => y.Cloud == x.Id).Select(y => {
+                    return new AppLauncher {
+                        Name = y.Name,
+                        AppType = (AppType) y.Type,
+                        NodeId = y.Node.ToString("N"),
+                        AppId = y.AppName,
+                        WebAddress = y.Address,
+                        AccessKey = y.Key
+                    };
+                }).ToList();
                 return new PersonalCloudInfo(providers) {
                     Id = x.Id.ToString("N", CultureInfo.InvariantCulture),
                     DisplayName = x.Name,
                     NodeDisplayName = deviceName,
                     MasterKey = Convert.FromBase64String(x.Key),
-                    TimeStamp = x.Version
+                    TimeStamp = x.Version,
+                    Apps = launchers,
                 };
             });
         }
-
-        public ServiceConfiguration LoadConfiguration()
-        {
-            var id = Globals.Database.LoadSetting(UserSettings.DeviceId);
-            if (id is null) return null;
-
-            var port = int.Parse(Globals.Database.LoadSetting(UserSettings.DevicePort), CultureInfo.InvariantCulture);
-            if (port <= IPEndPoint.MinPort || port > IPEndPoint.MaxPort) throw new InvalidOperationException();
-            return new ServiceConfiguration {
-                Id = new Guid(id),
-                Port = port
-            };
-        }
-
         public void SaveCloud(IEnumerable<PersonalCloudInfo> cloud)
         {
             Globals.Database.DeleteAll<CloudModel>();
             Globals.Database.DeleteAll<AlibabaOSS>();
             Globals.Database.DeleteAll<AzureBlob>();
+            Globals.Database.DeleteAll<Launcher>();
+
             foreach (var item in cloud)
             {
                 var id = new Guid(item.Id);
@@ -93,7 +95,7 @@ namespace Unishare.Apps.DarwinMobile
                     Id = id,
                     Name = item.DisplayName,
                     Key = Convert.ToBase64String(item.MasterKey),
-                    Version = item.TimeStamp
+                    Version = item.TimeStamp,
                 });
 
                 foreach (var provider in item.StorageProviders)
@@ -137,18 +139,58 @@ namespace Unishare.Apps.DarwinMobile
                         }
                     }
                 }
+
+                foreach (var app in item.Apps)
+                {
+                    Globals.Database.Insert(new Launcher {
+                        Name = app.Name,
+                        Type = (int) app.AppType,
+                        Cloud = id,
+                        Node = string.IsNullOrEmpty(app.NodeId) ? Guid.Empty : new Guid(app.NodeId),
+                        AppName = app.AppId,
+                        Address = app.WebAddress,
+                        Key = app.AccessKey
+                    });
+                }
             }
 
             CloudSaved?.Invoke(this, EventArgs.Empty);
         }
 
+        #endregion
+
+        #region Config
+
+        public ServiceConfiguration LoadConfiguration()
+        {
+            var id = Globals.Database.LoadSetting(UserSettings.DeviceId);
+            if (id is null) return null;
+
+            var port = int.Parse(Globals.Database.LoadSetting(UserSettings.DevicePort), CultureInfo.InvariantCulture);
+            if (port <= IPEndPoint.MinPort || port > IPEndPoint.MaxPort) throw new InvalidOperationException();
+            return new ServiceConfiguration {
+                Id = new Guid(id),
+                Port = port
+            };
+        }
+
+        
         public void SaveConfiguration(ServiceConfiguration config)
         {
             Globals.Database.SaveSetting(UserSettings.DeviceId, config.Id.ToString("N", CultureInfo.InvariantCulture));
             Globals.Database.SaveSetting(UserSettings.DevicePort, config.Port.ToString(CultureInfo.InvariantCulture));
         }
 
+        #endregion
+
         #region Apps
+
+        public List<(string, string)> GetApp(string appId)
+        {
+            return Globals.Database.Table<WebApp>().Where(x => x.Name == appId)
+                                   .Select(x => (x.Cloud.ToString("N", CultureInfo.InvariantCulture), x.Parameters))
+                                   .ToList();
+        }
 
         public void SaveApp(string appId, string cloudId, string config)
         {
@@ -160,13 +202,6 @@ namespace Unishare.Apps.DarwinMobile
                 Name = appId,
                 Parameters = config
             });
-        }
-
-        public List<(string, string)> GetApp(string appId)
-        {
-            return Globals.Database.Table<WebApp>().Where(x => x.Name == appId)
-                                   .Select(x => (x.Cloud.ToString("N", CultureInfo.InvariantCulture), x.Parameters))
-                                   .ToList();
         }
 
         #endregion
