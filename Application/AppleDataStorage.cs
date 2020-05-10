@@ -39,6 +39,7 @@ namespace Unishare.Apps.DarwinMobile
                     config.AccessKeyId = cipher.DecryptContinuousText(y.AccessID);
                     config.AccessKeySecret = cipher.DecryptContinuousText(y.AccessSecret);
                     return new StorageProviderInfo {
+                        Id = y.Id,
                         Type = StorageProviderInstance.TypeAliYun,
                         Name = y.Name,
                         Visibility = (StorageProviderVisibility) y.Visibility,
@@ -52,6 +53,7 @@ namespace Unishare.Apps.DarwinMobile
                     using var cipher = new PasswordCipher(y.Id.ToString("N", CultureInfo.InvariantCulture), x.Key);
                     config.ConnectionString = cipher.DecryptTextOnce(y.Parameters);
                     return new StorageProviderInfo {
+                        Id = y.Id,
                         Type = StorageProviderInstance.TypeAzure,
                         Name = y.Name,
                         Visibility = (StorageProviderVisibility) y.Visibility,
@@ -90,9 +92,9 @@ namespace Unishare.Apps.DarwinMobile
 
             foreach (var item in cloud)
             {
-                var id = new Guid(item.Id);
+                var cloudId = new Guid(item.Id);
                 Globals.Database.Insert(new CloudModel {
-                    Id = id,
+                    Id = cloudId,
                     Name = item.DisplayName,
                     Key = Convert.ToBase64String(item.MasterKey),
                     Version = item.TimeStamp,
@@ -106,8 +108,8 @@ namespace Unishare.Apps.DarwinMobile
                         {
                             var config = JsonConvert.DeserializeObject<OssConfig>(provider.Settings);
                             var model = new AlibabaOSS {
-                                // Todo: GUID
-                                Cloud = id,
+                                Id = provider.Id,
+                                Cloud = cloudId,
                                 Name = provider.Name,
                                 Visibility = (int) provider.Visibility,
                                 Endpoint = config.OssEndpoint,
@@ -125,8 +127,8 @@ namespace Unishare.Apps.DarwinMobile
                         {
                             var config = JsonConvert.DeserializeObject<AzureBlobConfig>(provider.Settings);
                             var model = new AzureBlob {
-                                // Todo: GUID
-                                Cloud = id,
+                                Id = provider.Id,
+                                Cloud = cloudId,
                                 Name = provider.Name,
                                 Visibility = (int) provider.Visibility,
                                 Container = config.BlobName
@@ -145,7 +147,7 @@ namespace Unishare.Apps.DarwinMobile
                     Globals.Database.Insert(new Launcher {
                         Name = app.Name,
                         Type = (int) app.AppType,
-                        Cloud = id,
+                        Cloud = cloudId,
                         Node = string.IsNullOrEmpty(app.NodeId) ? Guid.Empty : new Guid(app.NodeId),
                         AppName = app.AppId,
                         Address = app.WebAddress,
