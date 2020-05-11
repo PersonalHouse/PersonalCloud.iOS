@@ -58,7 +58,6 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.CreateTable<AlibabaOSS>();
             Globals.Database.CreateTable<AzureBlob>();
             Globals.Database.CreateTable<WebApp>();
-            Globals.Database.CreateTable<Launcher>();
 
             Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
