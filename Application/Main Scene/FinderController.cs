@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -14,13 +15,18 @@ using NSPersonalCloud.Interfaces.Errors;
 using NSPersonalCloud.Interfaces.FileSystem;
 using NSPersonalCloud.RootFS;
 
+using Photos;
+
 using UIKit;
 
 using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile
 {
-    public partial class FinderController : UITableViewController, IUIDocumentPickerDelegate, IUIDocumentInteractionControllerDelegate
+    public partial class FinderController : UITableViewController,
+                                            IUIDocumentPickerDelegate,
+                                            IUIDocumentInteractionControllerDelegate,
+                                            IUIImagePickerControllerDelegate
     {
         public FinderController(IntPtr handle) : base(handle) { }
 
@@ -411,7 +417,7 @@ namespace Unishare.Apps.DarwinMobile
 
         private void ShowHelp(object sender, EventArgs args)
         {
-            this.ShowAlert(this.Localize("Help.Finder"),  this.Localize("Help.BrowseInFinder"));
+            this.ShowAlert(this.Localize("Help.Finder"), this.Localize("Help.BrowseInFinder"));
         }
 
         private void AddDeviceOrService(object sender, EventArgs args)
@@ -468,6 +474,10 @@ namespace Unishare.Apps.DarwinMobile
         private void UploadFile(object sender, EventArgs args)
         {
             var choices = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+            // Todo: Localize
+            choices.AddAction(UIAlertAction.Create("Pick from Photo Library", UIAlertActionStyle.Default, action => {
+                UploadPhoto();
+            }));
             choices.AddAction(UIAlertAction.Create(this.Localize("Finder.UploadPickFromFavorites"), UIAlertActionStyle.Default, action => {
                 PerformSegue(UploadSegue, this);
             }));
@@ -481,6 +491,83 @@ namespace Unishare.Apps.DarwinMobile
             }));
             choices.AddAction(UIAlertAction.Create(this.Localize("Global.BackAction"), UIAlertActionStyle.Cancel, null));
             this.PresentActionSheet(choices, NavigationItem.RightBarButtonItem.UserInfoGetView());
+        }
+
+        private void UploadPhoto()
+        {
+            PHPhotoLibrary.RequestAuthorization(status => {
+                InvokeOnMainThread(() => {
+                    if (status == PHAuthorizationStatus.Authorized)
+                    {
+                        if (!UIImagePickerController.IsSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary))
+                        {
+                            this.ShowAlert("Photo Library Unavailable", null);
+                            return;
+                        }
+
+                        var picker = new UIImagePickerController() {
+                            SourceType = UIImagePickerControllerSourceType.PhotoLibrary,
+                            MediaTypes = new string[] { UTType.Image, UTType.Movie },
+                            Delegate = this
+                        };
+                        PresentViewController(picker, true, null);
+                    }
+                    else
+                    {
+                        this.ShowAlert("Unauthorized", null);
+                    }
+                });
+            });
+        }
+
+        #endregion
+
+        #region IUIImagePickerControllerDelegate
+
+        [Export("imagePickerController:didFinishPickingMediaWithInfo:")]
+        public void FinishedPickingMedia(UIImagePickerController picker, NSDictionary info)
+        {
+            DismissViewController(true, null);
+
+            var type = (NSString) info.ObjectForKey(UIImagePickerController.MediaType);
+            if (type is null)
+            {
+                // Todo: Localize
+                this.ShowAlert("Unable to get picked media type.", null);
+                return;
+            }
+
+            if (type == UTType.Image)
+            {
+                var asset = (PHAsset) info.ObjectForKey(UIImagePickerController.PHAsset);
+                asset = null;
+
+                // Fallback: Read image file from URL.
+                if (asset is null)
+                {
+                    var url = (NSUrl) info.ObjectForKey(UIImagePickerController.ImageUrl);
+                    UploadFileAt(url);
+                }
+
+                return;
+            }
+
+            if (type == UTType.Movie)
+            {
+                var asset = (PHAsset) info.ObjectForKey(UIImagePickerController.PHAsset);
+                asset = null;
+
+                // Fallback: Read video file from URL.
+                if (asset is null)
+                {
+                    var url = (NSUrl) info.ObjectForKey(UIImagePickerController.MediaURL);
+                    UploadFileAt(url);
+                }
+
+                return;
+            }
+
+            this.ShowAlert("Unrecognized picked media type.", null);
         }
 
         #endregion
@@ -834,6 +921,12 @@ namespace Unishare.Apps.DarwinMobile
                     try
                     {
                         var fileName = Path.GetFileName(url.Path);
+
+                        if (Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out _))
+                        {
+                            fileName = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + Path.GetExtension(fileName) ?? string.Empty;
+                        }
+
                         using var stream = new FileStream(url.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
                         var remotePath = Path.Combine(workingPath, fileName);
                         await fileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);

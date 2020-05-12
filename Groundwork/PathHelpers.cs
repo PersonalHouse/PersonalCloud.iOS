@@ -1,5 +1,6 @@
-﻿using System.IO;
-
+﻿using System;
+using System.IO;
+using System.Linq;
 using Foundation;
 
 namespace Unishare.Apps.DarwinCore
@@ -96,6 +97,53 @@ namespace Unishare.Apps.DarwinCore
             if (!Directory.Exists(Temporary)) Directory.CreateDirectory(Temporary);
 
             if (!Directory.Exists(Favorites)) Directory.CreateDirectory(Favorites);
+
+            var preferredLanguage = NSLocale.PreferredLanguages.First();
+            if (preferredLanguage.StartsWith("zh-Hans", StringComparison.Ordinal))
+            {
+                NSFileManager.DefaultManager.Remove(Path.Combine(Documents, "How to Use Favorites.rtf"), out _);
+                NSFileManager.DefaultManager.Remove(Path.Combine(Favorites, "How to Use Favorites.rtf"), out _);
+
+                var tutorialInDocs = Path.Combine(Documents, "本地收藏 (Favorites) 说明.rtf");
+                if (!File.Exists(tutorialInDocs))
+                {
+                    var manualPath = Path.Combine(NSBundle.MainBundle.ResourcePath, "How to Use Favorites.rtf");
+                    NSFileManager.DefaultManager.Link(manualPath, tutorialInDocs, out _);
+                }
+
+                var tutorialInFavs = Path.Combine(Favorites, "本地收藏 (Favorites) 说明.rtf");
+                if (!File.Exists(tutorialInFavs))
+                {
+                    var manualPath = Path.Combine(NSBundle.MainBundle.ResourcePath, "How to Use Favorites.rtf");
+                    NSFileManager.DefaultManager.Link(manualPath, tutorialInFavs, out _);
+                }
+            }
+            else
+            {
+                NSFileManager.DefaultManager.Remove(Path.Combine(Documents, "本地收藏 (Favorites) 说明.rtf"), out _);
+                NSFileManager.DefaultManager.Remove(Path.Combine(Favorites, "本地收藏 (Favorites) 说明.rtf"), out _);
+
+                var tutorialInDocs = Path.Combine(Documents, "How to Use Favorites.rtf");
+                if (!File.Exists(tutorialInDocs))
+                {
+                    var manualPath = Path.Combine(NSBundle.MainBundle.ResourcePath, "How to Use Favorites.rtf");
+                    NSFileManager.DefaultManager.Link(manualPath, tutorialInDocs, out _);
+                }
+
+                var tutorialInFavs = Path.Combine(Favorites, "How to Use Favorites.rtf");
+                if (!File.Exists(tutorialInFavs))
+                {
+                    var manualPath = Path.Combine(NSBundle.MainBundle.ResourcePath, "How to Use Favorites.rtf");
+                    NSFileManager.DefaultManager.Link(manualPath, tutorialInFavs, out _);
+                }
+            }
+
+            var photosPath = Path.Combine(Documents, SandboxedFileSystem.FolderNameForPhotos);
+            if (Directory.Exists(photosPath))
+            {
+                Directory.Move(photosPath, Path.Combine(Documents, "Photo Library (moved)"));
+            }
+
             if (!Directory.Exists(PhotoRestore)) Directory.CreateDirectory(PhotoRestore);
             if (!Directory.Exists(WebApps)) Directory.CreateDirectory(WebApps);
         }

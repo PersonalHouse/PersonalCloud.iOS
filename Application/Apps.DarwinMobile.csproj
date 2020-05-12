@@ -567,6 +567,7 @@
           <Optimize>true</Optimize>
         </BundleResource>
         <BundleResource Include="Resources\zh_CN.lproj\Main.strings" />
+        <BundleResource Include="Resources\How to Use Favorites.rtf" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Utilities\" />
