@@ -26,7 +26,6 @@ namespace Unishare.Apps.DarwinMobile
             RefreshControl.ValueChanged += RefreshApps;
             apps = Globals.CloudManager.PersonalClouds[0].Apps;
         }
-
         #endregion
 
         #region TableView Data Source
@@ -86,7 +85,7 @@ namespace Unishare.Apps.DarwinMobile
 
         #endregion
 
-        private void RefreshApps(object sender, EventArgs args)
+        private void RefreshApps(object sender, EventArgs e)
         {
             apps = Globals.CloudManager.PersonalClouds[0].Apps;
             TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);

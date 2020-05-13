@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 using Foundation;
@@ -28,8 +27,9 @@ namespace Unishare.Apps.DarwinMobile
 
         private DirectoryInfo directory;
         private List<FileSystemInfo> items;
-
         private int depth;
+
+        private List<FileInfo> pendingFiles;
 
         #region Lifecycle
 
@@ -37,9 +37,11 @@ namespace Unishare.Apps.DarwinMobile
         {
             base.ViewDidLoad();
             NavigationItem.LeftBarButtonItem.Clicked += (o, e) => NavigationController.DismissViewController(true, null);
+            NavigationItem.RightBarButtonItem.Clicked += UploadFiles;
             RefreshControl = new UIRefreshControl();
             RefreshControl.ValueChanged += RefreshDirectory;
             directory = new DirectoryInfo(Paths.Favorites);
+            pendingFiles = new List<FileInfo>();
         }
 
         public override void ViewDidAppear(bool animated)
@@ -52,12 +54,12 @@ namespace Unishare.Apps.DarwinMobile
         #endregion
 
         #region TableView
-
+        
         public override nint NumberOfSections(UITableView tableView) => 1;
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
-            return (int)section switch
+            return (int) section switch
             {
                 0 => (items?.Count ?? 0) + (depth == 0 ? 0 : 1),
                 _ => throw new ArgumentNullException(nameof(section))
@@ -69,7 +71,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
-                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentName = depth == 1 ? this.Localize("Favorites.Title") : directory.Parent.Name;
                 cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(this.Localize("Finder.ReturnTo.Formattable"), parentName), null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
@@ -79,11 +81,11 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0)
             {
                 var item = items[depth == 0 ? indexPath.Row : (indexPath.Row - 1)];
-                var cell = (FileEntryCell)tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
+                var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 if (item is FileInfo file)
                 {
                     cell.Update(file.Name, file.Length);
-                    cell.Accessory = UITableViewCellAccessory.None;
+                    cell.Accessory = pendingFiles.Contains(item) ? UITableViewCellAccessory.Checkmark : UITableViewCellAccessory.None;
                 }
                 else
                 {
@@ -128,50 +130,16 @@ namespace Unishare.Apps.DarwinMobile
                     directory = subdirectory;
                     depth += 1;
                     RefreshDirectory(this, EventArgs.Empty);
+                    pendingFiles.Clear();
+                    this.ShowAlert("Previous Selections Cleared", null);
                     return;
                 }
 
-                var alert = UIAlertController.Create(this.Localize("Finder.Uploading"), null, UIAlertControllerStyle.Alert);
-                PresentViewController(alert, true, () =>
-                {
-                    Task.Run(async () =>
-                    {
-                        try
-                        {
-                            var fileName = Path.GetFileName(item.FullName);
-                            var stream = new FileStream(item.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                            var remotePath = Path.Combine(WorkingPath, fileName);
-                            await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
-                            FileUploaded?.Invoke(this, EventArgs.Empty);
+                var fileInfo = (FileInfo) item;
+                if (pendingFiles.Contains(fileInfo)) pendingFiles.Remove(fileInfo);
+                else pendingFiles.Add(fileInfo);
 
-                            InvokeOnMainThread(() =>
-                            {
-                                DismissViewController(true, () => NavigationController.DismissViewController(true, null));
-                            });
-                        }
-                        catch (HttpRequestException exception)
-                        {
-                            InvokeOnMainThread(() =>
-                            {
-                                DismissViewController(true, () =>
-                                {
-                                    PresentViewController(CloudExceptions.Explain(exception), true, null);
-                                });
-                            });
-
-                        }
-                        catch (Exception exception)
-                        {
-                            InvokeOnMainThread(() =>
-                            {
-                                DismissViewController(true, () =>
-                                {
-                                    this.ShowAlert(this.Localize("Error.Upload"), exception.GetType().Name);
-                                });
-                            });
-                        }
-                    });
-                });
+                tableView.ReloadRows(new[] { indexPath }, UITableViewRowAnimation.Automatic);
 
                 return;
             }
@@ -194,6 +162,39 @@ namespace Unishare.Apps.DarwinMobile
 
             if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();
             TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
+        }
+
+        private void UploadFiles(object sender, EventArgs e)
+        {
+            var alert = UIAlertController.Create(this.Localize("Finder.Uploading"), null, UIAlertControllerStyle.Alert);
+            PresentViewController(alert, true, () => {
+                Task.Run(async () => {
+                    var failed = 0;
+                    foreach (var item in pendingFiles)
+                    {
+                        try
+                        {
+                            var fileName = Path.GetFileName(item.FullName);
+                            var stream = new FileStream(item.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                            var remotePath = Path.Combine(WorkingPath, fileName);
+                            await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
+                            FileUploaded?.Invoke(this, EventArgs.Empty);
+                        }
+                        catch
+                        {
+                            failed += 1;
+                        }
+                    }
+
+                    InvokeOnMainThread(() => {
+                        DismissViewController(true, () => {
+                            this.ShowAlert($"{pendingFiles.Count - failed} File(s) Uploaded", null, action => {
+                                NavigationController.DismissViewController(true, null);
+                            });
+                        });
+                    });
+                });
+            });
         }
     }
 }

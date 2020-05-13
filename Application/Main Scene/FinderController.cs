@@ -409,24 +409,24 @@ namespace Unishare.Apps.DarwinMobile
 
         #region Bar Buttons
 
-        private void GoHome(object sender, EventArgs args)
+        private void GoHome(object sender, EventArgs e)
         {
             workingPath = "/";
             RefreshDirectory(this, EventArgs.Empty);
         }
 
-        private void ShowHelp(object sender, EventArgs args)
+        private void ShowHelp(object sender, EventArgs e)
         {
             this.ShowAlert(this.Localize("Help.Finder"), this.Localize("Help.BrowseInFinder"));
         }
 
-        private void AddDeviceOrService(object sender, EventArgs args)
+        private void AddDeviceOrService(object sender, EventArgs e)
         {
             refreshNow = true;
             PerformSegue(AddSegue, this);
         }
 
-        private void CreateFolder(object sender, EventArgs args)
+        private void CreateFolder(object sender, EventArgs e)
         {
             this.CreatePrompt(this.Localize("Finder.NewFolderName"), this.Localize("Finder.NewFolderHere"), null, this.Localize("Finder.NewFolderPlaceholder"), this.Localize("Finder.CreateNewFolder"), this.Localize("Global.CancelAction"), text => {
                 if (string.IsNullOrWhiteSpace(text))
@@ -471,7 +471,7 @@ namespace Unishare.Apps.DarwinMobile
             });
         }
 
-        private void UploadFile(object sender, EventArgs args)
+        private void UploadFile(object sender, EventArgs e)
         {
             var choices = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
             // Todo: Localize
@@ -574,7 +574,7 @@ namespace Unishare.Apps.DarwinMobile
 
         #region Utility: Refresh
 
-        private void RefreshDevices(object sender, EventArgs args)
+        private void RefreshDevices(object sender, EventArgs e)
         {
             if (workingPath.Length != 1) return;
             InvokeOnMainThread(() => RefreshDirectory(this, EventArgs.Empty));
