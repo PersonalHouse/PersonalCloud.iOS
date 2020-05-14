@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.ComponentModel;
 using Foundation;
 
 using UIKit;
@@ -39,7 +39,7 @@ namespace Unishare.Apps.DarwinCore
             return shortVersion ?? version ?? "?";
         }
 
-        public static void ShowAlert(this UIViewController controller, string title, string message)
+        public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
             var ok = UIAlertAction.Create(Localize("Global.OKAction"), UIAlertActionStyle.Default, null);
@@ -48,7 +48,7 @@ namespace Unishare.Apps.DarwinCore
             controller.PresentViewController(alert, true, null);
         }
 
-        public static void ShowAlert(this UIViewController controller, string title, string message, Action<UIAlertAction> onDismiss)
+        public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message, Action<UIAlertAction> onDismiss)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
             var ok = UIAlertAction.Create(Localize("Global.OKAction"), UIAlertActionStyle.Default, onDismiss);
@@ -57,8 +57,8 @@ namespace Unishare.Apps.DarwinCore
             controller.PresentViewController(alert, true, null);
         }
 
-        public static void ShowAlert(this UIViewController controller, string title, string message,
-                                     string dismissAction, bool actionIsDangerous = false,
+        public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message,
+                                     [Localizable(true)] string dismissAction, bool actionIsDangerous = false,
                                      Action<UIAlertAction> onDismiss = null)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);

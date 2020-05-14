@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 
 using Humanizer;
@@ -50,7 +51,7 @@ namespace Unishare.Apps.DarwinMobile
                 var error = info.ObjectForKey(PHImageKeys.Error);
                 if (error == null) InvokeOnMainThread(() => IconImage.Image = result);
             });
-            SizeLabel.Text = photo.Size.Bytes().Humanize("0.00");
+            SizeLabel.Text = photo.Size.Bytes().Humanize("0.00", CultureInfo.InvariantCulture);
         }
 
         public void Update(UIImage icon, string title, string subtitle, string detail)
@@ -81,7 +82,7 @@ namespace Unishare.Apps.DarwinMobile
         public void Update(string fileName, long sizeInBytes)
         {
             Update(fileName);
-            SizeLabel.Text = sizeInBytes.Bytes().Humanize("0.00");
+            SizeLabel.Text = sizeInBytes.Bytes().Humanize("0.00", CultureInfo.InvariantCulture);
         }
 
         public void Update(string fileName, UTI uti, string typeDescription)

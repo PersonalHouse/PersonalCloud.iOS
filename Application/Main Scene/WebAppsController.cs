@@ -22,9 +22,10 @@ namespace Unishare.Apps.DarwinMobile
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+            RefreshControl = new UIRefreshControl();
+            RefreshControl.ValueChanged += RefreshApps;
             apps = Globals.CloudManager.PersonalClouds[0].Apps;
         }
-
         #endregion
 
         #region TableView Data Source
@@ -69,11 +70,13 @@ namespace Unishare.Apps.DarwinMobile
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
+            tableView.DeselectRow(indexPath, true);
+
             if (indexPath.Section == 0)
             {
                 var app = apps[indexPath.Row];
                 var url = Globals.CloudManager.PersonalClouds[0].GetWebAppUri(app);
-                UIApplication.SharedApplication.OpenUrl(NSUrl.FromString(url.AbsoluteUri), (NSDictionary) null, (Action<bool>) null);
+                UIApplication.SharedApplication.OpenUrl(NSUrl.FromString(url.AbsoluteUri), new NSDictionary(), null);
                 return;
             }
 
@@ -81,5 +84,11 @@ namespace Unishare.Apps.DarwinMobile
         }
 
         #endregion
+
+        private void RefreshApps(object sender, EventArgs e)
+        {
+            apps = Globals.CloudManager.PersonalClouds[0].Apps;
+            TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using NSPersonalCloud;
@@ -66,7 +67,7 @@ namespace Unishare.Apps.DarwinMobile
                         Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Welcome.Created"), string.Format(this.Localize("Welcome.CreatedCloud.Formattable"), cloudName), action => {
+                                this.ShowAlert(this.Localize("Welcome.Created"), string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.CreatedCloud.Formattable"), cloudName), action => {
                                     NavigationController.DismissViewController(true, null);
                                 });
                             });

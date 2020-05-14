@@ -58,7 +58,6 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.CreateTable<AlibabaOSS>();
             Globals.Database.CreateTable<AzureBlob>();
             Globals.Database.CreateTable<WebApp>();
-            Globals.Database.CreateTable<Launcher>();
 
             Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
@@ -173,11 +172,12 @@ namespace Unishare.Apps.DarwinMobile
         #region Background App Refresh
 
         [Export("application:performFetchWithCompletionHandler:")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
             SentrySdk.AddBreadcrumb("Background App Refresh triggered.");
 
-            var cloud = Globals.CloudManager.PersonalClouds?.FirstOrDefault();
+            var cloud = Globals.CloudManager.PersonalClouds?[0];
             if (cloud == null)
             {
                 SentrySdk.CaptureMessage("Backup triggered while no Personal Cloud configured.", SentryLevel.Error);

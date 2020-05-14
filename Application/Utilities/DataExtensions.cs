@@ -5,7 +5,7 @@ using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile.Utilities
 {
-    public static class Extensions
+    public static class DataExtensions
     {
         public static AlibabaOSS ToModel(this OssConfig config, string serviceName)
         {

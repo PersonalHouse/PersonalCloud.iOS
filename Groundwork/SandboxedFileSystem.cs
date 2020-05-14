@@ -24,7 +24,7 @@ namespace Unishare.Apps.DarwinCore
         private const long PhotosFolderConfigurationSize = 266;
         private const long RecentFolderConfigurationSize = 270;
 
-        private const string FolderNameForPhotos = "Photos";
+        public const string FolderNameForPhotos = "Photo Library";
         private const string FileNameForFolderConfiguration = "desktop.ini";
 
         #endregion Constants

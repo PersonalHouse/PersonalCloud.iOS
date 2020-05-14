@@ -1050,7 +1050,7 @@ Personal Cloud</string>
         <scene sceneID="iIo-L0-0OF">
             <objects>
                 <tableViewController hidesBottomBarWhenPushed="YES" id="mgx-Au-Nkm" customClass="ChooseFileController" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" sectionFooterHeight="-1" id="8RD-cG-uoP">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" allowsMultipleSelection="YES" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" sectionFooterHeight="-1" id="8RD-cG-uoP">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
@@ -1163,6 +1163,7 @@ Personal Cloud</string>
                     </tableView>
                     <navigationItem key="navigationItem" title="Choose from Favorites" id="8eP-Rv-tpI">
                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="LPS-A5-YEu"/>
+                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="JtZ-Ed-tKs"/>
                     </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RRb-vo-cIp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -2010,7 +2011,7 @@ Personal Cloud</string>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TableViewKey" textLabel="fN0-48-QJB" style="IBUITableViewCellStyleDefault" id="MdC-4x-Ia9">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TableViewKey" textLabel="fN0-48-QJB" style="IBUITableViewCellStyleDefault" id="MdC-4x-Ia9" customClass="BasicCell">
                                 <rect key="frame" x="0.0" y="55.5" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="MdC-4x-Ia9" id="vrc-JF-EoD">

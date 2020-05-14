@@ -63,23 +63,13 @@ namespace Unishare.Apps.DarwinMobile
                 var providers = new List<StorageProviderInfo>();
                 providers.AddRange(alibaba);
                 providers.AddRange(azure);
-                var launchers = Globals.Database.Table<Launcher>().Where(y => y.Cloud == x.Id).Select(y => {
-                    return new AppLauncher {
-                        Name = y.Name,
-                        AppType = (AppType) y.Type,
-                        NodeId = y.Node.ToString("N"),
-                        AppId = y.AppName,
-                        WebAddress = y.Address,
-                        AccessKey = y.Key
-                    };
-                }).ToList();
                 return new PersonalCloudInfo(providers) {
                     Id = x.Id.ToString("N", CultureInfo.InvariantCulture),
                     DisplayName = x.Name,
                     NodeDisplayName = deviceName,
                     MasterKey = Convert.FromBase64String(x.Key),
                     TimeStamp = x.Version,
-                    Apps = launchers,
+                    Apps = new List<AppLauncher>(),
                 };
             });
         }
@@ -88,7 +78,6 @@ namespace Unishare.Apps.DarwinMobile
             Globals.Database.DeleteAll<CloudModel>();
             Globals.Database.DeleteAll<AlibabaOSS>();
             Globals.Database.DeleteAll<AzureBlob>();
-            Globals.Database.DeleteAll<Launcher>();
 
             foreach (var item in cloud)
             {
@@ -140,19 +129,6 @@ namespace Unishare.Apps.DarwinMobile
                             continue;
                         }
                     }
-                }
-
-                foreach (var app in item.Apps)
-                {
-                    Globals.Database.Insert(new Launcher {
-                        Name = app.Name,
-                        Type = (int) app.AppType,
-                        Cloud = cloudId,
-                        Node = string.IsNullOrEmpty(app.NodeId) ? Guid.Empty : new Guid(app.NodeId),
-                        AppName = app.AppId,
-                        Address = app.WebAddress,
-                        Key = app.AccessKey
-                    });
                 }
             }
 

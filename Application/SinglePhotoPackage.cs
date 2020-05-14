@@ -32,6 +32,8 @@ namespace Unishare.Apps.DarwinMobile
             Photo = photo;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308", Justification = "Lookup requires lowercase.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public void WriteArchive(Stream zip, Stream standalone = null)
         {
             if (!Photo.IsAvailable) throw new InvalidOperationException("This photo is no longer available.");
@@ -48,7 +50,7 @@ namespace Unishare.Apps.DarwinMobile
                                                                x.ResourceType == PHAssetResourceType.Video ||
                                                                x.ResourceType == PHAssetResourceType.Audio);
 
-            if (original == null) throw new InvalidOperationException("无法备份此照片");
+            if (original == null) throw new InvalidOperationException("Backup failed for this photo.");
 
             if (standalone != null)
             {

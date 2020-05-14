@@ -97,7 +97,7 @@
             <Version>2.8.11</Version>
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Logging">
-            <Version>3.1.3</Version>
+            <Version>3.1.4</Version>
         </PackageReference>
         <PackageReference Include="System.IO.Compression">
             <Version>4.3.0</Version>
@@ -405,6 +405,7 @@
         <None Include="Deprecated\AVScannerController.xib" />
         <None Include="Deprecated\BarcodeDetectedEventArgs.cs" />
         <None Include="Info.plist" />
+        <None Include="Deprecated\DeviceDirectoryController.cs" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="AppDelegate.cs" />
@@ -473,7 +474,6 @@
         <Compile Include="TableView Cells\AccentButtonCell.designer.cs">
             <DependentUpon>AccentButtonCell.cs</DependentUpon>
         </Compile>
-        <Compile Include="Deprecated\DeviceDirectoryController.cs" />
         <Compile Include="Deprecated\DeviceDirectoryController.Designer.cs">
             <DependentUpon>DeviceDirectoryController.cs</DependentUpon>
         </Compile>
@@ -501,7 +501,7 @@
         <Compile Include="Main Scene\AliYunController.Designer.cs">
           <DependentUpon>AliYunController.cs</DependentUpon>
         </Compile>
-        <Compile Include="Utilities\Extensions.cs" />
+        <Compile Include="Utilities\DataExtensions.cs" />
         <Compile Include="Main Scene\WebAppsController.cs" />
         <Compile Include="Main Scene\WebAppsController.Designer.cs">
           <DependentUpon>WebAppsController.cs</DependentUpon>
@@ -565,6 +565,7 @@
           <Optimize>true</Optimize>
         </BundleResource>
         <BundleResource Include="Resources\zh_CN.lproj\Main.strings" />
+        <BundleResource Include="Resources\How to Use Favorites.rtf" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Utilities\" />
