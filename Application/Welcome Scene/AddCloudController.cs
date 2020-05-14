@@ -68,7 +68,7 @@ namespace Unishare.Apps.DarwinMobile
                         Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Welcome.Accepted"), string.Format(this.Localize("Welcome.AcceptedByCloud.Formattable"), result.DisplayName), action => {
+                                this.ShowAlert(this.Localize("Welcome.Accepted"), string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.AcceptedByCloud.Formattable"), result.DisplayName), action => {
                                     NavigationController?.DismissViewController(true, null);
                                 });
                             });

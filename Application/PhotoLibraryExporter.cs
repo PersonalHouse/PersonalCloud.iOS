@@ -50,6 +50,7 @@ namespace Unishare.Apps.DarwinMobile
             Photos = photos.AsReadOnly();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public Task<int> StartBackup(IFileSystem fileSystem, string pathPrefix)
         {
             SentrySdk.AddBreadcrumb("Starting photos backup job...");
@@ -57,6 +58,7 @@ namespace Unishare.Apps.DarwinMobile
             return BackupTask;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         private void CreateBackupTask(IFileSystem fileSystem, string pathPrefix)
         {
             if (Photos == null || Photos.Count == 0)

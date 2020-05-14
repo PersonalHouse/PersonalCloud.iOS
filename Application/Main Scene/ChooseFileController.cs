@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using NSPersonalCloud.Interfaces.FileSystem;
 
 using UIKit;
 
+using Unishare.Apps.Common;
 using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile
@@ -54,7 +56,7 @@ namespace Unishare.Apps.DarwinMobile
         #endregion
 
         #region TableView
-        
+
         public override nint NumberOfSections(UITableView tableView) => 1;
 
         public override nint RowsInSection(UITableView tableView, nint section)
@@ -73,7 +75,7 @@ namespace Unishare.Apps.DarwinMobile
             {
                 var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentName = depth == 1 ? this.Localize("Favorites.Title") : directory.Parent.Name;
-                cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(this.Localize("Finder.ReturnTo.Formattable"), parentName), null);
+                cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ReturnTo.Formattable"), parentName), null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
                 return cell;
             }
@@ -119,6 +121,8 @@ namespace Unishare.Apps.DarwinMobile
                 directory = directory.Parent;
                 depth -= 1;
                 RefreshDirectory(this, EventArgs.Empty);
+                pendingFiles.Clear();
+                this.ShowAlert(this.Localize("Finder.SelectionCleared"), this.Localize("Finder.SelectionCleared.PathChange"));
                 return;
             }
 
@@ -131,7 +135,7 @@ namespace Unishare.Apps.DarwinMobile
                     depth += 1;
                     RefreshDirectory(this, EventArgs.Empty);
                     pendingFiles.Clear();
-                    this.ShowAlert("Previous Selections Cleared", null);
+                    this.ShowAlert(this.Localize("Finder.SelectionCleared"), this.Localize("Finder.SelectionCleared.PathChange"));
                     return;
                 }
 
@@ -151,7 +155,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             try
             {
-                items = directory.EnumerateFileSystemInfos().ToList();
+                items = directory.EnumerateFileSystemInfos().SortDirectoryFirstByName().ToList();
 
             }
             catch (IOException)
@@ -169,9 +173,12 @@ namespace Unishare.Apps.DarwinMobile
             var alert = UIAlertController.Create(this.Localize("Finder.Uploading"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {
                 Task.Run(async () => {
+                    var total = pendingFiles.Count;
                     var failed = 0;
-                    foreach (var item in pendingFiles)
+                    for (var i = 0; i < total; i++)
                     {
+                        var item = pendingFiles[i];
+                        InvokeOnMainThread(() => alert.Message = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
                         try
                         {
                             var fileName = Path.GetFileName(item.FullName);
@@ -188,7 +195,7 @@ namespace Unishare.Apps.DarwinMobile
 
                     InvokeOnMainThread(() => {
                         DismissViewController(true, () => {
-                            this.ShowAlert($"{pendingFiles.Count - failed} File(s) Uploaded", null, action => {
+                            this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null, action => {
                                 NavigationController.DismissViewController(true, null);
                             });
                         });

@@ -9,6 +9,7 @@ using Foundation;
 
 using MobileCoreServices;
 
+using NSPersonalCloud.FileSharing;
 using NSPersonalCloud.Interfaces.FileSystem;
 
 using UIKit;
@@ -156,7 +157,7 @@ namespace Unishare.Apps.DarwinMobile
 
             if (indexPath.Section == 1)
             {
-                var item = items[workingPath.Length == 1? indexPath.Row : (indexPath.Row - 1)];
+                var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 workingPath = Path.Combine(workingPath, item.Name);
                 RefreshDirectory(this, EventArgs.Empty);
                 return;
@@ -177,8 +178,7 @@ namespace Unishare.Apps.DarwinMobile
                     try
                     {
                         var files = await FileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
-                        items = files.Where(x => x.Attributes.HasFlag(FileAttributes.Directory) && !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
-                                     .OrderBy(x => x.Name).ToList();
+                        items = files.Where(x => x.Attributes.HasFlag(FileAttributes.Directory)).SortDirectoryFirstByName().ToList();
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
                                 TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);

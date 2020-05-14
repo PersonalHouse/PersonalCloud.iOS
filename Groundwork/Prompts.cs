@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 
 using UIKit;
@@ -8,8 +9,9 @@ namespace Unishare.Apps.DarwinCore
     public static class Prompts
     {
         public static void CreatePrompt(this UIViewController controller,
-            string title, string message, string defaultText, string placeholderText,
-            string actionButton, string cancelButton,
+            [Localizable(true)] string title, [Localizable(true)] string message,
+            [Localizable(true)] string defaultText, [Localizable(true)] string placeholderText,
+            [Localizable(true)] string actionButton, [Localizable(true)] string cancelButton,
             Action<string> completionHandler)
         {
             var prompt = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);

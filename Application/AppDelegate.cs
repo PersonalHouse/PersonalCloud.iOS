@@ -172,11 +172,12 @@ namespace Unishare.Apps.DarwinMobile
         #region Background App Refresh
 
         [Export("application:performFetchWithCompletionHandler:")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
             SentrySdk.AddBreadcrumb("Background App Refresh triggered.");
 
-            var cloud = Globals.CloudManager.PersonalClouds?.FirstOrDefault();
+            var cloud = Globals.CloudManager.PersonalClouds?[0];
             if (cloud == null)
             {
                 SentrySdk.CaptureMessage("Backup triggered while no Personal Cloud configured.", SentryLevel.Error);

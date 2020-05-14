@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using Foundation;
@@ -114,7 +115,7 @@ namespace Unishare.Apps.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 2)
             {
                 var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
-                cell.Update(this.Localize("Backup.Interval"), backupIntervalHours < 1 ? null : string.Format(this.Localize("Backup.Interval.Formattable"), 1), true);
+                cell.Update(this.Localize("Backup.Interval"), backupIntervalHours < 1 ? null : string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.Interval.Formattable"), 1), true);
                 cell.Accessory = UITableViewCellAccessory.None;
                 return cell;
             }

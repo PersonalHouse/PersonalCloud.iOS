@@ -52,6 +52,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Error.Generic" = "An unknown error occurred during last operation.";
 "Error.Import" = "Unable to Import Items";
 "Error.Import.Formattable" = "Failed to import {0} items.";
+"Error.PhotoPicker" = "Cannot Read Picked Photos";
 
 "Permission.Photos" = "Personal Cloud cannot access your Photos.\n\nPlease go to \"Settings\" > \"Privacy\" > \"Photos\" and turn on Personal Cloud.";
 "Permission.BackgroundRefresh" = "Personal Cloud cannot use Background App Refresh. Auto Photo Backup will be turned off.\n\nPlease go to \"Settings\" > \"General\" > \"Background App Refresh\" and turn on Personal Cloud.\n\nWhen your device is under restrictions or in Low Power Mode, you cannot change Background App Refresh settings or use this feature.";
@@ -119,6 +120,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Finder.CreateNewFolder" = "Create";
 "Finder.BadFolderName" = "Bad Folder Name";
 "Finder.MakingNewFolder" = "Creating...";
+"Finder.UploadOpenPhotos" = "Choose from Photos";
 "Finder.UploadPickFromFavorites" = "Choose from Favorites";
 "Finder.UploadOpenFilesApp" = "Choose from Files.app";
 "Finder.SelectOneFileOnly" = "Select One File Only";
@@ -126,6 +128,10 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Finder.CannotReadFromFilesApp" = "Read Error";
 "Finder.ThirdPartyAppNotCompatible" = "Personal Cloud app cannot read this file. The file was transferred in a way that isn’t supported yet.";
 "Finder.Uploading" = "Uploading...";
+"Finder.UploadingProgress.Formattable" = "Processing {0}/{1} file(s)...";
+"Finder.Uploaded.Formattable" = "Uploaded {0} File(s)";
+"Finder.SelectionCleared" = "Previous Selections Were Cleared";
+"Finder.SelectionCleared.PathChange" = "Multi-select does not work across folders.\n\nConfirm your selection before switching folders, and make new selections again.";
 
 "Backup.FileType" = "photo backup archive";
 "Backup.RestoreFromPLAsset" = "Restore From Backup";

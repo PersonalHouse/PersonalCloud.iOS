@@ -11,6 +11,7 @@ using Foundation;
 using MobileCoreServices;
 
 using NSPersonalCloud;
+using NSPersonalCloud.FileSharing;
 using NSPersonalCloud.Interfaces.Errors;
 using NSPersonalCloud.Interfaces.FileSystem;
 using NSPersonalCloud.RootFS;
@@ -150,7 +151,7 @@ namespace Unishare.Apps.DarwinMobile
                 var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentPath = Path.GetFileName(Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar)).TrimEnd(Path.AltDirectorySeparatorChar));
                 if (string.IsNullOrEmpty(parentPath)) cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoHome"), this.Localize("Finder.ReturnToRoot"), null);
-                else cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(this.Localize("Finder.ReturnTo.Formattable"), parentPath), null);
+                else cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ReturnTo.Formattable"), parentPath), null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
                 return cell;
             }
@@ -289,7 +290,7 @@ namespace Unishare.Apps.DarwinMobile
 
                         var filePath = Path.Combine(Paths.Favorites, item.Name);
                         PreparePlaceholder(item, filePath, url => {
-                            this.ShowAlert(this.Localize("Finder.AddedToFavorite"), string.Format(this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
+                            this.ShowAlert(this.Localize("Finder.AddedToFavorite"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
                         }, exception => {
                             if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
                             else this.ShowAlert(this.Localize("Error.Download"), exception.GetType().Name);
@@ -345,7 +346,7 @@ namespace Unishare.Apps.DarwinMobile
                 var download = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, this.Localize("Finder.Favorite"), (action, view, handler) => {
                     handler?.Invoke(true);
                     PreparePlaceholder(item, Path.Combine(Paths.Favorites, item.Name), url => {
-                        this.ShowAlert(this.Localize("Finder.AddedToFavorite"), string.Format(this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
+                        this.ShowAlert(this.Localize("Finder.AddedToFavorite"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
                     }, exception => {
                         if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
                         else this.ShowAlert(this.Localize("Error.Download"), exception.GetType().Name);
@@ -474,8 +475,7 @@ namespace Unishare.Apps.DarwinMobile
         private void UploadFile(object sender, EventArgs e)
         {
             var choices = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            // Todo: Localize
-            choices.AddAction(UIAlertAction.Create("Pick from Photo Library", UIAlertActionStyle.Default, action => {
+            choices.AddAction(UIAlertAction.Create(this.Localize("Finder.UploadOpenPhotos"), UIAlertActionStyle.Default, action => {
                 UploadPhoto();
             }));
             choices.AddAction(UIAlertAction.Create(this.Localize("Finder.UploadPickFromFavorites"), UIAlertActionStyle.Default, action => {
@@ -483,7 +483,7 @@ namespace Unishare.Apps.DarwinMobile
             }));
             choices.AddAction(UIAlertAction.Create(this.Localize("Finder.UploadOpenFilesApp"), UIAlertActionStyle.Default, action => {
                 var picker = new UIDocumentPickerViewController(new string[] { UTType.Data }, UIDocumentPickerMode.Import);
-                picker.SetAllowsMultipleSelection(false);
+                picker.SetAllowsMultipleSelection(true);
                 picker.SetShowFileExtensions();
                 picker.Delegate = this;
                 picker.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
@@ -501,7 +501,7 @@ namespace Unishare.Apps.DarwinMobile
                     {
                         if (!UIImagePickerController.IsSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary))
                         {
-                            this.ShowAlert("Photo Library Unavailable", null);
+                            this.ShowAlert(this.Localize("Settings.CannotReadPhotos"), this.Localize("Permission.Photos"));
                             return;
                         }
 
@@ -514,7 +514,7 @@ namespace Unishare.Apps.DarwinMobile
                     }
                     else
                     {
-                        this.ShowAlert("Unauthorized", null);
+                        this.ShowAlert(this.Localize("Settings.CannotReadPhotos"), this.Localize("Permission.Photos"));
                     }
                 });
             });
@@ -532,8 +532,7 @@ namespace Unishare.Apps.DarwinMobile
             var type = (NSString) info.ObjectForKey(UIImagePickerController.MediaType);
             if (type is null)
             {
-                // Todo: Localize
-                this.ShowAlert("Unable to get picked media type.", null);
+                this.ShowAlert(this.Localize("Error.PhotoPicker"), null);
                 return;
             }
 
@@ -546,7 +545,7 @@ namespace Unishare.Apps.DarwinMobile
                 if (asset is null)
                 {
                     var url = (NSUrl) info.ObjectForKey(UIImagePickerController.ImageUrl);
-                    UploadFileAt(url);
+                    UploadFilesAt(url);
                 }
 
                 return;
@@ -561,13 +560,13 @@ namespace Unishare.Apps.DarwinMobile
                 if (asset is null)
                 {
                     var url = (NSUrl) info.ObjectForKey(UIImagePickerController.MediaURL);
-                    UploadFileAt(url);
+                    UploadFilesAt(url);
                 }
 
                 return;
             }
 
-            this.ShowAlert("Unrecognized picked media type.", null);
+            this.ShowAlert(this.Localize("Error.PhotoPicker"), null);
         }
 
         #endregion
@@ -615,8 +614,7 @@ namespace Unishare.Apps.DarwinMobile
                     try
                     {
                         var files = await fileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
-                        items = files.Where(x => !x.Attributes.HasFlag(FileAttributes.Hidden) && !x.Attributes.HasFlag(FileAttributes.System))
-                                     .OrderByDescending(x => x.IsDirectory).ThenBy(x => x.Name).ToList();
+                        items = files.SortDirectoryFirstByName().ToList();
                         InvokeOnMainThread(() => {
                             DismissViewController(true, () => {
                                 if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
@@ -658,7 +656,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             if (File.Exists(cachePath))
             {
-                var alert = UIAlertController.Create(this.Localize("Finder.ReplaceLocalFavorite"), string.Format(this.Localize("Finder.ReplaceFavoriteAlternatives.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                var alert = UIAlertController.Create(this.Localize("Finder.ReplaceLocalFavorite"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ReplaceFavoriteAlternatives.Formattable"), item.Name), UIAlertControllerStyle.Alert);
                 alert.AddAction(UIAlertAction.Create(this.Localize("Finder.Replace"), UIAlertActionStyle.Cancel, action => {
                     try { File.Delete(cachePath); }
                     catch { }
@@ -734,7 +732,7 @@ namespace Unishare.Apps.DarwinMobile
 
         private void RenameEntry(FileSystemEntry item)
         {
-            this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
+            this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
                 if (string.IsNullOrWhiteSpace(text))
                 {
                     this.ShowAlert(this.Localize("Finder.BadFileName"), null);
@@ -820,11 +818,11 @@ namespace Unishare.Apps.DarwinMobile
             UIAlertController alert;
             if (item.Attributes.HasFlag(FileAttributes.Device))
             {
-                alert = UIAlertController.Create(this.Localize("Finder.RemoveDevice"), string.Format(this.Localize("Finder.RemoveCredentials.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                alert = UIAlertController.Create(this.Localize("Finder.RemoveDevice"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.RemoveCredentials.Formattable"), item.Name), UIAlertControllerStyle.Alert);
             }
             else
             {
-                alert = UIAlertController.Create(this.Localize("Finder.DeleteFile"), string.Format(this.Localize("Finder.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                alert = UIAlertController.Create(this.Localize("Finder.DeleteFile"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
             }
             alert.AddAction(UIAlertAction.Create(this.Localize("Finder.Delete"), UIAlertActionStyle.Destructive, action => {
                 var progress = UIAlertController.Create(this.Localize("Finder.Deleting"), null, UIAlertControllerStyle.Alert);
@@ -888,78 +886,61 @@ namespace Unishare.Apps.DarwinMobile
         [Export("documentPicker:didPickDocumentsAtURLs:")]
         public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl[] urls)
         {
-            if (urls.Length != 1)
-            {
-                this.ShowAlert(this.Localize("Finder.SelectOneFileOnly"), this.Localize("Finder.ConcurrentUploadNotSupported"));
-                return;
-            }
-
-            var url = urls[0];
-            if (!url.IsFileUrl)
-            {
-                this.ShowAlert(this.Localize("Finder.CannotReadFromFilesApp"), this.Localize("Finder.ThirdPartyAppNotCompatible"));
-                return;
-            }
-
-            UploadFileAt(url);
+            UploadFilesAt(urls);
         }
 
         // iOS 8.0+
         [Export("documentPicker:didPickDocumentAtURL:")]
         public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl url)
         {
-            UploadFileAt(url);
+            UploadFilesAt(url);
         }
 
-        private void UploadFileAt(NSUrl url)
+        private void UploadFilesAt(params NSUrl[] urls)
         {
             var alert = UIAlertController.Create(this.Localize("Finder.Uploading"), null, UIAlertControllerStyle.Alert);
             PresentViewController(alert, true, () => {
                 Task.Run(async () => {
-                    var shouldRelease = url.StartAccessingSecurityScopedResource();
-
-                    try
+                    var total = urls.Length;
+                    var failed = 0;
+                    for (var i = 0; i < total; i++)
                     {
-                        var fileName = Path.GetFileName(url.Path);
-
-                        if (Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out _))
+                        var url = urls[i];
+                        InvokeOnMainThread(() => alert.Message = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
+                        if (!url.IsFileUrl)
                         {
-                            fileName = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + Path.GetExtension(fileName) ?? string.Empty;
+                            failed += 1;
+                            continue;
                         }
 
-                        using var stream = new FileStream(url.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                        var remotePath = Path.Combine(workingPath, fileName);
-                        await fileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
-                        if (shouldRelease) url.StopAccessingSecurityScopedResource();
+                        var shouldRelease = url.StartAccessingSecurityScopedResource();
+                        try
+                        {
+                            var fileName = Path.GetFileName(url.Path);
 
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => RefreshDirectory(this, EventArgs.Empty));
-                        });
+                            if (Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out _))
+                            {
+                                fileName = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + Path.GetExtension(fileName) ?? string.Empty;
+                            }
+
+                            using var stream = new FileStream(url.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                            var remotePath = Path.Combine(workingPath, fileName);
+                            await fileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
+                            if (shouldRelease) url.StopAccessingSecurityScopedResource();
+
+
+                        }
+                        catch
+                        {
+                            failed += 1;
+                        }
                     }
-                    catch (TaskCanceledException)
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Error.Upload"), this.Localize("Error.Timeout"));
-                            });
+
+                    InvokeOnMainThread(() => {
+                        DismissViewController(true, () => {
+                            this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null);
                         });
-                    }
-                    catch (HttpRequestException exception)
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                PresentViewController(CloudExceptions.Explain(exception), true, null);
-                            });
-                        });
-                    }
-                    catch (Exception exception)
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Error.Upload"), exception.GetType().Name);
-                            });
-                        });
-                    }
+                    });
                 });
             });
         }

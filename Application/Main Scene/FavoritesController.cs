@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using MobileCoreServices;
 
 using UIKit;
 
+using Unishare.Apps.Common;
 using Unishare.Apps.DarwinCore;
 
 namespace Unishare.Apps.DarwinMobile
@@ -74,7 +76,7 @@ namespace Unishare.Apps.DarwinMobile
             {
                 var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentName = depth == 1 ? this.Localize("Favorites.Title") : directory.Parent.Name;
-                cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(this.Localize("Finder.ReturnTo.Formattable"), parentName), null);
+                cell.Update(UIImage.FromBundle("DirectoryBack"), this.Localize("Finder.GoBack"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ReturnTo.Formattable"), parentName), null);
                 cell.Accessory = UITableViewCellAccessory.DetailButton;
                 return cell;
             }
@@ -140,13 +142,13 @@ namespace Unishare.Apps.DarwinMobile
 
                 if (Path.GetExtension(item.FullName)?.ToUpperInvariant() == ".PLASSET")
                 {
-                    var alert = UIAlertController.Create(this.Localize("Backup.RestoreFromPLAsset"), string.Format(this.Localize("Backup.RestoreThisPhoto.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                    var alert = UIAlertController.Create(this.Localize("Backup.RestoreFromPLAsset"), string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.RestoreThisPhoto.Formattable"), item.Name), UIAlertControllerStyle.Alert);
                     alert.AddAction(UIAlertAction.Create(this.Localize("Global.CancelAction"), UIAlertActionStyle.Cancel, null));
                     var restore = UIAlertAction.Create(this.Localize("Backup.Restore"), UIAlertActionStyle.Default, action => {
                         Task.Run(() => {
                             SinglePhotoPackage.RestoreFromArchive(item.FullName, () => {
                                 InvokeOnMainThread(() => {
-                                    var completionAlert = UIAlertController.Create(this.Localize("Backup.Restored"), string.Format(this.Localize("Backup.AddedToPhotos.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                                    var completionAlert = UIAlertController.Create(this.Localize("Backup.Restored"), string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.AddedToPhotos.Formattable"), item.Name), UIAlertControllerStyle.Alert);
                                     completionAlert.AddAction(UIAlertAction.Create(this.Localize("Backup.DeleteBackup"), UIAlertActionStyle.Destructive, action => {
                                         try { item.Delete(); }
                                         catch { }
@@ -202,7 +204,7 @@ namespace Unishare.Apps.DarwinMobile
                 var rename = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, this.Localize("Finder.Rename"), (action, indexPath) => {
                     TableView.SetEditing(false, true);
 
-                    this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
+                    this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
                         if (string.IsNullOrWhiteSpace(text))
                         {
                             this.ShowAlert(this.Localize("Finder.BadFileName"), null);
@@ -237,7 +239,7 @@ namespace Unishare.Apps.DarwinMobile
                 var delete = UITableViewRowAction.Create(UITableViewRowActionStyle.Destructive, this.Localize("Finder.Delete"), (action, indexPath) => {
                     TableView.SetEditing(false, true);
 
-                    var alert = UIAlertController.Create(this.Localize("Favorites.DeleteFile"), string.Format(this.Localize("Favorites.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                    var alert = UIAlertController.Create(this.Localize("Favorites.DeleteFile"), string.Format(CultureInfo.InvariantCulture, this.Localize("Favorites.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
                     alert.AddAction(UIAlertAction.Create(this.Localize("Finder.Delete"), UIAlertActionStyle.Destructive, action => {
                         try
                         {
@@ -279,7 +281,7 @@ namespace Unishare.Apps.DarwinMobile
                 var rename = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, this.Localize("Finder.Rename"), (action, view, handler) => {
                     handler?.Invoke(true);
 
-                    this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
+                    this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
                         if (string.IsNullOrWhiteSpace(text))
                         {
                             this.ShowAlert(this.Localize("Finder.BadFileName"), null);
@@ -314,7 +316,7 @@ namespace Unishare.Apps.DarwinMobile
                 var delete = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Destructive, this.Localize("Finder.Delete"), (action, view, handler) => {
                     handler?.Invoke(true);
 
-                    var alert = UIAlertController.Create(this.Localize("Favorites.DeleteFile"), string.Format(this.Localize("Favorites.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                    var alert = UIAlertController.Create(this.Localize("Favorites.DeleteFile"), string.Format(CultureInfo.InvariantCulture, this.Localize("Favorites.DeleteContents.Formattable"), item.Name), UIAlertControllerStyle.Alert);
                     alert.AddAction(UIAlertAction.Create(this.Localize("Finder.Delete"), UIAlertActionStyle.Destructive, action => {
                         try
                         {
@@ -433,7 +435,7 @@ namespace Unishare.Apps.DarwinMobile
                 InvokeOnMainThread(() => {
                     DismissViewController(true, () => {
                         RefreshDirectory(this, EventArgs.Empty);
-                        if (fails > 0) this.ShowAlert(string.Format(this.Localize("Error.Import.Formattable"), fails), null);
+                        if (fails > 0) this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Error.Import.Formattable"), fails), null);
                     });
                 });
             });
@@ -479,9 +481,7 @@ namespace Unishare.Apps.DarwinMobile
         {
             try
             {
-                items = directory.EnumerateFileSystemInfos()
-                    .OrderByDescending(x => x.Attributes.HasFlag(FileAttributes.Directory))
-                    .ThenBy(x => x.Name).ToList();
+                items = directory.EnumerateFileSystemInfos().SortDirectoryFirstByName().ToList();
             }
             catch (IOException)
             {

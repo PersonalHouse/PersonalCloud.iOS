@@ -99,7 +99,7 @@ namespace Unishare.Apps.DarwinCore
             if (!Directory.Exists(Favorites)) Directory.CreateDirectory(Favorites);
 
             var preferredLanguage = NSLocale.PreferredLanguages.First();
-            if (preferredLanguage.StartsWith("zh-Hans", StringComparison.Ordinal))
+            if (preferredLanguage.StartsWith("zh", StringComparison.Ordinal))
             {
                 NSFileManager.DefaultManager.Remove(Path.Combine(Documents, "How to Use Favorites.rtf"), out _);
                 NSFileManager.DefaultManager.Remove(Path.Combine(Favorites, "How to Use Favorites.rtf"), out _);
@@ -108,14 +108,14 @@ namespace Unishare.Apps.DarwinCore
                 if (!File.Exists(tutorialInDocs))
                 {
                     var manualPath = Path.Combine(NSBundle.MainBundle.ResourcePath, "How to Use Favorites.rtf");
-                    NSFileManager.DefaultManager.Link(manualPath, tutorialInDocs, out _);
+                    File.Copy(manualPath, tutorialInDocs);
                 }
 
                 var tutorialInFavs = Path.Combine(Favorites, "本地收藏 (Favorites) 说明.rtf");
                 if (!File.Exists(tutorialInFavs))
                 {
                     var manualPath = Path.Combine(NSBundle.MainBundle.ResourcePath, "How to Use Favorites.rtf");
-                    NSFileManager.DefaultManager.Link(manualPath, tutorialInFavs, out _);
+                    File.Copy(manualPath, tutorialInFavs);
                 }
             }
             else

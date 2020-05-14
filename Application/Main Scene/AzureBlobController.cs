@@ -183,7 +183,7 @@ namespace Unishare.Apps.DarwinMobile
 
             string connection;
             if (endpoint.Contains(accountName, StringComparison.Ordinal)) accountName = null;
-            if (endpoint.StartsWith("http://", StringComparison.Ordinal)) endpoint.Replace("http://", "https://");
+            if (endpoint.StartsWith("http://", StringComparison.Ordinal)) endpoint = endpoint.Replace("http://", "https://");
             if (endpoint.StartsWith("https://", StringComparison.Ordinal))
             {
                 if (string.IsNullOrEmpty(accountName))

@@ -407,6 +407,7 @@
         <None Include="Deprecated\AVScannerController.xib" />
         <None Include="Deprecated\BarcodeDetectedEventArgs.cs" />
         <None Include="Info.plist" />
+        <None Include="Deprecated\DeviceDirectoryController.cs" />
     </ItemGroup>
     <ItemGroup>
         <Compile Include="AppDelegate.cs" />
@@ -475,7 +476,6 @@
         <Compile Include="TableView Cells\AccentButtonCell.designer.cs">
             <DependentUpon>AccentButtonCell.cs</DependentUpon>
         </Compile>
-        <Compile Include="Deprecated\DeviceDirectoryController.cs" />
         <Compile Include="Deprecated\DeviceDirectoryController.Designer.cs">
             <DependentUpon>DeviceDirectoryController.cs</DependentUpon>
         </Compile>
@@ -503,7 +503,7 @@
         <Compile Include="Main Scene\AliYunController.Designer.cs">
           <DependentUpon>AliYunController.cs</DependentUpon>
         </Compile>
-        <Compile Include="Utilities\Extensions.cs" />
+        <Compile Include="Utilities\DataExtensions.cs" />
         <Compile Include="Main Scene\WebAppsController.cs" />
         <Compile Include="Main Scene\WebAppsController.Designer.cs">
           <DependentUpon>WebAppsController.cs</DependentUpon>

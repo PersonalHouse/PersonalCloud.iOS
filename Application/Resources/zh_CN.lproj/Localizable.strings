@@ -52,6 +52,7 @@
 "Error.Generic" = "未能完成操作，因为发生了未知错误。";
 "Error.Import" = "文件导入失败";
 "Error.Import.Formattable" = "{0} 个文件导入失败";
+"Error.PhotoPicker" = "无法读取已选照片或视频";
 
 "Permission.Photos" = "您已拒绝个人云使用“照片”。请前往系统设置 App 更改隐私授权。";
 "Permission.BackgroundRefresh" = "个人云无法使用“后台 App 刷新”，定时备份已自动关闭。\n\n请前往“设置” > “通用” > “后台 App 刷新”并打开“个人云”。如果您的设备已打开“访问限制”或处于“低电量模式”，后台 App 刷新将不工作。";
@@ -119,6 +120,7 @@
 "Finder.CreateNewFolder" = "创建";
 "Finder.BadFolderName" = "文件夹名称无效";
 "Finder.MakingNewFolder" = "正在创建……";
+"Finder.UploadOpenPhotos" = "上传相册照片";
 "Finder.UploadPickFromFavorites" = "上传本地收藏文件";
 "Finder.UploadOpenFilesApp" = "上传其它 App 的文件";
 "Finder.SelectOneFileOnly" = "仅支持单文件上传";
@@ -126,6 +128,10 @@
 "Finder.CannotReadFromFilesApp" = "不支持此共享方式";
 "Finder.ThirdPartyAppNotCompatible" = "来源 App 正在使用特殊方式交换此文件，个人云无法访问文件数据。";
 "Finder.Uploading" = "正在上传……";
+"Finder.UploadingProgress.Formattable" = "处理第 {0} 个文件，共 {1} 个……";
+"Finder.Uploaded.Formattable" = "成功上传 {0} 个文件";
+"Finder.SelectionCleared" = "已选项目被取消";
+"Finder.SelectionCleared.PathChange" = "不支持跨文件夹多选。\n\n如果需要上传来自不同文件夹的文件，请先选择位于同一文件夹的文件，完成上传后再前往其它文件夹。";
 
 "Backup.FileType" = "相册备份归档";
 "Backup.RestoreFromPLAsset" = "恢复相册备份";
