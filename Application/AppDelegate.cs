@@ -23,12 +23,12 @@ using SQLite;
 
 using UIKit;
 
-using Unishare.Apps.Common;
-using Unishare.Apps.Common.Models;
-using Unishare.Apps.DarwinCore;
-using Unishare.Apps.DarwinCore.Models;
+using NSPersonalCloud.Common;
+using NSPersonalCloud.Common.Models;
+using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.DarwinCore.Models;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     [Register("AppDelegate")]
     public class AppDelegate : UIResponder, IUIApplicationDelegate

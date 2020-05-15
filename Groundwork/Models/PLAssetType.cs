@@ -1,4 +1,4 @@
-﻿namespace Unishare.Apps.DarwinCore.Models
+﻿namespace NSPersonalCloud.DarwinCore.Models
 {
     public enum PLAssetType : long
     {

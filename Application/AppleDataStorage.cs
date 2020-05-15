@@ -13,12 +13,12 @@ using NSPersonalCloud.Interfaces.Apps;
 
 using UIKit;
 
-using Unishare.Apps.Common;
-using Unishare.Apps.Common.Models;
+using NSPersonalCloud.Common;
+using NSPersonalCloud.Common.Models;
 
 using VaslD.Utility.Cryptography;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public class AppleDataStorage : IConfigStorage
     {

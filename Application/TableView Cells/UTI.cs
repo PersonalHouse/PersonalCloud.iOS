@@ -7,7 +7,7 @@ using Foundation;
 
 using MobileCoreServices;
 
-namespace Unishare.Apps.DarwinCore
+namespace NSPersonalCloud.DarwinCore
 {
     public partial class UTI : IEquatable<UTI>, IEquatable<string>, IEquatable<CFString>, IEquatable<NSString>
     {

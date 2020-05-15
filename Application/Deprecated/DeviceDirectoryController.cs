@@ -14,9 +14,9 @@ using NSPersonalCloud.RootFS;
 
 using UIKit;
 
-using Unishare.Apps.DarwinCore;
+using NSPersonalCloud.DarwinCore;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class DeviceDirectoryController : UITableViewController, IUIDocumentInteractionControllerDelegate, IUIDocumentPickerDelegate
     {

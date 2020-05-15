@@ -4,9 +4,9 @@ using NSPersonalCloud;
 
 using SQLite;
 
-using Unishare.Apps.DarwinCore;
+using NSPersonalCloud.DarwinCore;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public static class Globals
     {

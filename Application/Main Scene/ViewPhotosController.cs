@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Foundation;
 
 using UIKit;
-using Unishare.Apps.DarwinCore;
-using Unishare.Apps.DarwinCore.Models;
+using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.DarwinCore.Models;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class ViewPhotosController : UITableViewController
     {

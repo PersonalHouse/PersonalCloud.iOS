@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public class ToggledEventArgs : EventArgs
     {

@@ -15,7 +15,7 @@ using NSPersonalCloud.Interfaces.FileSystem;
 
 using Photos;
 
-namespace Unishare.Apps.DarwinCore
+namespace NSPersonalCloud.DarwinCore
 {
     public class SandboxedFileSystem : VirtualFileSystem
     {

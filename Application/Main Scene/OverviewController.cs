@@ -7,11 +7,11 @@ using Photos;
 
 using UIKit;
 
-using Unishare.Apps.Common;
-using Unishare.Apps.Common.Models;
-using Unishare.Apps.DarwinCore;
+using NSPersonalCloud.Common;
+using NSPersonalCloud.Common.Models;
+using NSPersonalCloud.DarwinCore;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class OverviewController : UITableViewController
     {

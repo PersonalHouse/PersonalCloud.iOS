@@ -11,10 +11,10 @@ using MobileCoreServices;
 
 using UIKit;
 
-using Unishare.Apps.Common;
-using Unishare.Apps.DarwinCore;
+using NSPersonalCloud.Common;
+using NSPersonalCloud.DarwinCore;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class FavoritesController : UITableViewController, IUIDocumentInteractionControllerDelegate, IUIDocumentPickerDelegate
     {

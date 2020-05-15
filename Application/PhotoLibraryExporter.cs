@@ -11,11 +11,11 @@ using Photos;
 using Sentry;
 using Sentry.Protocol;
 
-using Unishare.Apps.Common;
-using Unishare.Apps.DarwinCore;
-using Unishare.Apps.DarwinCore.Models;
+using NSPersonalCloud.Common;
+using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.DarwinCore.Models;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public class PhotoLibraryExporter
     {

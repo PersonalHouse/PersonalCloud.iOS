@@ -12,10 +12,10 @@ using Newtonsoft.Json;
 
 using Photos;
 
-using Unishare.Apps.DarwinCore;
-using Unishare.Apps.DarwinCore.Models;
+using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.DarwinCore.Models;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public class SinglePhotoPackage
     {

@@ -4,7 +4,7 @@ using Foundation;
 
 using UIKit;
 
-namespace Unishare.Apps.DarwinCore
+namespace NSPersonalCloud.DarwinCore
 {
     public static partial class UIKitExtensions
     {
