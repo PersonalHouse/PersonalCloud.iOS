@@ -8,7 +8,7 @@ using Foundation;
 using System;
 using System.CodeDom.Compiler;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     [Register ("KeyValueCell")]
     partial class KeyValueCell

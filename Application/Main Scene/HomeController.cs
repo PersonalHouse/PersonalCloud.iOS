@@ -2,7 +2,7 @@ using System;
 
 using UIKit;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class HomeController : UITabBarController
     {

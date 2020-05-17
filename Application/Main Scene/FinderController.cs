@@ -20,9 +20,9 @@ using Photos;
 
 using UIKit;
 
-using Unishare.Apps.DarwinCore;
+using NSPersonalCloud.DarwinCore;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class FinderController : UITableViewController,
                                             IUIDocumentPickerDelegate,
@@ -926,19 +926,19 @@ namespace Unishare.Apps.DarwinMobile
                             using var stream = new FileStream(url.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
                             var remotePath = Path.Combine(workingPath, fileName);
                             await fileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
-                            if (shouldRelease) url.StopAccessingSecurityScopedResource();
-
-
                         }
                         catch
                         {
                             failed += 1;
                         }
+                        if (shouldRelease) url.StopAccessingSecurityScopedResource();
                     }
 
                     InvokeOnMainThread(() => {
                         DismissViewController(true, () => {
-                            this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null);
+                            this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null, action => {
+                                RefreshDirectory(this, EventArgs.Empty);
+                            });
                         });
                     });
                 });

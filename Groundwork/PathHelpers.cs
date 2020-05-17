@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using Foundation;
 
-namespace Unishare.Apps.DarwinCore
+namespace NSPersonalCloud.DarwinCore
 {
     public static class Paths
     {

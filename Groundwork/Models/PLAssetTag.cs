@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Unishare.Apps.DarwinCore.Models
+namespace NSPersonalCloud.DarwinCore.Models
 {
     [Flags]
     public enum PLAssetTags : ulong

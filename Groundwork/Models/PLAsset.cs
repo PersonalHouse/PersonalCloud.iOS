@@ -9,7 +9,7 @@ using Photos;
 
 using SQLite;
 
-namespace Unishare.Apps.DarwinCore.Models
+namespace NSPersonalCloud.DarwinCore.Models
 {
     [Table(TableNames.PhotoAssets)]
     public class PLAsset

@@ -4,7 +4,7 @@ using Foundation;
 
 using UIKit;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class TitleEditorCell : UITableViewCell, IUITextFieldDelegate
     {

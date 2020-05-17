@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace Unishare.Apps.DarwinCore
+namespace NSPersonalCloud.DarwinCore
 {
     public static class Colors
     {

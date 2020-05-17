@@ -1,9 +1,9 @@
 ﻿using NSPersonalCloud.FileSharing.Aliyun;
 
-using Unishare.Apps.Common.Models;
-using Unishare.Apps.DarwinCore;
+using NSPersonalCloud.Common.Models;
+using NSPersonalCloud.DarwinCore;
 
-namespace Unishare.Apps.DarwinMobile.Utilities
+namespace NSPersonalCloud.DarwinMobile.Utilities
 {
     public static class DataExtensions
     {

@@ -2,9 +2,9 @@ using System;
 
 using UIKit;
 
-using Unishare.Apps.Common.Models;
+using NSPersonalCloud.Common.Models;
 
-namespace Unishare.Apps.DarwinMobile
+namespace NSPersonalCloud.DarwinMobile
 {
     public partial class WelcomeScreenController : UIViewController
     {
