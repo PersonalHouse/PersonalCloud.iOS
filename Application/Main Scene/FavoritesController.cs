@@ -415,21 +415,18 @@ namespace NSPersonalCloud.DarwinMobile
                 var fails = 0;
                 foreach (var url in urls)
                 {
+                    var shouldRelease = url.StartAccessingSecurityScopedResource();
                     try
                     {
-                        var shouldRelease = url.StartAccessingSecurityScopedResource();
-
                         var filePath = Path.Combine(directory.FullName, Path.GetFileName(url.Path));
                         if (File.Exists(filePath)) File.Delete(filePath);
                         File.Copy(url.Path, filePath, false);
-                        items.Add(new FileInfo(filePath));
-
-                        if (shouldRelease) url.StopAccessingSecurityScopedResource();
                     }
                     catch (IOException)
                     {
                         fails += 1;
                     }
+                    if (shouldRelease) url.StopAccessingSecurityScopedResource();
                 }
 
                 InvokeOnMainThread(() => {
@@ -449,22 +446,18 @@ namespace NSPersonalCloud.DarwinMobile
 
             Task.Run(() => {
                 var failed = false;
+                var shoudlRelease = url.StartAccessingSecurityScopedResource();
                 try
                 {
-                    var shoudlRelease = url.StartAccessingSecurityScopedResource();
-
                     var filePath = Path.Combine(directory.FullName, Path.GetFileName(url.Path));
                     if (File.Exists(filePath)) File.Delete(filePath);
                     File.Copy(url.Path, filePath, false);
-                    items.Add(new FileInfo(filePath));
-
-                    if (shoudlRelease) url.StopAccessingSecurityScopedResource();
                 }
                 catch (IOException)
                 {
                     failed = true;
                 }
-
+                if (shoudlRelease) url.StopAccessingSecurityScopedResource();
 
                 InvokeOnMainThread(() => {
                     DismissViewController(true, () => {
