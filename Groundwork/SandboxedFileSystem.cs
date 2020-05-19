@@ -107,7 +107,10 @@ namespace NSPersonalCloud.DarwinCore
 
                 #region Desktop.ini for Photos
 
-                children.Add(FolderConfigForPhotosDirectory);
+                if (NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
+                {
+                    children.Add(FolderConfigForPhotosDirectory);
+                }
 
                 #endregion Desktop.ini for Photos
 
@@ -175,7 +178,10 @@ namespace NSPersonalCloud.DarwinCore
 
                 #region Desktop.ini for Smart Album: All Photos
 
-                children.Add(FolderConfigForAllPhotosAlbum);
+                if (NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
+                {
+                    children.Add(FolderConfigForAllPhotosAlbum);
+                }
 
                 #endregion Desktop.ini for Smart Album: All Photos
 
@@ -196,7 +202,11 @@ namespace NSPersonalCloud.DarwinCore
 
                 #region Desktop.ini for Photos
 
-                if (fileName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase)) return new ValueTask<FileSystemEntry>(FolderConfigForPhotosDirectory);
+                if (fileName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase) &&
+                    NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
+                {
+                    return new ValueTask<FileSystemEntry>(FolderConfigForPhotosDirectory);
+                }
 
                 #endregion Desktop.ini for Photos
 
@@ -220,7 +230,11 @@ namespace NSPersonalCloud.DarwinCore
 
                 #region Desktop.ini for Smart Album: All Photos
 
-                if (photoName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase)) return new ValueTask<FileSystemEntry>(FolderConfigForAllPhotosAlbum);
+                if (photoName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase) &&
+                    NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
+                {
+                    return new ValueTask<FileSystemEntry>(FolderConfigForAllPhotosAlbum);
+                }
 
                 #endregion Desktop.ini for Smart Album: All Photos
 
@@ -246,7 +260,8 @@ namespace NSPersonalCloud.DarwinCore
             {
                 #region Desktop.ini for Photos
 
-                if (segments.Length == 2 && segments.Last().Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase))
+                if (segments.Length == 2 && segments.Last().Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase) &&
+                    NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
                 {
                     var resourcePath = NSBundle.MainBundle.ResourcePath;
                     var filePath = Path.Combine(resourcePath, "Desktop (Photos).ini");
@@ -264,7 +279,8 @@ namespace NSPersonalCloud.DarwinCore
 
             #region Desktop.ini for Smart Album: All Photos
 
-            if (photoName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase))
+            if (photoName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase) &&
+                NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
             {
                 var resourcePath = NSBundle.MainBundle.ResourcePath;
                 var filePath = Path.Combine(resourcePath, "Desktop (Album).ini");
@@ -302,7 +318,8 @@ namespace NSPersonalCloud.DarwinCore
             {
                 #region Desktop.ini for Photos
 
-                if (segments.Length == 2 && segments.Last().Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase))
+                if (segments.Length == 2 && segments.Last().Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase) &&
+                    NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
                 {
                     var resourcePath = NSBundle.MainBundle.ResourcePath;
                     var filePath = Path.Combine(resourcePath, "Desktop (Photos).ini");
@@ -328,7 +345,8 @@ namespace NSPersonalCloud.DarwinCore
 
             #region Desktop.ini for Smart Album: All Photos
 
-            if (photoName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase))
+            if (photoName.Equals(FileNameForFolderConfiguration, StringComparison.InvariantCultureIgnoreCase) &&
+                NSLocale.PreferredLanguages[0].StartsWith("zh-Hans"))
             {
                 var resourcePath = NSBundle.MainBundle.ResourcePath;
                 var filePath = Path.Combine(resourcePath, "Desktop (Album).ini");
