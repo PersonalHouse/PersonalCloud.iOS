@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build_macos:
+    name: macOS
+
+    runs-on: macos-latest
+
+    env:
+      SolutionPath: iOS.sln
+      Configuration: Debug|iPhoneSimulator
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          submodules: "recursive"
+
+      - name: Show Working Directory
+        run: |
+          echo Working directory...
+          ls
+          cd ..
+          echo ----
+          echo Parent directory...
+          ls
+
+      - name: Restore
+        run: msbuild $env:SolutionPath /t:Restore /p:Configuration=$env:Configuration
+
+      - name: Build
+        run: msbuild $env:SolutionPath /v:d /t:Rebuild /p:Configuration=$env:Configuration
