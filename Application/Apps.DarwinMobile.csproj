@@ -27,8 +27,7 @@
     <MtouchArch>x86_64</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
-    <CodesignKey>Apple Development: yehuo dao (QBY27565HZ)</CodesignKey>
-    <CodesignProvision>Personal Cloud Development</CodesignProvision>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -38,10 +37,9 @@
     <OutputPath>bin\iPhoneSimulator\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <MtouchLink>None</MtouchLink>
+    <MtouchLink>SdkOnly</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
-    <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
-    <CodesignKey>Apple Distribution: Beijing Daoyehuo Technology Co.Ltd (N747QRT8C4)</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
