@@ -74,8 +74,12 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (indexPath.Section == 0)
             {
-                var app = apps[indexPath.Row];
-                var url = Globals.CloudManager.PersonalClouds[0].GetWebAppUri(app);
+                var app = apps?[indexPath.Row];
+                if (app is null) return;
+
+                var url = Globals.CloudManager.PersonalClouds[0]?.GetWebAppUri(app);
+                if (url is null) return;
+
                 UIApplication.SharedApplication.OpenUrl(NSUrl.FromString(url.AbsoluteUri), new NSDictionary(), null);
                 return;
             }
@@ -87,6 +91,8 @@ namespace NSPersonalCloud.DarwinMobile
 
         private void RefreshApps(object sender, EventArgs e)
         {
+            if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();
+
             apps = Globals.CloudManager.PersonalClouds[0].Apps;
             TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
         }
