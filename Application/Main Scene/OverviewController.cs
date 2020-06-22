@@ -266,8 +266,11 @@ namespace NSPersonalCloud.DarwinMobile
         {
             sharePhotos = true;
             Globals.FileSystem.ArePhotosShared = true;
-            if (Globals.BackupWorker == null) Globals.BackupWorker = new PhotoLibraryExporter();
-            else Globals.BackupWorker.Refresh();
+            if (Globals.BackupWorker == null)
+            {
+                Globals.BackupWorker = new PhotoLibraryExporter();
+            }
+            _ = Globals.BackupWorker.Init();
             Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "1");
         }
 

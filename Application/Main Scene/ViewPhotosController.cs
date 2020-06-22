@@ -19,15 +19,18 @@ namespace NSPersonalCloud.DarwinMobile
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            photos = Globals.BackupWorker?.Photos;
+            photos = Globals.BackupWorker?.Photos.Value;
             if (photos == null)
             {
                 Task.Run(() => {
                     Globals.BackupWorker = new PhotoLibraryExporter();
-                    photos = Globals.BackupWorker.Photos;
+                    photos = Globals.BackupWorker.Photos.Value;
                     InvokeOnMainThread(() => TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic));
                 });
+
             }
+
+
         }
 
         #region TableView Data Source

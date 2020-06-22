@@ -14,13 +14,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interface", "PersonalCloud.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apps.Common", "PersonalCloud.Apps.Common\Apps.Common.csproj", "{569E4750-33C6-474C-B1ED-6481B67B04B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlbumComon", "PersonalCloud.Core\src\Apps\Album\AlbumComon\AlbumComon.csproj", "{1C833A44-A615-449B-837A-6BD0DB4BD3F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlbumComon", "PersonalCloud.Core\src\Apps\Album\AlbumComon\AlbumComon.csproj", "{1C833A44-A615-449B-837A-6BD0DB4BD3F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageClient.Aliyun", "PersonalCloud.Core\src\StorageClient.Aliyun\src\StorageClient.Aliyun\StorageClient.Aliyun.csproj", "{4436B0C5-EF64-4BB6-B479-4660111B7070}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageClient.Aliyun", "PersonalCloud.Core\src\StorageClient.Aliyun\src\StorageClient.Aliyun\StorageClient.Aliyun.csproj", "{4436B0C5-EF64-4BB6-B479-4660111B7070}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlbumApp", "PersonalCloud.Core\src\Apps\Album\AlbumApp\AlbumApp.csproj", "{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlbumApp", "PersonalCloud.Core\src\Apps\Album\AlbumApp\AlbumApp.csproj", "{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageClient.Azure", "PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj", "{6DB24509-11EC-4722-95BE-170A961734D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageClient.Azure", "PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj", "{6DB24509-11EC-4722-95BE-170A961734D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +35,7 @@ Global
 		{0B61900E-0D27-4207-B6B0-A42031C29D63}.Debug|Any CPU.ActiveCfg = Debug|iPhone
 		{0B61900E-0D27-4207-B6B0-A42031C29D63}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{0B61900E-0D27-4207-B6B0-A42031C29D63}.Debug|iPhone.Build.0 = Debug|iPhone
+		{0B61900E-0D27-4207-B6B0-A42031C29D63}.Debug|iPhone.Deploy.0 = Debug|iPhone
 		{0B61900E-0D27-4207-B6B0-A42031C29D63}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
 		{0B61900E-0D27-4207-B6B0-A42031C29D63}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
 		{0B61900E-0D27-4207-B6B0-A42031C29D63}.Release|Any CPU.ActiveCfg = Release|iPhone

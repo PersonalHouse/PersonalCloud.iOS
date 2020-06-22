@@ -27,6 +27,8 @@ namespace NSPersonalCloud.DarwinMobile
         private int backupIntervalHours;
         private RootFileSystem fileSystem;
 
+        private object IsEnablingBackupBtnCache;
+
         #region Lifecycle
 
         public override void ViewDidLoad()
@@ -34,6 +36,7 @@ namespace NSPersonalCloud.DarwinMobile
             base.ViewDidLoad();
             fileSystem = Globals.CloudManager.PersonalClouds[0].RootFS;
             NavigationItem.LeftBarButtonItem.Clicked += ShowHelp;
+            IsEnablingBackupBtnCache = null;
         }
 
         public override void ViewWillAppear(bool animated)
@@ -42,6 +45,7 @@ namespace NSPersonalCloud.DarwinMobile
             autoBackup = PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized && Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1");
             backupPath = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
             if (!int.TryParse(Globals.Database.LoadSetting(UserSettings.PhotoBackupInterval) ?? "-1", out backupIntervalHours)) backupIntervalHours = 0;
+
         }
 
         public override void ViewDidAppear(bool animated)
@@ -61,7 +65,16 @@ namespace NSPersonalCloud.DarwinMobile
                 chooser.NavigationTitle = this.Localize("Backup.ChooseBackupLocation");
                 chooser.PathSelected += (o, e) => {
                     Globals.Database.SaveSetting(UserSettings.PhotoBackupPrefix, e.Path);
+                    backupPath = e.Path;
                     InvokeOnMainThread(() => {
+
+                        if (!string.IsNullOrWhiteSpace(backupPath))
+                        {
+                            TurnOnAutoBackup(IsEnablingBackupBtnCache);
+                        }
+                        if (IsEnablingBackupBtnCache is UISwitch button) button.On = true;
+                        IsEnablingBackupBtnCache = null;
+
                         TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), NSIndexPath.FromRowSection(1, 0), NSIndexPath.FromRowSection(2, 0) }, UITableViewRowAnimation.Automatic);
                     });
                 };
@@ -107,7 +120,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
                 var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
-                cell.Update(this.Localize("Backup.ChooseLocation"), string.IsNullOrEmpty(backupPath) ? null : this.Localize("Backup.SetUpDone"), true);
+                cell.Update(this.Localize("Backup.ChooseLocation"), backupPath, true);
                 cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 return cell;
             }
@@ -181,9 +194,12 @@ namespace NSPersonalCloud.DarwinMobile
                     return;
                 }
 
-                Task.Run(() => {
-                    if (Globals.BackupWorker == null) Globals.BackupWorker = new PhotoLibraryExporter();
-                    Globals.BackupWorker.StartBackup(fileSystem, backupPath);
+                Task.Run(async () => {
+                    if (Globals.BackupWorker == null){ 
+                        Globals.BackupWorker = new PhotoLibraryExporter();
+                        await Globals.BackupWorker.Init().ConfigureAwait(false);
+                    }
+                    await Globals.BackupWorker.StartBackup(fileSystem, backupPath).ConfigureAwait(false);
                 });
                 this.ShowAlert(this.Localize("Backup.Executed"), this.Localize("Backup.NewBackupInProgress"));
                 return;
@@ -219,7 +235,9 @@ namespace NSPersonalCloud.DarwinMobile
             if (string.IsNullOrEmpty(backupPath))
             {
                 TurnOffAutoBackup(obj);
-                this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoBackupLocation"));
+                //this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoBackupLocation"));
+                IsEnablingBackupBtnCache = obj;
+                PerformSegue(ChooseDeviceSegue, this);
                 return;
             }
 

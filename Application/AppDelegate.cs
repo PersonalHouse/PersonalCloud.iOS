@@ -27,9 +27,13 @@ using NSPersonalCloud.Common;
 using NSPersonalCloud.Common.Models;
 using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.DarwinCore.Models;
+using System.Threading;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace NSPersonalCloud.DarwinMobile
 {
+
     [Register("AppDelegate")]
     public class AppDelegate : UIResponder, IUIApplicationDelegate
     {
@@ -87,6 +91,8 @@ namespace NSPersonalCloud.DarwinMobile
                 Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
             {
                 Globals.BackupWorker = new PhotoLibraryExporter();
+                currentBackupTask = null;
+                _ = Globals.BackupWorker.Init();
             }
 
             var appsPath = Paths.WebApps;
@@ -103,6 +109,12 @@ namespace NSPersonalCloud.DarwinMobile
 
                 Globals.CloudManager.StartService();
             });
+
+
+//             Task.Run(() => {
+//                 PerformFetch(application, x => {
+//                 });
+//             });
 
             return true;
         }
@@ -126,6 +138,13 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
             }
+
+            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
+                Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
+            {
+                application.SetMinimumBackgroundFetchInterval(3600);
+            }
+
 
             return true;
         }
@@ -171,25 +190,62 @@ namespace NSPersonalCloud.DarwinMobile
 
         #region Background App Refresh
 
+        UIBackgroundFetchResult backgroundStatus;
+        Task currentBackupTask;
+
         [Export("application:performFetchWithCompletionHandler:")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
+            var tdelay = Task.Delay(28 * 1000);
+            backgroundStatus = UIBackgroundFetchResult.NewData;
+            if (currentBackupTask == null)
+            {
+                currentBackupTask = Task.Run(BackgroundBackupImages);
+            }
+
+            var res = Task.WhenAny(new[] { tdelay, currentBackupTask }).Result;
+            if (res == currentBackupTask)
+            {
+                currentBackupTask = null;
+                completionHandler?.Invoke(backgroundStatus);
+                return;
+            }
+            completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+        }
+
+        private void WaitForPath(PersonalCloud cloud, string path)
+        {
+            using var cts = new CancellationTokenSource();
+            cts.CancelAfter(27 * 1000);
+            var pathsegs = path.Split(new char[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (pathsegs?.Length>0)
+            {
+                var rootnodetofind = pathsegs[0];
+                for (int i = 0; i < 1000; i++)
+                {
+                    var nodes = cloud.RootFS.EnumerateChildrenAsync("/").AsTask().Result;
+                    if (nodes.Any(x => string.Compare(x.Name, rootnodetofind, true, CultureInfo.InvariantCulture) == 0))
+                    {
+                        return;
+                    }
+                    cts.Token.ThrowIfCancellationRequested();
+                    Thread.Sleep(500);
+                }
+            }
+            throw new InvalidDataException("Couldn't backup images to personal cloud root, which is readonly");
+        }
+
+        async Task BackgroundBackupImages()
+        {
+
             SentrySdk.AddBreadcrumb("Background App Refresh triggered.");
 
             var cloud = Globals.CloudManager.PersonalClouds?[0];
             if (cloud == null)
             {
                 SentrySdk.CaptureMessage("Backup triggered while no Personal Cloud configured.", SentryLevel.Error);
-                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
-                return;
-            }
-
-            var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
-            if (string.IsNullOrEmpty(path))
-            {
-                SentrySdk.CaptureMessage("Photo sync not configured.", SentryLevel.Error);
-                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                backgroundStatus = UIBackgroundFetchResult.Failed;
                 return;
             }
 
@@ -197,34 +253,57 @@ namespace NSPersonalCloud.DarwinMobile
             if (worker == null)
             {
                 SentrySdk.CaptureMessage("Photo sync worker not initialized.", SentryLevel.Error);
-                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                backgroundStatus = UIBackgroundFetchResult.Failed;
                 return;
             }
+
 
             try
             {
                 Globals.CloudManager.NetworkRefeshNodes();
-                Task.Delay(TimeSpan.FromSeconds(15)).Wait();
             }
             catch (Exception exception)
             {
                 SentrySdk.CaptureMessage("Exception occurred while refreshing network status or waiting for response.", SentryLevel.Error);
                 SentrySdk.CaptureException(exception);
-                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                backgroundStatus = UIBackgroundFetchResult.Failed;
+                return;
+            }
+
+
+            var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
+            if (string.IsNullOrEmpty(path))
+            {
+                SentrySdk.CaptureMessage("Photo sync not configured.", SentryLevel.Error);
+                backgroundStatus = UIBackgroundFetchResult.Failed;
                 return;
             }
 
             try
             {
-                var items = worker.StartBackup(cloud.RootFS, path).Result;
-                if (items > 0) completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
-                else completionHandler?.Invoke(UIBackgroundFetchResult.NoData);
+                WaitForPath(cloud, path);
+
+            }
+            catch (Exception exception)
+            {
+                SentrySdk.CaptureMessage("Exception occurred while wait for node appearing when backup photos.", SentryLevel.Error);
+                SentrySdk.CaptureException(exception);
+                backgroundStatus = UIBackgroundFetchResult.Failed;
+                return;
+            }
+
+            try
+            {
+                var items = await worker.StartBackup(cloud.RootFS, path).ConfigureAwait(false);
+
+                backgroundStatus = UIBackgroundFetchResult.NoData;
             }
             catch
             {
-                completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
+                backgroundStatus = UIBackgroundFetchResult.Failed;
             }
         }
+
 
         #endregion
 

@@ -20,19 +20,26 @@ namespace NSPersonalCloud.DarwinMobile
     public class PhotoLibraryExporter
     {
         public Task<int> BackupTask { get; private set; }
-        public IReadOnlyList<PLAsset> Photos { get; private set; }
+        public Lazy<IReadOnlyList<PLAsset>> Photos { get; private set; }
 
         public PhotoLibraryExporter()
         {
-            Refresh();
+            Photos = new Lazy<IReadOnlyList<PLAsset>>(() => {
+                return GetPhotos();
+            });
         }
 
-        public void Refresh()
+        public async Task Init()
+        {
+            await Task.Run(() => {
+                _ = Photos.Value;
+            }).ConfigureAwait(false);
+        }
+        static private IReadOnlyList<PLAsset> GetPhotos()
         {
             if (PHPhotoLibrary.AuthorizationStatus != PHAuthorizationStatus.Authorized)
             {
-                Photos = null;
-                return;
+                return null;
             }
 
             var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
@@ -47,7 +54,7 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 if (photos.Contains(asset)) photos.Remove(asset);
             }
-            Photos = photos.AsReadOnly();
+            return photos.AsReadOnly();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
@@ -58,17 +65,122 @@ namespace NSPersonalCloud.DarwinMobile
             return BackupTask;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
-        private void CreateBackupTask(IFileSystem fileSystem, string pathPrefix)
+        private async Task<bool> CopyToDestination(Stream orig, string destPath, IFileSystem fileSystem)
         {
-            if (Photos == null || Photos.Count == 0)
+            try
             {
-                SentrySdk.AddBreadcrumb("No photos to backup.");
-                BackupTask = Task.FromResult(0);
-                return;
+                var destTmpFile = destPath + ".temp";
+                await fileSystem.DeleteAsync(destTmpFile, true).ConfigureAwait(false);
+                await fileSystem.WriteFileAsync(destTmpFile, orig).ConfigureAwait(false);
+                try
+                {
+                    await fileSystem.RenameAsync(destTmpFile,  destPath ).ConfigureAwait(false);
+                }
+                catch
+                {
+                    try
+                    {
+                        await fileSystem.RenameAsync(destTmpFile,  destPath +$".RenameFailed" ).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                    }
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
 
-            BackupTask = Task.Run(async () =>
+        }
+
+        private async Task<bool> BackupOneImage(PLAsset photo, string remotePath, IFileSystem fileSystem)//or video
+        {
+
+            try
+            {
+                SentrySdk.AddBreadcrumb($"Backing up item: {photo.FileName}");
+
+                var zipFile = Path.Combine(Paths.Temporary, photo.FileName + ".zip");
+                var originalFile = Path.Combine(Paths.Temporary, photo.FileName);
+
+                File.Delete(zipFile);
+                File.Delete(originalFile);
+
+                FileStream zipStream = null;
+                FileStream originalStream = null;
+                SinglePhotoPackage package = null;
+
+
+                originalStream = new FileStream(originalFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                package = new SinglePhotoPackage(photo);
+
+                if (photo.Resources.Count>1)
+                {
+                    zipStream = new FileStream(zipFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                }
+
+
+                try
+                {
+                    if (zipStream!=null)
+                    {
+                        package.WriteArchive(zipStream);
+
+                        zipStream.Seek(0, SeekOrigin.Begin);
+                        var destZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".PLAsset");
+                        if (!await CopyToDestination(zipStream, destZipFile, fileSystem).ConfigureAwait(false))
+                        {
+                            return false;
+                        }
+                    }
+                    package.CopyToStream(originalStream);
+
+                    
+                    originalStream.Seek(0, SeekOrigin.Begin);
+                    var destOriginalFile = Path.Combine(remotePath, photo.FileName);
+                    if(!await CopyToDestination(originalStream, destOriginalFile, fileSystem).ConfigureAwait(false))
+                    {
+                        return false;
+                    }
+
+                    Globals.Database.Insert(photo);
+                }
+                catch (Exception exception)
+                {
+                    SentrySdk.AddBreadcrumb($"Backup failed for item: {photo.FileName}", level: BreadcrumbLevel.Error);
+                    SentrySdk.CaptureException(exception);
+                }finally
+                {
+                    zipStream?.Dispose();
+                    originalStream?.Dispose();
+                }
+
+                try
+                {
+                    File.Delete(zipFile);
+                }
+                catch {// Ignored.
+                }
+                try
+                {
+                    File.Delete(originalFile);
+                }
+                catch
+                {// Ignored.
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private async Task<int> Backup(string pathPrefix, IFileSystem fileSystem)
+        {
+            try
             {
                 var remotePath = Path.Combine(pathPrefix, Globals.Database.LoadSetting(UserSettings.DeviceName), "Photos/");
                 try { await fileSystem.CreateDirectoryAsync(remotePath).ConfigureAwait(false); }
@@ -87,57 +199,57 @@ namespace NSPersonalCloud.DarwinMobile
                     throw;
                 }
 
-                var failures = new List<PLAsset>(Photos.Count);
-                foreach (var photo in Photos)
+                var failures = new List<PLAsset>(Photos.Value.Count);
+                foreach (var photo in Photos.Value)
                 {
-                    SentrySdk.AddBreadcrumb($"Backing up item: {photo.FileName}");
-
-                    var zipFile = Path.Combine(Paths.Temporary, photo.FileName + ".zip");
-                    var originalFile = Path.Combine(Paths.Temporary, photo.FileName);
-
-                    var zipStream = new FileStream(zipFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-                    var originalStream = new FileStream(originalFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-
-                    var package = new SinglePhotoPackage(photo);
-
-                    try
+                    if(await BackupOneImage(photo, remotePath, fileSystem).ConfigureAwait(false) == false)
                     {
-                        package.WriteArchive(zipStream, originalStream);
-                        var newZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".temp");
-                        var newOriginalFile = Path.Combine(remotePath, photo.FileName);
-
-                        zipStream.Seek(0, SeekOrigin.Begin);
-                        await fileSystem.WriteFileAsync(newZipFile, zipStream).ConfigureAwait(false);
-                        await fileSystem.RenameAsync(newZipFile, Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".PLAsset")).ConfigureAwait(false);
-                        originalStream.Seek(0, SeekOrigin.Begin);
-                        await fileSystem.WriteFileAsync(newOriginalFile, originalStream).ConfigureAwait(false);
-
-                        Globals.Database.Insert(photo);
-                    }
-                    catch (Exception exception)
-                    {
-                        SentrySdk.AddBreadcrumb($"Backup failed for item: {photo.FileName}", level: BreadcrumbLevel.Error);
-                        SentrySdk.CaptureException(exception);
-                        zipStream.Dispose();
-                        originalStream.Dispose();
                         failures.Add(photo);
                     }
 
-                    try
-                    {
-                        File.Delete(zipFile);
-                        File.Delete(originalFile);
-                    }
-                    catch
-                    {
-                        // Ignored.
-                    }
                 }
 
                 SentrySdk.AddBreadcrumb($"Backup finished: {failures.Count} failures.");
-                var difference = Photos.Count - failures.Count;
-                Photos = failures.AsReadOnly();
+                var difference = Photos.Value.Count - failures.Count;
+
+                lock (this)
+                {
+                    Photos = new Lazy<IReadOnlyList<PLAsset>>(failures.AsReadOnly());
+                }
+
                 return difference;
+            }
+            catch (Exception exception)
+            {
+                SentrySdk.CaptureMessage("Exception occurred when backup photos.", SentryLevel.Error);
+                SentrySdk.CaptureException(exception);
+                throw;
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
+        private void CreateBackupTask(IFileSystem fileSystem, string pathPrefix)
+        {
+            if (Photos.Value == null )
+            {
+                SentrySdk.AddBreadcrumb("No photos to backup.");
+                BackupTask = Task.FromResult(0);
+                return;
+            }
+            if (Photos.Value.Count == 0)
+            {
+                lock (this)
+                {
+                    Photos = new Lazy<IReadOnlyList<PLAsset>>(() => {
+                        return GetPhotos();
+                    });
+                }
+
+            }
+
+            BackupTask = Task.Run(async () =>
+            {
+                return await Backup(pathPrefix, fileSystem).ConfigureAwait(false);
             });
         }
     }

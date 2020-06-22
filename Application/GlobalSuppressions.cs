@@ -12,3 +12,5 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Naming", "CA1710", Justification = "Supress warnings caused by Xamarin types.", Scope = "module")]
 [assembly: SuppressMessage("Performance", "CA1822", Justification = "Supress warnings caused by Xamarin types.", Scope = "module")]
 [assembly: SuppressMessage("Usage", "CA1801", Justification = "Callbacks have fixed parameters.", Scope = "module")]
+[assembly: SuppressMessage("Reliability", "CA2002:Do not lock on objects with weak identity", Justification = "<Pending>", Scope = "module")]
+[assembly: SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>", Scope = "module")]
