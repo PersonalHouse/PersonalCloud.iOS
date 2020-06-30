@@ -18,8 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlbumComon", "PersonalCloud
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageClient.Aliyun", "PersonalCloud.Core\src\StorageClient.Aliyun\src\StorageClient.Aliyun\StorageClient.Aliyun.csproj", "{4436B0C5-EF64-4BB6-B479-4660111B7070}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlbumApp", "PersonalCloud.Core\src\Apps\Album\AlbumApp\AlbumApp.csproj", "{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageClient.Azure", "PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj", "{6DB24509-11EC-4722-95BE-170A961734D8}"
 EndProject
 Global
@@ -113,18 +111,6 @@ Global
 		{4436B0C5-EF64-4BB6-B479-4660111B7070}.Release|iPhone.Build.0 = Release|Any CPU
 		{4436B0C5-EF64-4BB6-B479-4660111B7070}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{4436B0C5-EF64-4BB6-B479-4660111B7070}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|iPhone.Build.0 = Release|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DB24509-11EC-4722-95BE-170A961734D8}.Debug|iPhone.ActiveCfg = Debug|Any CPU
@@ -146,7 +132,6 @@ Global
 		{89D53D65-F9A8-4586-91E5-43474F791024} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 		{1C833A44-A615-449B-837A-6BD0DB4BD3F6} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 		{4436B0C5-EF64-4BB6-B479-4660111B7070} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
-		{537E1085-3FF2-4465-B71F-9EEF8C6ADED2} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 		{6DB24509-11EC-4722-95BE-170A961734D8} = {6322BAEA-1333-46C3-8FB1-3CA033709CC1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

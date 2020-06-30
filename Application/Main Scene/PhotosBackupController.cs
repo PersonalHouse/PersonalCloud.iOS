@@ -51,7 +51,8 @@ namespace NSPersonalCloud.DarwinMobile
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), NSIndexPath.FromRowSection(1, 0), NSIndexPath.FromRowSection(2, 0) }, UITableViewRowAnimation.Automatic);
+            TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), 
+                NSIndexPath.FromRowSection(1, 0)}, UITableViewRowAnimation.Automatic);
         }
 
         public override void PrepareForSegue(UIStoryboardSegue segue, NSObject sender)
@@ -75,7 +76,7 @@ namespace NSPersonalCloud.DarwinMobile
                         if (IsEnablingBackupBtnCache is UISwitch button) button.On = true;
                         IsEnablingBackupBtnCache = null;
 
-                        TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), NSIndexPath.FromRowSection(1, 0), NSIndexPath.FromRowSection(2, 0) }, UITableViewRowAnimation.Automatic);
+                        TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 0), NSIndexPath.FromRowSection(1, 0)}, UITableViewRowAnimation.Automatic);
                     });
                 };
                 return;
@@ -92,7 +93,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             return (int) section switch
             {
-                0 => 5,
+                0 => 4,
                 _ => throw new ArgumentOutOfRangeException(nameof(section))
             };
         }
@@ -125,15 +126,8 @@ namespace NSPersonalCloud.DarwinMobile
                 return cell;
             }
 
-            if (indexPath.Section == 0 && indexPath.Row == 2)
-            {
-                var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
-                cell.Update(this.Localize("Backup.Interval"), backupIntervalHours < 1 ? null : string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.Interval.Formattable"), 1), true);
-                cell.Accessory = UITableViewCellAccessory.None;
-                return cell;
-            }
 
-            if (indexPath.Section == 0 && indexPath.Row == 3)
+            if (indexPath.Section == 0 && indexPath.Row == 2)
             {
                 var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
                 cell.Update(this.Localize("Backup.ViewItems"), true);
@@ -141,7 +135,7 @@ namespace NSPersonalCloud.DarwinMobile
                 return cell;
             }
 
-            if (indexPath.Section == 0 && indexPath.Row == 4)
+            if (indexPath.Section == 0 && indexPath.Row == 3)
             {
                 var cell = (BasicCell) tableView.DequeueReusableCell(BasicCell.Identifier, indexPath);
                 cell.Update(this.Localize("Backup.BackupNow"), Colors.BlueButton, true);
@@ -168,19 +162,15 @@ namespace NSPersonalCloud.DarwinMobile
                 return;
             }
 
-            if (indexPath.Section == 0 && indexPath.Row == 2)
-            {
-                return;
-            }
 
-            if (indexPath.Section == 0 && indexPath.Row == 3)
+            if (indexPath.Section == 0 && indexPath.Row == 2)
             {
                 if (autoBackup) PerformSegue(ViewPhotosSegue, this);
                 else this.ShowAlert(this.Localize("Backup.NotSetUp"), this.Localize("Backup.SetUpBeforeViewingItems"));
                 return;
             }
 
-            if (indexPath.Section == 0 && indexPath.Row == 4)
+            if (indexPath.Section == 0 && indexPath.Row == 3)
             {
                 if ((Globals.BackupWorker?.BackupTask?.IsCompleted ?? true) != true)
                 {
@@ -199,7 +189,7 @@ namespace NSPersonalCloud.DarwinMobile
                         Globals.BackupWorker = new PhotoLibraryExporter();
                         await Globals.BackupWorker.Init().ConfigureAwait(false);
                     }
-                    await Globals.BackupWorker.StartBackup(fileSystem, backupPath).ConfigureAwait(false);
+                    await Globals.BackupWorker.StartBackup(fileSystem, backupPath,false).ConfigureAwait(false);
                 });
                 this.ShowAlert(this.Localize("Backup.Executed"), this.Localize("Backup.NewBackupInProgress"));
                 return;
@@ -248,7 +238,7 @@ namespace NSPersonalCloud.DarwinMobile
                 return;
             }
 
-            UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(backupIntervalHours * 3600);
+            UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalMinimum);
             if (UIApplication.SharedApplication.BackgroundRefreshStatus == UIBackgroundRefreshStatus.Available)
             {
                 Globals.Database.SaveSetting(UserSettings.AutoBackupPhotos, "1");

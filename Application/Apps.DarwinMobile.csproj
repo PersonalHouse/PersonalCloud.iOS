@@ -39,9 +39,10 @@
     <WarningLevel>4</WarningLevel>
     <MtouchLink>SdkOnly</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>Apple Distribution: Beijing Daoyehuo Technology Co.Ltd (N747QRT8C4)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
+    <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -66,12 +67,13 @@
     <WarningLevel>4</WarningLevel>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
-    <CodesignKey>Apple Distribution: Beijing Daoyehuo Technology Co.Ltd (N747QRT8C4)</CodesignKey>
-    <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
+    <CodesignKey>Apple Development: yehuo dao (QBY27565HZ)</CodesignKey>
+    <CodesignProvision>VS: com.daoyehuo.UnishareTouch Development</CodesignProvision>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
     <AppExtensionDebugBundleId />
+    <LaunchForBackgroundFetch>false</LaunchForBackgroundFetch>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -547,10 +549,6 @@
     <ProjectReference Include="..\PersonalCloud.Core\src\StorageClient.Aliyun\src\StorageClient.Aliyun\StorageClient.Aliyun.csproj">
       <Project>{4436B0C5-EF64-4BB6-B479-4660111B7070}</Project>
       <Name>StorageClient.Aliyun</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PersonalCloud.Core\src\Apps\Album\AlbumApp\AlbumApp.csproj">
-      <Project>{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}</Project>
-      <Name>AlbumApp</Name>
     </ProjectReference>
     <ProjectReference Include="..\PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj">
       <Project>{6DB24509-11EC-4722-95BE-170A961734D8}</Project>

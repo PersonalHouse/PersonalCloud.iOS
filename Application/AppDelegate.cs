@@ -111,11 +111,6 @@ namespace NSPersonalCloud.DarwinMobile
             });
 
 
-//             Task.Run(() => {
-//                 PerformFetch(application, x => {
-//                 });
-//             });
-
             return true;
         }
 
@@ -126,6 +121,11 @@ namespace NSPersonalCloud.DarwinMobile
             if (Globals.Database.Table<CloudModel>().Count() > 0)
             {
                 Window.RootViewController = UIStoryboard.FromName("Main", NSBundle.MainBundle).InstantiateViewController("MainScreen");
+                if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
+                    Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
+                {
+                    application.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalMinimum);
+                }
             }
             else
             {
@@ -139,11 +139,6 @@ namespace NSPersonalCloud.DarwinMobile
                 networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
             }
 
-            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
-                Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
-            {
-                application.SetMinimumBackgroundFetchInterval(3600);
-            }
 
 
             return true;
@@ -197,7 +192,7 @@ namespace NSPersonalCloud.DarwinMobile
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
-            var tdelay = Task.Delay(28 * 1000);
+            var tdelay = Task.Delay(25 * 1000);
             backgroundStatus = UIBackgroundFetchResult.NewData;
             if (currentBackupTask == null)
             {
@@ -266,7 +261,7 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 SentrySdk.CaptureMessage("Exception occurred while refreshing network status or waiting for response.", SentryLevel.Error);
                 SentrySdk.CaptureException(exception);
-                backgroundStatus = UIBackgroundFetchResult.Failed;
+                backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }
 
@@ -288,13 +283,13 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 SentrySdk.CaptureMessage("Exception occurred while wait for node appearing when backup photos.", SentryLevel.Error);
                 SentrySdk.CaptureException(exception);
-                backgroundStatus = UIBackgroundFetchResult.Failed;
+                backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }
 
             try
             {
-                var items = await worker.StartBackup(cloud.RootFS, path).ConfigureAwait(false);
+                var items = await worker.StartBackup(cloud.RootFS, path,true).ConfigureAwait(false);
 
                 backgroundStatus = UIBackgroundFetchResult.NoData;
             }

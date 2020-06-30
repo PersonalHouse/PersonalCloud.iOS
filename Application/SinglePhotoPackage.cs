@@ -88,44 +88,6 @@ namespace NSPersonalCloud.DarwinMobile
         }
 
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308", Justification = "Lookup requires lowercase.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
-        public void CopyToStream(Stream standalone)
-        {
-            if (!Photo.IsAvailable) throw new InvalidOperationException("This photo is no longer available.");
-
-            var options = new PHAssetResourceRequestOptions { NetworkAccessAllowed = true };
-            var waitables = new List<ManualResetEvent>(Photo.Resources.Count + 1);
-
-            NSError lastError = null;
-            var original = Photo.Resources.FirstOrDefault(x => x.ResourceType == PHAssetResourceType.FullSizeVideo ||
-                                                               x.ResourceType == PHAssetResourceType.FullSizePhoto ||
-                                                               x.ResourceType == PHAssetResourceType.Photo ||
-                                                               x.ResourceType == PHAssetResourceType.Video ||
-                                                               x.ResourceType == PHAssetResourceType.Audio);
-
-            if (original == null) throw new InvalidOperationException("Backup failed for this photo.");
-
-            if (standalone != null)
-            {
-                var waitable = new ManualResetEvent(false);
-                waitables.Add(waitable);
-                PHAssetResourceManager.DefaultManager.RequestData(original, options, data => {
-                    var bytes = data.ToArray();
-                    standalone.Write(bytes, 0, bytes.Length);
-                }, error => {
-                    if (error != null) lastError = error;
-                    standalone.Flush();
-                    waitable.Set();
-                });
-            }
-
-            WaitHandle.WaitAll(waitables.ToArray());
-
-            if (lastError != null) throw new InvalidOperationException(lastError.LocalizedDescription);
-
-        }
-
         public static void RestoreFromArchive(string filePath, Action onSuccess = null, Action<NSError> onFailure = null)
         {
             if (PHPhotoLibrary.AuthorizationStatus != PHAuthorizationStatus.Authorized)

@@ -14,6 +14,8 @@ using Sentry.Protocol;
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.DarwinCore.Models;
+using Foundation;
+using AVFoundation;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -58,44 +60,219 @@ namespace NSPersonalCloud.DarwinMobile
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
-        public Task<int> StartBackup(IFileSystem fileSystem, string pathPrefix)
+        public Task<int> StartBackup(IFileSystem fileSystem, string pathPrefix, bool background)
         {
             SentrySdk.AddBreadcrumb("Starting photos backup job...");
-            CreateBackupTask(fileSystem, pathPrefix);
+            CreateBackupTask(fileSystem, pathPrefix, background);
             return BackupTask;
         }
 
-        private async Task<bool> CopyToDestination(Stream orig, string destPath, IFileSystem fileSystem)
+        async Task<string> GetIOSFilePath(PHAsset photo)
         {
-            try
+
+            var tcs = new TaskCompletionSource<NSUrl>();
+            if (photo.MediaType == PHAssetMediaType.Image)
             {
-                var destTmpFile = destPath + ".temp";
-                await fileSystem.DeleteAsync(destTmpFile, true).ConfigureAwait(false);
-                await fileSystem.WriteFileAsync(destTmpFile, orig).ConfigureAwait(false);
+                var options = new PHContentEditingInputRequestOptions();
+                options.CanHandleAdjustmentData = _ => true;
+                photo.RequestContentEditingInput(options, (contentEditingInput, requestStatusInfo) => {
+                    tcs.SetResult(contentEditingInput.FullSizeImageUrl);
+                });
+            }
+            else if (photo.MediaType == PHAssetMediaType.Video)
+            {
+                var options = new PHVideoRequestOptions();
+                options.Version = PHVideoRequestOptionsVersion.Original;
+                PHImageManager.DefaultManager.RequestAvAsset(photo, options, (asset, audioMix, info) => {
+                    if (asset is AVUrlAsset urlAsset)
+                    {
+                        tcs.SetResult(urlAsset.Url);
+                        return;
+                    }
+                    tcs.SetException(new InvalidDataException("RequestAvAsset didn't get AVUrlAsset"));
+                });
+            }
+            var origfilepath = await tcs.Task.ConfigureAwait(false);
+            return origfilepath.Path;
+        }
+
+        async Task WriteToDest(byte[] bytes, long datawritten, long datalen, string path, IFileSystem fileSystem)
+        {
+
+            using var ms = new MemoryStream(bytes,0, (int)datalen);
+            for (int i = 0; i < 3; i++)
+            {
                 try
                 {
-                    await fileSystem.RenameAsync(destTmpFile,  destPath ).ConfigureAwait(false);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    if (datawritten==0)
+                    {
+                        await fileSystem.WriteFileAsync(path, ms).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await fileSystem.WritePartialFileAsync(path, datawritten, datalen, ms).ConfigureAwait(false);
+                    }
+                    break;
                 }
                 catch
                 {
-                    try
+                    if (i >= 2)
                     {
-                        await fileSystem.RenameAsync(destTmpFile,  destPath +$".RenameFailed" ).ConfigureAwait(false);
-                    }
-                    catch
-                    {
+                        throw;
                     }
                 }
-                return true;
+            }
+        }
+
+        public async Task<bool> CopyToDestination(PHAsset photo, string destPath, IFileSystem fileSystem)
+        {
+            try
+            {
+                var origfilepath = await GetIOSFilePath(photo).ConfigureAwait(false);
+                if (string.IsNullOrWhiteSpace(origfilepath))
+                {
+                    return false;
+                }
+                var fs = new FileStream(origfilepath,FileMode.Open,FileAccess.Read);
+
+                return await CopyToDestination(fs, destPath, fileSystem).ConfigureAwait(false);
+
             }
             catch (Exception)
             {
                 return false;
             }
-
         }
 
-        private async Task<bool> BackupOneImage(PLAsset photo, string remotePath, IFileSystem fileSystem)//or video
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308", Justification = "Lookup requires lowercase.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
+        public async Task<bool> CopyToDestination(PLAsset photo, string destPath, IFileSystem fileSystem)
+        {
+            try
+            {
+                if (!photo.IsAvailable) throw new InvalidOperationException("This photo is no longer available.");
+
+                var options = new PHAssetResourceRequestOptions { NetworkAccessAllowed = true };
+
+                NSError lastError = null;
+                var original = photo.Resources.FirstOrDefault(x => x.ResourceType == PHAssetResourceType.FullSizeVideo ||
+                                                                   x.ResourceType == PHAssetResourceType.FullSizePhoto ||
+                                                                   x.ResourceType == PHAssetResourceType.Photo ||
+                                                                   x.ResourceType == PHAssetResourceType.Video ||
+                                                                   x.ResourceType == PHAssetResourceType.Audio);
+
+                if (original == null) throw new InvalidOperationException("Backup failed for this photo.");
+
+                var destTmpFile = destPath + ".temp";
+
+                var tcs = new TaskCompletionSource<int>();
+                long datawritten = 0;
+                PHAssetResourceManager.DefaultManager.RequestData(original, options, data => {
+                    var bytes = data.ToArray();
+                    WriteToDest(bytes, datawritten, bytes.Length, destTmpFile, fileSystem).Wait();
+                    datawritten += bytes.Length;
+                }, error => {
+                    if (error != null)
+                    {
+                        tcs.SetException(new InvalidOperationException(lastError.LocalizedDescription));
+                    }
+                    tcs.SetResult(0);
+                });
+                await tcs.Task.ConfigureAwait(false);
+
+                try
+                {
+                    await fileSystem.RenameAsync(destTmpFile, destPath).ConfigureAwait(false);
+                }
+                catch
+                {
+                    try
+                    {
+                        await fileSystem.RenameAsync(destTmpFile, destPath + $".RenameFailed").ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                    }
+                    return false;
+                }
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
+        private async Task<bool> CopyToDestination(Stream fs, string destPath, IFileSystem fileSystem)
+        {
+            try
+            {
+                const int bufcnt = 2 * 1024 * 1024;
+
+
+                var destTmpFile = destPath + ".pc.temp";
+                long datawritten = 0;
+                try
+                {
+                    var t = await fileSystem.ReadMetadataAsync(destTmpFile).ConfigureAwait(false);
+                    datawritten = t.Size.Value - (t.Size.Value % bufcnt);
+                    if (datawritten != 0)
+                    {
+                        fs.Seek(datawritten, SeekOrigin.Begin);
+                    }
+                    else
+                    {
+                        await fileSystem.DeleteAsync(destTmpFile, true).ConfigureAwait(false);
+                    }
+                }
+                catch
+                {
+                }
+
+                var buf = new byte[bufcnt];
+                while (true)
+                {
+                    var read = await fs.ReadAsync(buf, 0, bufcnt).ConfigureAwait(false);
+                    if (read == 0)
+                    {
+                        break;
+                    }
+                    await WriteToDest(buf, datawritten, read, destTmpFile, fileSystem).ConfigureAwait(false);
+                    datawritten += read;
+                    if (datawritten >= 1642070016L)
+                    {
+                        Console.WriteLine(fs.Length);
+                    }
+                }
+
+                try
+                {
+                    await fileSystem.RenameAsync(destTmpFile, destPath).ConfigureAwait(false);
+                }
+                catch
+                {
+                    try
+                    {
+                        await fileSystem.RenameAsync(destTmpFile, destPath + $".RenameFailed").ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                    }
+                    return false;
+                }
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> BackupOneImage(PLAsset photo, string remotePath, IFileSystem fileSystem, bool background)//or video
         {
 
             try
@@ -103,17 +280,11 @@ namespace NSPersonalCloud.DarwinMobile
                 SentrySdk.AddBreadcrumb($"Backing up item: {photo.FileName}");
 
                 var zipFile = Path.Combine(Paths.Temporary, photo.FileName + ".zip");
-                var originalFile = Path.Combine(Paths.Temporary, photo.FileName);
-
                 File.Delete(zipFile);
-                File.Delete(originalFile);
 
                 FileStream zipStream = null;
-                FileStream originalStream = null;
                 SinglePhotoPackage package = null;
 
-
-                originalStream = new FileStream(originalFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                 package = new SinglePhotoPackage(photo);
 
                 if (photo.Resources.Count>1)
@@ -135,14 +306,22 @@ namespace NSPersonalCloud.DarwinMobile
                             return false;
                         }
                     }
-                    package.CopyToStream(originalStream);
 
                     
-                    originalStream.Seek(0, SeekOrigin.Begin);
                     var destOriginalFile = Path.Combine(remotePath, photo.FileName);
-                    if(!await CopyToDestination(originalStream, destOriginalFile, fileSystem).ConfigureAwait(false))
+                    if(background && (photo.Size>30L*1024*1024))
                     {
-                        return false;
+                        if (!await CopyToDestination(photo.Asset, destOriginalFile, fileSystem).ConfigureAwait(false))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (!await CopyToDestination(photo, destOriginalFile, fileSystem).ConfigureAwait(false))
+                        {
+                            return false;
+                        }
                     }
 
                     Globals.Database.Insert(photo);
@@ -154,7 +333,6 @@ namespace NSPersonalCloud.DarwinMobile
                 }finally
                 {
                     zipStream?.Dispose();
-                    originalStream?.Dispose();
                 }
 
                 try
@@ -162,13 +340,6 @@ namespace NSPersonalCloud.DarwinMobile
                     File.Delete(zipFile);
                 }
                 catch {// Ignored.
-                }
-                try
-                {
-                    File.Delete(originalFile);
-                }
-                catch
-                {// Ignored.
                 }
                 return true;
             }
@@ -178,7 +349,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
         }
 
-        private async Task<int> Backup(string pathPrefix, IFileSystem fileSystem)
+        private async Task<int> Backup(string pathPrefix, IFileSystem fileSystem, bool background)
         {
             try
             {
@@ -202,7 +373,7 @@ namespace NSPersonalCloud.DarwinMobile
                 var failures = new List<PLAsset>(Photos.Value.Count);
                 foreach (var photo in Photos.Value)
                 {
-                    if(await BackupOneImage(photo, remotePath, fileSystem).ConfigureAwait(false) == false)
+                    if(await BackupOneImage(photo, remotePath, fileSystem, background).ConfigureAwait(false) == false)
                     {
                         failures.Add(photo);
                     }
@@ -228,7 +399,7 @@ namespace NSPersonalCloud.DarwinMobile
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
-        private void CreateBackupTask(IFileSystem fileSystem, string pathPrefix)
+        private void CreateBackupTask(IFileSystem fileSystem, string pathPrefix, bool background)
         {
             if (Photos.Value == null )
             {
@@ -249,7 +420,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             BackupTask = Task.Run(async () =>
             {
-                return await Backup(pathPrefix, fileSystem).ConfigureAwait(false);
+                return await Backup(pathPrefix, fileSystem, background).ConfigureAwait(false);
             });
         }
     }

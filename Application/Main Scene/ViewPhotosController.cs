@@ -20,7 +20,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             base.ViewDidLoad();
             photos = Globals.BackupWorker?.Photos.Value;
-            if (photos == null)
+            if ((photos == null)|| (photos.Count==0))
             {
                 Task.Run(() => {
                     Globals.BackupWorker = new PhotoLibraryExporter();
