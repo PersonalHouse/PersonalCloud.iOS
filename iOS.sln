@@ -18,8 +18,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlbumComon", "PersonalCloud
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageClient.Aliyun", "PersonalCloud.Core\src\StorageClient.Aliyun\src\StorageClient.Aliyun\StorageClient.Aliyun.csproj", "{4436B0C5-EF64-4BB6-B479-4660111B7070}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlbumApp", "PersonalCloud.Core\src\Apps\Album\AlbumApp\AlbumApp.csproj", "{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageClient.Azure", "PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj", "{6DB24509-11EC-4722-95BE-170A961734D8}"
 EndProject
 Global

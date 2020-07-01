@@ -34,7 +34,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308", Justification = "Lookup requires lowercase.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
-        public void WriteArchive(Stream zip, Stream standalone = null)
+        public void WriteArchive(Stream zip)
         {
             if (!Photo.IsAvailable) throw new InvalidOperationException("This photo is no longer available.");
 
@@ -52,21 +52,6 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (original == null) throw new InvalidOperationException("Backup failed for this photo.");
 
-            if (standalone != null)
-            {
-                var waitable = new ManualResetEvent(false);
-                waitables.Add(waitable);
-                PHAssetResourceManager.DefaultManager.RequestData(original, options, data =>
-                {
-                    var bytes = data.ToArray();
-                    standalone.Write(bytes, 0, bytes.Length);
-                }, error =>
-                {
-                    if (error != null) lastError = error;
-                    standalone.Flush();
-                    waitable.Set();
-                });
-            }
 
             var baseName = Path.GetFileNameWithoutExtension(Photo.FileName);
             var extension = Path.GetExtension(Photo.FileName)?.ToLowerInvariant() ?? string.Empty;
@@ -99,7 +84,9 @@ namespace NSPersonalCloud.DarwinMobile
             using var textStream = new StreamWriter(metaStream, Encoding.UTF8);
             using var jsonWriter = new JsonTextWriter(textStream) { Indentation = 4, IndentChar = ' ', Formatting = Formatting.Indented };
             JsonSerializer.CreateDefault().Serialize(jsonWriter, Photo);
+            zip.Flush();
         }
+
 
         public static void RestoreFromArchive(string filePath, Action onSuccess = null, Action<NSError> onFailure = null)
         {

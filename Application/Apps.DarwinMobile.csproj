@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -546,10 +546,6 @@
     <ProjectReference Include="..\PersonalCloud.Core\src\StorageClient.Aliyun\src\StorageClient.Aliyun\StorageClient.Aliyun.csproj">
       <Project>{4436B0C5-EF64-4BB6-B479-4660111B7070}</Project>
       <Name>StorageClient.Aliyun</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PersonalCloud.Core\src\Apps\Album\AlbumApp\AlbumApp.csproj">
-      <Project>{537E1085-3FF2-4465-B71F-9EEF8C6ADED2}</Project>
-      <Name>AlbumApp</Name>
     </ProjectReference>
     <ProjectReference Include="..\PersonalCloud.Core\src\StorageClient.Azure\src\StorageClient.Azure\StorageClient.Azure.csproj">
       <Project>{6DB24509-11EC-4722-95BE-170A961734D8}</Project>
