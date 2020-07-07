@@ -248,7 +248,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (worker == null)
             {
                 SentrySdk.CaptureMessage("Photo sync worker not initialized.", SentryLevel.Error);
-                backgroundStatus = UIBackgroundFetchResult.Failed;
+                backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }
 
