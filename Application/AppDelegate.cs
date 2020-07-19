@@ -40,6 +40,7 @@ namespace NSPersonalCloud.DarwinMobile
         public UIWindow Window { get; private set; }
 
         private CFNotificationObserverToken networkNotification;
+        ILogger logger;
 
         [Export("application:willFinishLaunchingWithOptions:")]
         public bool WillFinishLaunching(UIApplication application, NSDictionary launchOptions)
@@ -53,6 +54,8 @@ namespace NSPersonalCloud.DarwinMobile
                 config.Environment = "iOS";
                 config.Release = appVersion;
             });
+            logger = Globals.Loggers.CreateLogger<AppDelegate>();
+
 
             var databasePath = Path.Combine(Paths.SharedLibrary, "Preferences.sqlite3");
             Globals.Database = new SQLiteConnection(databasePath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
@@ -62,8 +65,6 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.Database.CreateTable<AlibabaOSS>();
             Globals.Database.CreateTable<AzureBlob>();
             Globals.Database.CreateTable<WebApp>();
-
-            Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
             if (Globals.Database.Find<KeyValueModel>(UserSettings.EnableSharing) is null)
             {
@@ -192,21 +193,35 @@ namespace NSPersonalCloud.DarwinMobile
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
-            var tdelay = Task.Delay(25 * 1000);
-            backgroundStatus = UIBackgroundFetchResult.NewData;
-            if (currentBackupTask == null)
+            try
             {
-                currentBackupTask = Task.Run(BackgroundBackupImages);
-            }
+                var tdelay = Task.Delay(25 * 1000);
+                backgroundStatus = UIBackgroundFetchResult.NewData;
+                if (currentBackupTask == null)
+                {
+                    currentBackupTask = Task.Run(BackgroundBackupImages);
+                }
 
-            var res = Task.WhenAny(new[] { tdelay, currentBackupTask }).Result;
-            if (res == currentBackupTask)
-            {
-                currentBackupTask = null;
-                completionHandler?.Invoke(backgroundStatus);
-                return;
+                var res = Task.WhenAny(new[] { tdelay, currentBackupTask }).Result;
+                if (res == currentBackupTask)
+                {
+                    currentBackupTask = null;
+                    completionHandler?.Invoke(backgroundStatus);
+                    return;
+                }
+                completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
             }
-            completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+            catch (Exception e)
+            {
+                logger.LogError(e, "PerformFetch");
+                try
+                {
+                    completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+                }
+                catch
+                {
+                }
+            }
         }
 
         private void WaitForPath(PersonalCloud cloud, string path)

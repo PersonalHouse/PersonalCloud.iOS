@@ -44,7 +44,6 @@ namespace NSPersonalCloud.DarwinMobile
             base.ViewWillAppear(animated);
             autoBackup = PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized && Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1");
             backupPath = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
-            if (!int.TryParse(Globals.Database.LoadSetting(UserSettings.PhotoBackupInterval) ?? "-1", out backupIntervalHours)) backupIntervalHours = 0;
 
         }
 
