@@ -2,12 +2,16 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
-using NSPersonalCloud;
-
-using UIKit;
+using CoreFoundation;
 
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+
+using Ricardo.RMBProgressHUD.iOS;
+
+using SPAlertForXamarin;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -58,28 +62,30 @@ namespace NSPersonalCloud.DarwinMobile
                 return;
             }
 
-            var alert = UIAlertController.Create(this.Localize("Welcome.Creating"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
-                    try
-                    {
-                        await Globals.CloudManager.CreatePersonalCloud(cloudName, deviceName).ConfigureAwait(false);
-                        Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Welcome.Created"), string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.CreatedCloud.Formattable"), cloudName), action => {
-                                    NavigationController.DismissViewController(true, null);
-                                });
-                            });
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Welcome.Creating");
+            Task.Run(async () => {
+                try
+                {
+                    await Globals.CloudManager.CreatePersonalCloud(cloudName, deviceName).ConfigureAwait(false);
+                    Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(2)), () => {
+                            NavigationController.DismissViewController(true, null);
                         });
-                    }
-                    catch
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => this.ShowAlert(this.Localize("Error.CreateCloud"), null));
-                        });
-                    }
-                });
+                        SPAlert.PresentPreset(this.Localize("Welcome.Created"),
+                            string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.CreatedCloud.Formattable"), cloudName),
+                            SPAlertPreset.Done);
+                    });
+                }
+                catch
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        SPAlert.PresentPreset(this.Localize("Error.CreateCloud"), null, SPAlertPreset.Error, 3);
+                    });
+                }
             });
         }
     }
