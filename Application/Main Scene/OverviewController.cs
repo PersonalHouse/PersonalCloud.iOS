@@ -265,28 +265,38 @@ namespace NSPersonalCloud.DarwinMobile
         private void TurnOnPhotoSharing()
         {
             sharePhotos = true;
-            Globals.FileSystem.ArePhotosShared = true;
+
             if (Globals.BackupWorker == null)
             {
                 Globals.BackupWorker = new PhotoLibraryExporter();
             }
             _ = Globals.BackupWorker.Init();
             Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "1");
+
+            AppDelegate.SetupFS(true);
         }
 
         private void TurnOffPhotoSharing()
         {
             sharePhotos = false;
-            Globals.FileSystem.ArePhotosShared = false;
             Globals.BackupWorker = null;
             Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "0");
+
+            if (Globals.Database.CheckSetting(UserSettings.EnableSharing, "1"))
+            {
+                AppDelegate.SetupFS(true);
+            }
+            else
+            {
+                AppDelegate.SetupFS(false);
+            }
         }
 
         private void TurnOnFileSharing()
         {
             shareFiles = true;
             Globals.Database.SaveSetting(UserSettings.EnableSharing, "1");
-            Globals.FileSystem.RootPath = Paths.Documents;
+            AppDelegate.SetupFS(true);
             UIApplication.SharedApplication.IdleTimerDisabled = true;
         }
 
@@ -294,7 +304,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             shareFiles = false;
             Globals.Database.SaveSetting(UserSettings.EnableSharing, "0");
-            Globals.FileSystem.RootPath = null;
+            AppDelegate.SetupFS(false);
             UIApplication.SharedApplication.IdleTimerDisabled = false;
         }
     }

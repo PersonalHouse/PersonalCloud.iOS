@@ -14,6 +14,7 @@ using UIKit;
 
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.DarwinMobile.Main_Scene;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -89,7 +90,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             var name = ServiceName.Text;
             var invalidCharHit = false;
-            foreach (var character in VirtualFileSystem.InvalidCharacters)
+            foreach (var character in Consts.InvalidCharacters)
             {
                 if (name?.Contains(character) == true) invalidCharHit = true;
             }

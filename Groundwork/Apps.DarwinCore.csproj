@@ -41,9 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NSDateExtensions.cs" />
+    <Compile Include="PhotoFileSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PathHelpers.cs" />
-    <Compile Include="SandboxedFileSystem.cs" />
     <Compile Include="UIKitExtensions.cs" />
     <Compile Include="Colors.cs" />
     <Compile Include="Prompts.cs" />
@@ -64,9 +64,7 @@
       <Name>PersonalCloud</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <PackageReference Include="sqlite-net-base">
       <Version>1.7.335</Version>

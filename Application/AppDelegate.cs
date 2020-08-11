@@ -30,6 +30,7 @@ using NSPersonalCloud.DarwinCore.Models;
 using System.Threading;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using NSPersonalCloud.Interfaces.FileSystem;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -80,13 +81,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             Paths.CreateCommonDirectories();
 
-            Globals.FileSystem = new SandboxedFileSystem(sharingEnabled ? Paths.Documents : null);
-
-            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
-                Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1"))
-            {
-                Globals.FileSystem.ArePhotosShared = true;
-            }
+            SetupFS(sharingEnabled);
 
             if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
                 Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
@@ -113,6 +108,33 @@ namespace NSPersonalCloud.DarwinMobile
 
 
             return true;
+        }
+
+        public static void SetupFS(bool sharingEnabled)
+        {
+            Zio.IFileSystem fs = null;
+            var rootfs = new Zio.FileSystems.PhysicalFileSystem();
+            Zio.IFileSystem fsfav;
+            if (sharingEnabled)
+            {
+                fsfav = new Zio.FileSystems.SubFileSystem(rootfs, Paths.Documents);
+            }
+            else
+            {
+                fsfav = new Zio.FileSystems.MemoryFileSystem();
+            }
+            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
+                Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1"))
+            {
+                var mfs = new Zio.FileSystems.MountFileSystem(fsfav, true);
+                mfs.Mount("/"+Unishare.Apps.DarwinCore.PhotoFileSystem.FolderName, new Unishare.Apps.DarwinCore.PhotoFileSystem());
+                fs = mfs;
+            }
+            else
+            {
+                fs = fsfav;
+            }
+            Globals.FileSystem = fs;
         }
 
         [Export("application:didFinishLaunchingWithOptions:")]

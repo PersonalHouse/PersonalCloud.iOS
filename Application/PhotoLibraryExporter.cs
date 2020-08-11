@@ -67,34 +67,7 @@ namespace NSPersonalCloud.DarwinMobile
             return BackupTask;
         }
 
-        async Task<string> GetIOSFilePath(PHAsset photo)
-        {
 
-            var tcs = new TaskCompletionSource<NSUrl>();
-            if (photo.MediaType == PHAssetMediaType.Image)
-            {
-                var options = new PHContentEditingInputRequestOptions();
-                options.CanHandleAdjustmentData = _ => true;
-                photo.RequestContentEditingInput(options, (contentEditingInput, requestStatusInfo) => {
-                    tcs.SetResult(contentEditingInput.FullSizeImageUrl);
-                });
-            }
-            else if (photo.MediaType == PHAssetMediaType.Video)
-            {
-                var options = new PHVideoRequestOptions();
-                options.Version = PHVideoRequestOptionsVersion.Original;
-                PHImageManager.DefaultManager.RequestAvAsset(photo, options, (asset, audioMix, info) => {
-                    if (asset is AVUrlAsset urlAsset)
-                    {
-                        tcs.SetResult(urlAsset.Url);
-                        return;
-                    }
-                    tcs.SetException(new InvalidDataException("RequestAvAsset didn't get AVUrlAsset"));
-                });
-            }
-            var origfilepath = await tcs.Task.ConfigureAwait(false);
-            return origfilepath.Path;
-        }
 
         async Task WriteToDest(byte[] bytes, long datawritten, long datalen, string path, IFileSystem fileSystem)
         {
@@ -129,7 +102,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             try
             {
-                var origfilepath = await GetIOSFilePath(photo).ConfigureAwait(false);
+                var origfilepath = await photo.GetIOSFilePath().ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(origfilepath))
                 {
                     return false;

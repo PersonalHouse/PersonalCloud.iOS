@@ -8,6 +8,7 @@ using UIKit;
 
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.DarwinMobile.Main_Scene;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -42,7 +43,7 @@ namespace NSPersonalCloud.DarwinMobile
             var deviceName = DeviceNameBox.Text;
 
             var invalidCharHit = false;
-            foreach (var character in VirtualFileSystem.InvalidCharacters)
+            foreach (var character in Consts.InvalidCharacters)
             {
                 if (deviceName?.Contains(character) == true) invalidCharHit = true;
             }

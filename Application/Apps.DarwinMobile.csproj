@@ -419,9 +419,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDelegate.cs" />
+    <Compile Include="Main Scene\Consts.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="AppleDataStorage.cs" />
+    <Compile Include="PHAssetExt.cs" />
     <Compile Include="TableView Cells\ToggledEventArgs.cs" />
     <Compile Include="Images.cs" />
     <Compile Include="TableView Cells\BasicCell.cs" />

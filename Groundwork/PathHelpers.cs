@@ -138,11 +138,11 @@ namespace NSPersonalCloud.DarwinCore
                 }
             }
 
-            var photosPath = Path.Combine(Documents, SandboxedFileSystem.FolderNameForPhotos);
-            if (Directory.Exists(photosPath))
-            {
-                Directory.Move(photosPath, Path.Combine(Documents, "Photo Library (moved)"));
-            }
+//             var photosPath = Path.Combine(Documents, "Photos");
+//             if (Directory.Exists(photosPath))
+//             {
+//                 Directory.Move(photosPath, Path.Combine(Documents, "Photos(moved)"));
+//             }
 
             if (!Directory.Exists(PhotoRestore)) Directory.CreateDirectory(PhotoRestore);
             if (!Directory.Exists(WebApps)) Directory.CreateDirectory(WebApps);
