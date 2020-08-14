@@ -165,7 +165,10 @@ namespace Unishare.Apps.DarwinCore
 
                         if (original == null) continue;
 
-                        var up = (UPath) (Path.Combine(asset.LocalizedTitle, original.OriginalFilename));
+                        var dt = (DateTime)photo.CreationDate;
+                        var dtstr = dt.ToLocalTime().ToString("yyyy-MM-dd HH_mm");
+                        var filename = $"{dtstr} {original.OriginalFilename}";
+                        var up = (UPath) (Path.Combine(asset.LocalizedTitle, filename));
                         cachePhoto.Add(up.ToAbsolute().ToString().ToUpperInvariant(), new PHPhotoItem {Col= asset,Asset= photo, Res= original });
 
                         var originalName = Path.GetFileNameWithoutExtension(original.OriginalFilename);
@@ -175,7 +178,7 @@ namespace Unishare.Apps.DarwinCore
                             if (string.IsNullOrEmpty(resource.OriginalFilename)) continue;
 
                             var extension = Path.GetExtension(resource.OriginalFilename) ?? string.Empty;
-                            var fileName = $"{originalName} ({resource.ResourceType.ToString("G")}){extension}";
+                            var fileName = $"{dtstr} {originalName} ({resource.ResourceType.ToString("G")}){extension}";
 
                             up = (UPath) (Path.Combine(asset.LocalizedTitle, fileName));
 
