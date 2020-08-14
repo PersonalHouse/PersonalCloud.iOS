@@ -28,12 +28,12 @@ Then add the following lines to `NuGet.config` between `<packageSources>` tags. 
 And last, you need to follow [this GitHub documentation](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-dotnet-cli-for-use-with-github-packages#authenticating-to-github-packages) and generate access tokens for NuGet PM. Instead of using the configuration file from the documentation, you should add these lines along with your access token:
 
 ```xml
-  <packageSourceCredentials>
-      <Personal_x0020_Cloud>
-          <add key="Username" value="YOUR_USERNAME" />
-          <add key="ClearTextPassword" value="YOUR_ACCESS_TOKEN" />
-      </Personal_x0020_Cloud>
-  </packageSourceCredentials>
+    <packageSourceCredentials>
+        <Personal_x0020_Cloud>
+            <add key="Username" value="YOUR_USERNAME" />
+            <add key="ClearTextPassword" value="YOUR_ACCESS_TOKEN" />
+        </Personal_x0020_Cloud>
+    </packageSourceCredentials>
 ```
 
 You configuration file should look similar to this after following these steps:
