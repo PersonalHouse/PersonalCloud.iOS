@@ -116,7 +116,7 @@ namespace NSPersonalCloud.DarwinCore.Models
                     resource.ResourceType == PHAssetResourceType.Video ||
                     resource.ResourceType == PHAssetResourceType.Audio)
                 {
-                    FileName = resource.OriginalFilename;
+                    FileName = $"{CreationDate:s} {resource.OriginalFilename}";
                 }
 
                 list.Add(resource);

@@ -334,7 +334,12 @@ namespace Unishare.Apps.DarwinCore
                 else
                 {
                     var fi = GetFileInfo(path);
-                    return (fi?.Res.ValueForKey(new NSString("fileSize")) as NSNumber)?.Int64Value??0;
+                    if (fi?.Asset == null)
+                    {
+                        return 0;
+                    }
+                    var finfo = new FileInfo(fi.Asset.GetIOSFilePath().Result);
+                    return finfo.Length;
                 }
             }
             catch (Exception e)
@@ -361,7 +366,33 @@ namespace Unishare.Apps.DarwinCore
 
         protected override Stream OpenFileImpl(UPath path, FileMode mode, FileAccess access, FileShare share)
         {
-            throw new NotImplementedException();
+            Internal_FillCache();
+            EnterFileSystemShared();
+            try
+            {
+                if (path == UPath.Root)
+                {
+                    throw new NotImplementedException("Not support open root folder");
+                }
+                else
+                {
+                    var fi = GetFileInfo(path);
+                    if (fi?.Asset==null)
+                    {
+                        return Stream.Null;
+                    }
+                    var pa = fi.Asset.GetIOSFilePath().Result;
+                    return new FileStream(pa, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                }
+            }
+            catch (Exception e)
+            {
+                return Stream.Null;
+            }
+            finally
+            {
+                ExitFileSystemShared();
+            }
         }
 
         protected override void ReplaceFileImpl(UPath srcPath, UPath destPath, UPath destBackupPath, bool ignoreMetadataErrors)

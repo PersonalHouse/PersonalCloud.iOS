@@ -423,7 +423,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="AppleDataStorage.cs" />
-    <Compile Include="PHAssetExt.cs" />
     <Compile Include="TableView Cells\ToggledEventArgs.cs" />
     <Compile Include="Images.cs" />
     <Compile Include="TableView Cells\BasicCell.cs" />

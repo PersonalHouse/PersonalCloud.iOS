@@ -8,7 +8,7 @@ using Foundation;
 
 using Photos;
 
-namespace NSPersonalCloud.DarwinMobile
+namespace NSPersonalCloud.DarwinCore
 {
     public static class PHAssetExt
     {
