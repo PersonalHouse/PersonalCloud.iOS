@@ -18,7 +18,7 @@ using Zio.FileSystems;
 
 namespace Unishare.Apps.DarwinCore
 {
-    
+
     public class PhotoFileSystem : FileSystem
     {
         public const string FolderName = "Photos";
@@ -87,7 +87,7 @@ namespace Unishare.Apps.DarwinCore
                 else
                 {
                     var npath = path.ToString().ToUpperInvariant();
-                    var res = _cachePhoto.Any(x => (x.Key.IndexOf(npath) == 0)&&(x.Key.Length!= npath.Length));
+                    var res = _cachePhoto.Any(x => (x.Key.IndexOf(npath) == 0) && (x.Key.Length != npath.Length));
                     return res;
                 }
             }
@@ -130,10 +130,10 @@ namespace Unishare.Apps.DarwinCore
                 else
                 {
                     var npath = path.ToString().ToUpperInvariant();
-                    return _cachePhoto.Where(x => x.Key.IndexOf(npath) == 0).Select(x=> ((UPath)x.Key).ToAbsolute()).ToList();
+                    return _cachePhoto.Where(x => x.Key.IndexOf(npath) == 0).Select(x => ((UPath) x.Key).ToAbsolute()).ToList();
                 }
             }
-            finally 
+            finally
             {
                 ExitFileSystemShared();
             }
@@ -153,7 +153,7 @@ namespace Unishare.Apps.DarwinCore
                 var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
                 foreach (PHAssetCollection asset in collections)
                 {
-                    cacheDir.Add("/"+asset.LocalizedTitle, asset);
+                    cacheDir.Add("/" + asset.LocalizedTitle, asset);
 
                     var assets = PHAsset.FetchAssets(asset, null);
                     foreach (PHAsset photo in assets)
@@ -165,11 +165,11 @@ namespace Unishare.Apps.DarwinCore
 
                         if (original == null) continue;
 
-                        var dt = (DateTime)photo.CreationDate;
+                        var dt = (DateTime) photo.CreationDate;
                         var dtstr = dt.ToLocalTime().ToString("yyyy-MM-dd HH_mm");
                         var filename = $"{dtstr} {original.OriginalFilename}";
                         var up = (UPath) (Path.Combine(asset.LocalizedTitle, filename));
-                        cachePhoto.Add(up.ToAbsolute().ToString().ToUpperInvariant(), new PHPhotoItem {Col= asset,Asset= photo, Res= original });
+                        cachePhoto.Add(up.ToAbsolute().ToString().ToUpperInvariant(), new PHPhotoItem { Col = asset, Asset = photo, Res = original });
 
                         var originalName = Path.GetFileNameWithoutExtension(original.OriginalFilename);
                         foreach (var resource in assetResources)
@@ -232,10 +232,11 @@ namespace Unishare.Apps.DarwinCore
         {
             var npath = path.ToString().ToUpperInvariant();
             var n = _cachePhoto.Single(x => x.Key.IndexOf(npath) == 0);
-            if (n.Key.Length== npath.Length)
+            if (n.Key.Length == npath.Length)
             {
                 return n.Value;
-            }else
+            }
+            else
             {
                 return new PHPhotoItem {
                     Col = n.Value.Col
@@ -259,7 +260,7 @@ namespace Unishare.Apps.DarwinCore
                     return FileAttributes.Normal;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return FileAttributes.Directory;
             }
@@ -380,7 +381,7 @@ namespace Unishare.Apps.DarwinCore
                 else
                 {
                     var fi = GetFileInfo(path);
-                    if (fi?.Asset==null)
+                    if (fi?.Asset == null)
                     {
                         return Stream.Null;
                     }

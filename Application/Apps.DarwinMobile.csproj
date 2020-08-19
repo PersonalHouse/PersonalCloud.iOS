@@ -30,6 +30,7 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
+    <NoWarn>CS1701;CS1702;MT0109</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -43,6 +44,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
     <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
+    <NoWarn>CS1701;CS1702;MT0109</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,6 +60,7 @@
     <MtouchDebug>true</MtouchDebug>
     <LangVersion>latest</LangVersion>
     <CodesignProvision>VS: com.daoyehuo.UnishareTouch Development</CodesignProvision>
+    <NoWarn>CS1701;CS1702;MT0109</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -70,6 +73,7 @@
     <CodesignKey>Apple Distribution: Beijing Daoyehuo Technology Co.Ltd (N747QRT8C4)</CodesignKey>
     <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
     <LangVersion>latest</LangVersion>
+    <NoWarn>CS1701;CS1702;MT0109</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
     <AppExtensionDebugBundleId />
@@ -103,7 +107,7 @@
       <Version>2.8.26</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging">
-      <Version>3.1.6</Version>
+      <Version>3.1.7</Version>
     </PackageReference>
     <PackageReference Include="System.IO.Compression">
       <Version>4.3.0</Version>
@@ -417,14 +421,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Entitlements.plist" />
-    <None Include="Deprecated\AVScannerController.cs" />
-    <None Include="Deprecated\AVScannerController.designer.cs">
-      <DependentUpon>AVScannerController.cs</DependentUpon>
-    </None>
-    <None Include="Deprecated\AVScannerController.xib" />
-    <None Include="Deprecated\BarcodeDetectedEventArgs.cs" />
     <None Include="Info.plist" />
-    <None Include="Deprecated\DeviceDirectoryController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDelegate.cs" />
@@ -493,9 +490,6 @@
     <Compile Include="TableView Cells\AccentButtonCell.cs" />
     <Compile Include="TableView Cells\AccentButtonCell.designer.cs">
       <DependentUpon>AccentButtonCell.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Deprecated\DeviceDirectoryController.Designer.cs">
-      <DependentUpon>DeviceDirectoryController.cs</DependentUpon>
     </Compile>
     <Compile Include="PhotoLibraryExporter.cs" />
     <Compile Include="Main Scene\ChooseDeviceController.cs" />

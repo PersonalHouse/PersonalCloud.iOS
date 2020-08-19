@@ -13,6 +13,8 @@ using UIKit;
 
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+using PCPersonalCloud;
+using Ricardo.RMBProgressHUD.iOS;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -110,7 +112,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
                 var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, this.Localize("Favorites.Root")).Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                this.ShowAlert(this.Localize("Finder.CurrentDirectory"), pathString);
+                SPAlert.PresentCustom(this.Localize("Finder.CurrentDirectory") + Environment.NewLine + pathString, SPAlertHaptic.None);
                 return;
             }
         }
@@ -161,7 +163,7 @@ namespace NSPersonalCloud.DarwinMobile
                                 });
                             }, error => {
                                 InvokeOnMainThread(() => {
-                                    this.ShowAlert(this.Localize("Error.RestorePhotos"), error?.LocalizedDescription ?? this.Localize("Error.Generic"));
+                                    this.ShowError(this.Localize("Error.RestorePhotos"), error?.LocalizedDescription ?? this.Localize("Error.Generic"));
                                 });
                             });
                         });
@@ -207,7 +209,7 @@ namespace NSPersonalCloud.DarwinMobile
                     this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
                         if (string.IsNullOrWhiteSpace(text))
                         {
-                            this.ShowAlert(this.Localize("Finder.BadFileName"), null);
+                            this.ShowWarning(this.Localize("Finder.BadFileName"));
                             return;
                         }
 
@@ -229,7 +231,7 @@ namespace NSPersonalCloud.DarwinMobile
                         catch (Exception exception)
                         {
                             InvokeOnMainThread(() => {
-                                this.ShowAlert(this.Localize("Error.Rename"), exception.GetType().Name);
+                                this.ShowError(this.Localize("Error.Rename"), exception.GetType().Name);
                             });
                         }
                     });
@@ -253,7 +255,7 @@ namespace NSPersonalCloud.DarwinMobile
                         catch (Exception exception)
                         {
                             InvokeOnMainThread(() => {
-                                this.ShowAlert(this.Localize("Error.Delete"), exception.GetType().Name);
+                                this.ShowError(this.Localize("Error.Delete"), exception.GetType().Name);
                             });
                         }
                     }));
@@ -284,7 +286,7 @@ namespace NSPersonalCloud.DarwinMobile
                     this.CreatePrompt(this.Localize("Finder.NewName"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.RenameItem.Formattable"), item.Name), item.Name, item.Name, this.Localize("Finder.SaveNewName"), this.Localize("Global.CancelAction"), text => {
                         if (string.IsNullOrWhiteSpace(text))
                         {
-                            this.ShowAlert(this.Localize("Finder.BadFileName"), null);
+                            this.ShowWarning(this.Localize("Finder.BadFileName"));
                             return;
                         }
 
@@ -306,7 +308,7 @@ namespace NSPersonalCloud.DarwinMobile
                         catch (Exception exception)
                         {
                             InvokeOnMainThread(() => {
-                                this.ShowAlert(this.Localize("Error.Rename"), exception.GetType().Name);
+                                this.ShowError(this.Localize("Error.Rename"), exception.GetType().Name);
                             });
                         }
                     });
@@ -330,7 +332,7 @@ namespace NSPersonalCloud.DarwinMobile
                         catch (Exception exception)
                         {
                             InvokeOnMainThread(() => {
-                                this.ShowAlert(this.Localize("Error.Delete"), exception.GetType().Name);
+                                this.ShowError(this.Localize("Error.Delete"), exception.GetType().Name);
                             });
                         }
                     }));
@@ -361,7 +363,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         private void ShowHelp(object sender, EventArgs e)
         {
-            this.ShowAlert(this.Localize("Help.Favorites"), this.Localize("Help.ManageFavorites"));
+            this.ShowHelp(this.Localize("Help.Favorites"), this.Localize("Help.ManageFavorites"));
         }
 
         private void NewFolder(object sender, EventArgs e)
@@ -369,7 +371,7 @@ namespace NSPersonalCloud.DarwinMobile
             this.CreatePrompt(this.Localize("Finder.NewFolderName"), this.Localize("Finder.NewFolderHere"), null, this.Localize("Finder.NewFolderPlaceholder"), this.Localize("Finder.CreateNewFolder"), this.Localize("Global.CancelAction"), text => {
                 if (string.IsNullOrWhiteSpace(text))
                 {
-                    this.ShowAlert(this.Localize("Finder.BadFolderName"), null);
+                    this.ShowWarning(this.Localize("Finder.BadFolderName"));
                     return;
                 }
 
@@ -385,7 +387,7 @@ namespace NSPersonalCloud.DarwinMobile
                 catch (Exception exception)
                 {
                     InvokeOnMainThread(() => {
-                        this.ShowAlert(this.Localize("Error.NewFolder"), exception.Message);
+                        this.ShowError(this.Localize("Error.NewFolder"), exception.Message);
                     });
                 }
             });
@@ -408,9 +410,8 @@ namespace NSPersonalCloud.DarwinMobile
         [Export("documentPicker:didPickDocumentsAtURLs:")]
         public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl[] urls)
         {
-            var alert = UIAlertController.Create(this.Localize("Favorites.Importing"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, null);
-
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Favorites.Importing");
             Task.Run(() => {
                 var fails = 0;
                 foreach (var url in urls)
@@ -430,10 +431,9 @@ namespace NSPersonalCloud.DarwinMobile
                 }
 
                 InvokeOnMainThread(() => {
-                    DismissViewController(true, () => {
-                        RefreshDirectory(this, EventArgs.Empty);
-                        if (fails > 0) this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Error.Import.Formattable"), fails), null);
-                    });
+                    hud.Hide(true);
+                    RefreshDirectory(this, EventArgs.Empty);
+                    if (fails > 0) this.ShowWarning(string.Format(CultureInfo.InvariantCulture, this.Localize("Error.Import.Formattable"), fails));
                 });
             });
         }
@@ -441,8 +441,8 @@ namespace NSPersonalCloud.DarwinMobile
         [Export("documentPicker:didPickDocumentAtURL:")]
         public void DidPickDocument(UIDocumentPickerViewController controller, NSUrl url)
         {
-            var alert = UIAlertController.Create(this.Localize("Favorites.Importing"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, null);
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Favorites.Importing");
 
             Task.Run(() => {
                 var failed = false;
@@ -460,10 +460,9 @@ namespace NSPersonalCloud.DarwinMobile
                 if (shoudlRelease) url.StopAccessingSecurityScopedResource();
 
                 InvokeOnMainThread(() => {
-                    DismissViewController(true, () => {
-                        RefreshDirectory(this, EventArgs.Empty);
-                        if (failed) this.ShowAlert(this.Localize("Error.Import"), null);
-                    });
+                    hud.Hide(true);
+                    RefreshDirectory(this, EventArgs.Empty);
+                    if (failed) this.ShowError(this.Localize("Error.Import"));
                 });
             });
         }
@@ -479,7 +478,7 @@ namespace NSPersonalCloud.DarwinMobile
             catch (IOException)
             {
                 items = null;
-                this.ShowAlert(this.Localize("Error.RefreshDirectory"), this.Localize("Favorites.BadFolder"));
+                this.ShowError(this.Localize("Error.RefreshDirectory"), this.Localize("Favorites.BadFolder"));
             }
 
             if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();

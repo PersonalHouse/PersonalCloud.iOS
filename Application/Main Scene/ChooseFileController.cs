@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Foundation;
 
 using MobileCoreServices;
 
-using NSPersonalCloud.Interfaces.FileSystem;
-
-using UIKit;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.Interfaces.FileSystem;
+
+using PCPersonalCloud;
+
+using Ricardo.RMBProgressHUD.iOS;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -105,7 +109,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
                 var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, this.Localize("Favorites.Root")).Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                this.ShowAlert(this.Localize("Finder.CurrentDirectory"), pathString);
+                SPAlert.PresentCustom(this.Localize("Finder.CurrentDirectory") + Environment.NewLine + pathString, SPAlertHaptic.None);
                 return;
             }
         }
@@ -122,7 +126,7 @@ namespace NSPersonalCloud.DarwinMobile
                 depth -= 1;
                 RefreshDirectory(this, EventArgs.Empty);
                 pendingFiles.Clear();
-                this.ShowAlert(this.Localize("Finder.SelectionCleared"), this.Localize("Finder.SelectionCleared.PathChange"));
+                this.ShowWarning(this.Localize("Finder.SelectionCleared"), this.Localize("Finder.SelectionCleared.PathChange"));
                 return;
             }
 
@@ -135,7 +139,7 @@ namespace NSPersonalCloud.DarwinMobile
                     depth += 1;
                     RefreshDirectory(this, EventArgs.Empty);
                     pendingFiles.Clear();
-                    this.ShowAlert(this.Localize("Finder.SelectionCleared"), this.Localize("Finder.SelectionCleared.PathChange"));
+                    this.ShowWarning(this.Localize("Finder.SelectionCleared"), this.Localize("Finder.SelectionCleared.PathChange"));
                     return;
                 }
 
@@ -161,7 +165,7 @@ namespace NSPersonalCloud.DarwinMobile
             catch (IOException)
             {
                 items = null;
-                this.ShowAlert(this.Localize("Error.RefreshDirectory"), this.Localize("Favorites.BadFolder"));
+                this.ShowError(this.Localize("Error.RefreshDirectory"), this.Localize("Favorites.BadFolder"));
             }
 
             if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();
@@ -170,37 +174,63 @@ namespace NSPersonalCloud.DarwinMobile
 
         private void UploadFiles(object sender, EventArgs e)
         {
-            var alert = UIAlertController.Create(this.Localize("Finder.Uploading"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Finder.Uploading");
+
                 Task.Run(async () => {
                     var total = pendingFiles.Count;
+                    var fileSizes = new long[total];
+                    for (var i = 0; i < total; i++)
+                    {
+                        var info = pendingFiles[i];
+                        try { fileSizes[i] = info.Length; }
+                        catch { }
+                    }
+                    var progress = NSProgress.FromTotalUnitCount(fileSizes.Sum());
+                    InvokeOnMainThread(() => {
+                        hud.ProgressObject = progress;
+                        hud.Mode = MBProgressHUDMode.AnnularDeterminate;
+                    });
+
                     var failed = 0;
+                    Timer progressTimer = null;
                     for (var i = 0; i < total; i++)
                     {
                         var item = pendingFiles[i];
-                        InvokeOnMainThread(() => alert.Message = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
+                        InvokeOnMainThread(() => hud.Label.Text = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
                         try
                         {
                             var fileName = Path.GetFileName(item.FullName);
                             var stream = new FileStream(item.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                            long lastRead = 0;
+                            progressTimer = new Timer(obj => {
+                                var position = stream.Position;
+                                if (position == 0 || position <= lastRead) return;
+                                progress.CompletedUnitCount += position - lastRead;
+                                lastRead = position;
+                            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(0.1));
                             var remotePath = Path.Combine(WorkingPath, fileName);
                             await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
-                            FileUploaded?.Invoke(this, EventArgs.Empty);
                         }
-                        catch
+                        catch (Exception exception)
                         {
                             failed += 1;
+                        }
+                        finally
+                        {
+                            progressTimer.Dispose();
+                            progressTimer = null;
                         }
                     }
 
                     InvokeOnMainThread(() => {
-                        DismissViewController(true, () => {
-                            this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null, action => {
+                        hud.Hide(true);
+                        FileUploaded?.Invoke(this, EventArgs.Empty);
+                        this.ShowConfirmation(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null, () => {
                                 NavigationController.DismissViewController(true, null);
                             });
-                        });
                     });
-                });
             });
         }
     }

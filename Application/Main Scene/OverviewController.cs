@@ -1,15 +1,18 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using Foundation;
 
-using Photos;
-
-using UIKit;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.Common.Models;
 using NSPersonalCloud.DarwinCore;
+
+using Photos;
+
+using Ricardo.RMBProgressHUD.iOS;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -18,7 +21,7 @@ namespace NSPersonalCloud.DarwinMobile
         public OverviewController(IntPtr handle) : base(handle) { }
 
         private const string RenameSegue = "Rename";
-        
+
         private bool sharePhotos;
         private bool shareFiles;
 
@@ -56,7 +59,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         public override nint RowsInSection(UITableView tableView, nint section)
         {
-            return (int)section switch
+            return (int) section switch
             {
                 0 => 3,
                 1 => 1,
@@ -74,7 +77,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         public override string TitleForHeader(UITableView tableView, nint section)
         {
-            return (int)section switch
+            return (int) section switch
             {
                 0 => this.Localize("Global.Cloud"),
                 1 => this.Localize("Settings.FileSharing"),
@@ -86,11 +89,11 @@ namespace NSPersonalCloud.DarwinMobile
 
         public override string TitleForFooter(UITableView tableView, nint section)
         {
-            return (int)section switch
+            return (int) section switch
             {
                 0 => null,
                 1 => this.Localize("Settings.AutoLockDisabled"),
-                2 => string.Format(this.Localize("Settings.WritingToPhotosRestricted.Formattable"), UIDevice.CurrentDevice.Model),
+                2 => string.Format(CultureInfo.InvariantCulture, this.Localize("Settings.WritingToPhotosRestricted.Formattable"), UIDevice.CurrentDevice.Model),
                 3 => this.Localize("Settings.LeaveHint"),
                 _ => throw new ArgumentOutOfRangeException(nameof(section)),
             };
@@ -100,7 +103,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (indexPath.Section == 0 && indexPath.Row == 0)
             {
-                var cell = (KeyValueCell)tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
+                var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
                 cell.Update(this.Localize("Settings.DeviceName"), Globals.CloudManager.PersonalClouds[0].NodeDisplayName);
                 cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 return cell;
@@ -108,7 +111,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
-                var cell = (KeyValueCell)tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
+                var cell = (KeyValueCell) tableView.DequeueReusableCell(KeyValueCell.Identifier, indexPath);
                 cell.Update(this.Localize("Settings.CloudName"), cloud.Name);
                 cell.Accessory = UITableViewCellAccessory.None;
                 return cell;
@@ -116,7 +119,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (indexPath.Section == 0 && indexPath.Row == 2)
             {
-                var button = (AccentButtonCell)tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                var button = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
                 button.Update(this.Localize("Settings.SendInvitation"));
                 button.Clicked += ShowInvitation;
                 return button;
@@ -124,7 +127,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (indexPath.Section == 1 && indexPath.Row == 0)
             {
-                var cell = (SwitchCell)tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
+                var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
                 cell.Update(this.Localize("Settings.EnableFileSharing"), shareFiles);
                 cell.Clicked += ToggleFileSharing;
                 return cell;
@@ -132,7 +135,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (indexPath.Section == 2 && indexPath.Row == 0)
             {
-                var cell = (SwitchCell)tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
+                var cell = (SwitchCell) tableView.DequeueReusableCell(SwitchCell.Identifier, indexPath);
                 cell.Update(this.Localize("Settings.EnablePhotoSharing"), sharePhotos);
                 cell.Clicked += TogglePhotoSharing;
                 return cell;
@@ -140,7 +143,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (indexPath.Section == 3 && indexPath.Row == 0)
             {
-                var button = (AccentButtonCell)tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
+                var button = (AccentButtonCell) tableView.DequeueReusableCell(AccentButtonCell.Identifier, indexPath);
                 button.Update(this.Localize("Settings.SwitchPersonalCloud"), Colors.DangerousRed);
                 button.Clicked += LeaveCloud;
                 return button;
@@ -169,33 +172,29 @@ namespace NSPersonalCloud.DarwinMobile
 
         private void ShowInvitation(object sender, EventArgs e)
         {
-            var alert = UIAlertController.Create(this.Localize("Settings.SendingInvitation"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () =>
-            {
-                Task.Run(async () =>
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Settings.SendingInvitation");
+            Task.Run(async () => {
+                try
                 {
-                    try
-                    {
-                        var inviteCode = await Globals.CloudManager.SharePersonalCloud(Globals.CloudManager.PersonalClouds[0]).ConfigureAwait(false);
-                        InvokeOnMainThread(() =>
-                        {
-                            DismissViewController(true, null);
-                            this.ShowAlert(this.Localize("Settings.InvitationGenerated"), string.Format(this.Localize("Settings.InvitationForOtherDevices.Formattable"), inviteCode), this.Localize("Settings.RevokeInvitation"), true, action =>
-                                {
-                                    try { _ = Globals.CloudManager.StopSharePersonalCloud(Globals.CloudManager.PersonalClouds[0]); }
-                                    catch { }
-                                });
-                        });
-                    }
-                    catch
-                    {
-                        InvokeOnMainThread(() =>
-                        {
-                            DismissViewController(true, null);
-                            this.ShowAlert(this.Localize("Error.Invite"), null);
-                        });
-                    }
-                });
+                    var inviteCode = await Globals.CloudManager.SharePersonalCloud(Globals.CloudManager.PersonalClouds[0]).ConfigureAwait(false);
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowAlert(this.Localize("Settings.InvitationGenerated"),
+                            string.Format(CultureInfo.InvariantCulture, this.Localize("Settings.InvitationForOtherDevices.Formattable"), inviteCode),
+                            this.Localize("Settings.RevokeInvitation"), true, action => {
+                                try { _ = Globals.CloudManager.StopSharePersonalCloud(Globals.CloudManager.PersonalClouds[0]); }
+                                catch { }
+                            });
+                    });
+                }
+                catch
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowError(this.Localize("Error.Invite"));
+                    });
+                }
             });
             return;
         }
@@ -203,8 +202,7 @@ namespace NSPersonalCloud.DarwinMobile
         private void LeaveCloud(object sender, EventArgs e)
         {
             var alert = UIAlertController.Create(this.Localize("Settings.Leave"), this.Localize("Settings.LeaveWillUnenrollDevice"), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(this.Localize("Global.ConfirmAction"), UIAlertActionStyle.Destructive, action =>
-            {
+            alert.AddAction(UIAlertAction.Create(this.Localize("Global.ConfirmAction"), UIAlertActionStyle.Destructive, action => {
                 Globals.CloudManager.ExitFromCloud(Globals.CloudManager.PersonalClouds[0]);
                 Globals.Database.DeleteAll<CloudModel>();
                 UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalNever);
@@ -212,8 +210,7 @@ namespace NSPersonalCloud.DarwinMobile
                 var rootController = UIApplication.SharedApplication.Windows[0].RootViewController;
                 if (rootController == TabBarController)
                 {
-                    TabBarController.DismissViewController(true, () =>
-                    {
+                    TabBarController.DismissViewController(true, () => {
                         var controller = Storyboard.InstantiateViewController("WelcomeScreen");
                         controller.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
                         PresentViewController(controller, true, () => { });
@@ -245,16 +242,14 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (e.On)
             {
-                PHPhotoLibrary.RequestAuthorization(status =>
-                {
+                PHPhotoLibrary.RequestAuthorization(status => {
                     if (status == PHAuthorizationStatus.Authorized) TurnOnPhotoSharing();
                     else
                     {
                         TurnOffPhotoSharing();
-                        InvokeOnMainThread(() =>
-                        {
+                        InvokeOnMainThread(() => {
                             TableView.ReloadRows(new[] { NSIndexPath.FromRowSection(0, 2) }, UITableViewRowAnimation.Fade);
-                            this.ShowAlert(this.Localize("Settings.CannotReadPhotos"), this.Localize("Permission.Photos"));
+                            this.ShowError(this.Localize("Settings.CannotReadPhotos"), this.Localize("Permission.Photos"));
                         });
                     }
                 });

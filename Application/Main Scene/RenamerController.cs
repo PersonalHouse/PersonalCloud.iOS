@@ -2,13 +2,10 @@ using System;
 
 using Foundation;
 
-using NSPersonalCloud;
-
-using UIKit;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
-using NSPersonalCloud.DarwinMobile.Main_Scene;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -86,7 +83,7 @@ namespace NSPersonalCloud.DarwinMobile
                 }
                 if (string.IsNullOrWhiteSpace(deviceName) || invalidCharHit)
                 {
-                    this.ShowAlert(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
+                    this.ShowError(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
                     return;
                 }
 

@@ -8,14 +8,15 @@ using MobileCoreServices;
 
 using Newtonsoft.Json;
 
-using NSPersonalCloud;
-using NSPersonalCloud.FileSharing.Aliyun;
-
-using UIKit;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
-using NSPersonalCloud.DarwinMobile.Main_Scene;
+using NSPersonalCloud.FileSharing.Aliyun;
+
+using PCPersonalCloud;
+
+using Ricardo.RMBProgressHUD.iOS;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -95,7 +96,7 @@ namespace NSPersonalCloud.DarwinMobile
                     }
                 }
 
-                this.ShowAlert(this.Localize("Online.ClipboardNoData"), this.Localize("Online.PasteManually"));
+                SPAlert.PresentPreset(this.Localize("Online.ClipboardNoData"), this.Localize("Online.PasteManually"), SPAlertPreset.Warning);
                 return;
             }
 
@@ -128,7 +129,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
             if (string.IsNullOrEmpty(name) || invalidCharHit)
             {
-                this.ShowAlert(this.Localize("Online.BadName"), this.Localize("Online.IllegalName"), action => {
+                this.ShowWarning(this.Localize("Online.BadName"), this.Localize("Online.IllegalName"), () => {
                     ServiceName.BecomeFirstResponder();
                 });
                 return;
@@ -137,29 +138,18 @@ namespace NSPersonalCloud.DarwinMobile
             var endpoint = EndpointSuffix.Text;
             if (string.IsNullOrEmpty(endpoint))
             {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("Azure.BadEndpoint"), action => {
+                this.ShowWarning(this.Localize("Online.BadCredential"), this.Localize("Azure.BadEndpoint"), () => {
                     EndpointSuffix.BecomeFirstResponder();
                 });
                 return;
             }
 
             var accountName = AccountName.Text;
-            /*
-            if (string.IsNullOrEmpty(accountName) &&
-                (endpoint == "core.windows.net" || endpoint == "blob.core.windows.net" ||
-                endpoint == "core.chinacloudapi.cn" || endpoint == "blob.core.chinacloudapi.cn"))
-            {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("Azure.BadAccountName"), action => {
-                    AccountName.BecomeFirstResponder();
-                });
-                return;
-            }
-            */
 
             var accessKey = AccountKey.Text;
             if (string.IsNullOrEmpty(accessKey))
             {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("Azure.BadAccountKey"), action => {
+                this.ShowWarning(this.Localize("Online.BadCredential"), this.Localize("Azure.BadAccountKey"), () => {
                     AccountKey.BecomeFirstResponder();
                 });
                 return;
@@ -168,7 +158,7 @@ namespace NSPersonalCloud.DarwinMobile
             var container = Container.Text;
             if (string.IsNullOrEmpty(container))
             {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("Azure.BadContainer"), action => {
+                this.ShowWarning(this.Localize("Online.BadCredential"), this.Localize("Azure.BadContainer"), () => {
                     Container.BecomeFirstResponder();
                 });
                 return;
@@ -176,7 +166,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (!Globals.Database.IsStorageNameUnique(name))
             {
-                this.ShowAlert(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADifferentName"), action => {
+                this.ShowWarning(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADifferentName"), () => {
                     ServiceName.BecomeFirstResponder();
                 });
                 return;
@@ -194,7 +184,7 @@ namespace NSPersonalCloud.DarwinMobile
                 }
                 else
                 {
-                    this.ShowAlert(this.Localize("Azure.BadAccount"), this.Localize("Azure.EndpointAndNameMismatch"));
+                    this.ShowError(this.Localize("Azure.BadAccount"), this.Localize("Azure.EndpointAndNameMismatch"));
                     return;
                 }
             }
@@ -202,49 +192,46 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 if (string.IsNullOrEmpty(accountName))
                 {
-                    this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("Azure.BadAccountName"));
+                    this.ShowError(this.Localize("Online.BadCredential"), this.Localize("Azure.BadAccountName"));
                     return;
                 }
                 else connection = $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={accessKey};EndpointSuffix={endpoint}";
             }
 
-            var alert = UIAlertController.Create(this.Localize("Online.Verifying"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(() => {
-                    var config = new AzureBlobConfig {
-                        ConnectionString = connection,
-                        BlobName = container
-                    };
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Online.Verifying");
 
-                    if (config.Verify())
+            Task.Run(() => {
+                var config = new AzureBlobConfig {
+                    ConnectionString = connection,
+                    BlobName = container
+                };
+
+                if (config.Verify())
+                {
+                    try
                     {
-                        try
-                        {
-                            Globals.CloudManager.AddStorageProvider(Globals.CloudManager.PersonalClouds[0].Id, Guid.NewGuid(), name, config, visibility);
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
-                                    NavigationController.DismissViewController(true, null);
-                                });
-                            });
-                        }
-                        catch
-                        {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
-                                    this.ShowAlert(this.Localize("Azure.CannotAddService"), this.Localize("Error.Internal"));
-                                });
-                            });
-                        }
-                    }
-                    else
-                    {
+                        Globals.CloudManager.AddStorageProvider(Globals.CloudManager.PersonalClouds[0].Id, Guid.NewGuid(), name, config, visibility);
                         InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Error.Authentication"), this.Localize("Azure.Unauthorized"));
-                            });
+                            hud.Hide(true);
+                            NavigationController.DismissViewController(true, null);
                         });
                     }
-                });
+                    catch
+                    {
+                        InvokeOnMainThread(() => {
+                            hud.Hide(true);
+                            this.ShowError(this.Localize("Azure.CannotAddService"), this.Localize("Error.Internal"));
+                        });
+                    }
+                }
+                else
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowError(this.Localize("Error.Authentication"), this.Localize("Azure.Unauthorized"));
+                    });
+                }
             });
         }
     }

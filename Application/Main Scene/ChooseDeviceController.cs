@@ -9,12 +9,15 @@ using Foundation;
 
 using MobileCoreServices;
 
+using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.FileSharing;
 using NSPersonalCloud.Interfaces.FileSystem;
 
-using UIKit;
+using PCPersonalCloud;
 
-using NSPersonalCloud.DarwinCore;
+using Ricardo.RMBProgressHUD.iOS;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -37,7 +40,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             base.ViewDidLoad();
             NavigationItem.Title = NavigationTitle;
-            if (RootPath.EndsWith(Path.AltDirectorySeparatorChar)) RootPath.Substring(0, RootPath.Length - 1);
+            if (RootPath.Length > 1 && RootPath.EndsWith(Path.AltDirectorySeparatorChar)) RootPath = RootPath.Substring(0, RootPath.Length - 1);
             workingPath = RootPath;
 
             RefreshControl = new UIRefreshControl();
@@ -88,7 +91,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            if (workingPath.Length != 1 && indexPath.Section == 1 && indexPath.Row == 0)
+            if (workingPath.Length > 1 && indexPath.Section == 1 && indexPath.Row == 0)
             {
                 var cell = (FileEntryCell) tableView.DequeueReusableCell(FileEntryCell.Identifier, indexPath);
                 var parentPath = Path.GetFileName(Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar)).TrimEnd(Path.AltDirectorySeparatorChar));
@@ -104,7 +107,7 @@ namespace NSPersonalCloud.DarwinMobile
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 if (item.IsDirectory)
                 {
-                    if (item.Attributes.HasFlag(FileAttributes.Device)) cell.Update(item.Name, new UTI(UTType.Directory), "设备");
+                    if (item.Attributes.HasFlag(FileAttributes.Device)) cell.Update(item.Name, new UTI(UTType.Directory), this.Localize("Finder.Device"));
                     else cell.Update(item.Name, new UTI(UTType.Directory));
                     cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 }
@@ -133,7 +136,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (workingPath.Length != 1 && indexPath.Section == 1 && indexPath.Row == 0)
             {
                 var pathString = string.Join(" » ", workingPath.Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                this.ShowAlert(this.Localize("Finder.CurrentDirectory"), pathString);
+                SPAlert.PresentCustom(this.Localize("Finder.CurrentDirectory") + Environment.NewLine + pathString, SPAlertHaptic.None);
                 return;
             }
         }
@@ -147,7 +150,7 @@ namespace NSPersonalCloud.DarwinMobile
                 var parent = Path.GetDirectoryName(workingPath.TrimEnd(Path.AltDirectorySeparatorChar));
                 if (!parent.StartsWith(RootPath))
                 {
-                    this.ShowAlert(this.Localize("SelectPath.Restricted"), this.Localize("SelectPath.CannotGoBack"));
+                    this.ShowError(this.Localize("SelectPath.Restricted"), this.Localize("SelectPath.CannotGoBack"));
                     return;
                 }
                 workingPath = parent;
@@ -172,41 +175,37 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (RefreshControl.Refreshing) RefreshControl.EndRefreshing();
 
-            var alert = UIAlertController.Create(this.Localize("Global.LoadingStatus"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
-                    try
-                    {
-                        var files = await FileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
-                        items = files.Where(x => x.Attributes.HasFlag(FileAttributes.Directory)).SortDirectoryFirstByName().ToList();
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
-                            });
-                        });
-                    }
-                    catch (HttpRequestException exception)
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                PresentViewController(CloudExceptions.Explain(exception), true, null);
-                                items = null;
-                                TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
-                            });
-                        });
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Global.LoadingStatus");
+            Task.Run(async () => {
+                try
+                {
+                    var files = await FileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
+                    items = files.Where(x => x.Attributes.HasFlag(FileAttributes.Directory)).SortDirectoryFirstByName().ToList();
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
+                    });
+                }
+                catch (HttpRequestException exception)
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        PresentViewController(CloudExceptions.Explain(exception), true, null);
+                        items = null;
+                        TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
+                    });
 
-                    }
-                    catch (Exception exception)
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Error.RefreshDirectory"), exception.GetType().Name);
-                                items = null;
-                                TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
-                            });
-                        });
-                    }
-                });
+                }
+                catch (Exception exception)
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowError(this.Localize("Error.RefreshDirectory"), exception.GetType().Name);
+                        items = null;
+                        TableView.ReloadSections(NSIndexSet.FromNSRange(new NSRange(0, 2)), UITableViewRowAnimation.Automatic);
+                    });
+                }
             });
         }
 
@@ -214,7 +213,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (workingPath == "/")
             {
-                this.ShowAlert(this.Localize("SelectPath.BadPath"), this.Localize("SelectPath.ChooseADevice"));
+                this.ShowError(this.Localize("SelectPath.BadPath"), this.Localize("SelectPath.ChooseADevice"));
                 return;
             }
             NavigationController.DismissViewController(true, () => {

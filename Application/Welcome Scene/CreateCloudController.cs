@@ -2,15 +2,10 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
-using CoreFoundation;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
-using NSPersonalCloud.DarwinMobile.Main_Scene;
 
 using Ricardo.RMBProgressHUD.iOS;
-
-using SPAlertForXamarin;
 
 using UIKit;
 
@@ -53,13 +48,13 @@ namespace NSPersonalCloud.DarwinMobile
             }
             if (string.IsNullOrWhiteSpace(deviceName) || invalidCharHit)
             {
-                this.ShowAlert(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
+                this.ShowWarning(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(cloudName))
             {
-                this.ShowAlert(this.Localize("Settings.BadCloudName"), this.Localize("Settings.CloudNameCannotBeEmpty"));
+                this.ShowError(this.Localize("Settings.BadCloudName"), this.Localize("Settings.CloudNameCannotBeEmpty"));
                 return;
             }
 
@@ -72,19 +67,17 @@ namespace NSPersonalCloud.DarwinMobile
                     Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                     InvokeOnMainThread(() => {
                         hud.Hide(true);
-                        DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(2)), () => {
-                            NavigationController.DismissViewController(true, null);
-                        });
-                        SPAlert.PresentPreset(this.Localize("Welcome.Created"),
-                            string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.CreatedCloud.Formattable"), cloudName),
-                            SPAlertPreset.Done);
+                        this.ShowConfirmation(this.Localize("Welcome.Created"),
+                            string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.CreatedCloud.Formattable"), cloudName), () => {
+                                NavigationController.DismissViewController(true, null);
+                            });
                     });
                 }
                 catch
                 {
                     InvokeOnMainThread(() => {
                         hud.Hide(true);
-                        SPAlert.PresentPreset(this.Localize("Error.CreateCloud"), null, SPAlertPreset.Error, 3);
+                        this.ShowError(this.Localize("Error.CreateCloud"));
                     });
                 }
             });
