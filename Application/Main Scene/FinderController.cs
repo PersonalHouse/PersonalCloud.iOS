@@ -4,13 +4,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Foundation;
 
 using MobileCoreServices;
 
-using NSPersonalCloud;
+using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.FileSharing;
 using NSPersonalCloud.Interfaces.Errors;
 using NSPersonalCloud.Interfaces.FileSystem;
@@ -18,9 +19,11 @@ using NSPersonalCloud.RootFS;
 
 using Photos;
 
-using UIKit;
+using Ricardo.RMBProgressHUD.iOS;
 
-using NSPersonalCloud.DarwinCore;
+using SPAlertForXamarin;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -601,50 +604,46 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (!workingPath.EndsWith(Path.AltDirectorySeparatorChar)) workingPath += Path.AltDirectorySeparatorChar;
 
-            var alert = UIAlertController.Create(this.Localize("Global.LoadingStatus"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
-                    string title = null;
-                    if (workingPath.Length != 1)
-                    {
-                        var deviceNameEnd = workingPath.IndexOf(Path.AltDirectorySeparatorChar, 1);
-                        if (deviceNameEnd != -1) title = workingPath.Substring(1, deviceNameEnd).Trim(Path.AltDirectorySeparatorChar);
-                    }
+            var hud = MBProgressHUD.ShowHUD(TabBarController.View, true);
+            hud.Label.Text = this.Localize("Global.LoadingStatus");
+            Task.Run(async () => {
+                string title = null;
+                if (workingPath.Length != 1)
+                {
+                    var deviceNameEnd = workingPath.IndexOf(Path.AltDirectorySeparatorChar, 1);
+                    if (deviceNameEnd != -1) title = workingPath.Substring(1, deviceNameEnd).Trim(Path.AltDirectorySeparatorChar);
+                }
 
-                    try
-                    {
-                        var files = await fileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
-                        items = files.SortDirectoryFirstByName().ToList();
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
-                                TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
-                            });
-                        });
-                    }
-                    catch (HttpRequestException exception)
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                PresentViewController(CloudExceptions.Explain(exception), true, null);
-                                items = null;
-                                if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
-                                TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
-                            });
-                        });
-                    }
-                    catch (Exception exception)
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Error.RefreshDirectory"), exception.GetType().Name);
-                                items = null;
-                                if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
-                                TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
-                            });
-                        });
-                    }
-                });
+                try
+                {
+                    var files = await fileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
+                    items = files.SortDirectoryFirstByName().ToList();
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
+                        TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
+                    });
+                }
+                catch (HttpRequestException exception)
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        PresentViewController(CloudExceptions.Explain(exception), true, null);
+                        items = null;
+                        if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
+                        TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
+                    });
+                }
+                catch (Exception exception)
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowAlert(this.Localize("Error.RefreshDirectory"), exception.GetType().Name);
+                        items = null;
+                        if (!string.IsNullOrEmpty(title)) NavigationItem.Title = title;
+                        TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
+                    });
+                }
             });
         }
 
@@ -898,49 +897,78 @@ namespace NSPersonalCloud.DarwinMobile
 
         private void UploadFilesAt(params NSUrl[] urls)
         {
-            var alert = UIAlertController.Create(this.Localize("Finder.Uploading"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
-                    var total = urls.Length;
-                    var failed = 0;
-                    for (var i = 0; i < total; i++)
+            var hud = MBProgressHUD.ShowHUD(TabBarController.View, true);
+            hud.Label.Text = this.Localize("Finder.Uploading");
+            Task.Run(async () => {
+                var total = urls.Length;
+
+                // Calculate total file size.
+                var fileSizes = new long[total];
+                for (var i = 0; i < total; i++)
+                {
+                    var url = urls[i];
+                    if (url.TryGetResource(NSUrl.FileSizeKey, out var obj) && obj is NSNumber number)
                     {
-                        var url = urls[i];
-                        InvokeOnMainThread(() => alert.Message = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
-                        if (!url.IsFileUrl)
-                        {
-                            failed += 1;
-                            continue;
-                        }
+                        fileSizes[i] = number.Int64Value;
+                    }
+                }
+                var progress = NSProgress.FromTotalUnitCount(fileSizes.Sum());
+                InvokeOnMainThread(() => {
+                    hud.ProgressObject = progress;
+                    hud.Mode = MBProgressHUDMode.AnnularDeterminate;
+                });                
 
-                        var shouldRelease = url.StartAccessingSecurityScopedResource();
-                        try
-                        {
-                            var fileName = Path.GetFileName(url.Path);
-
-                            if (Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out _))
-                            {
-                                fileName = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + Path.GetExtension(fileName) ?? string.Empty;
-                            }
-
-                            using var stream = new FileStream(url.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-                            var remotePath = Path.Combine(workingPath, fileName);
-                            await fileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
-                        }
-                        catch
-                        {
-                            failed += 1;
-                        }
-                        if (shouldRelease) url.StopAccessingSecurityScopedResource();
+                var failed = 0;
+                for (var i = 0; i < total; i++)
+                {
+                    var url = urls[i];
+                    InvokeOnMainThread(() => hud.Label.Text = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
+                    if (!url.IsFileUrl)
+                    {
+                        failed += 1;
+                        continue;
                     }
 
-                    InvokeOnMainThread(() => {
-                        DismissViewController(true, () => {
-                            this.ShowAlert(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null, action => {
-                                RefreshDirectory(this, EventArgs.Empty);
-                            });
-                        });
-                    });
+                    var shouldRelease = url.StartAccessingSecurityScopedResource();
+                    Timer progressTimer = null;
+                    try
+                    {
+                        var fileName = Path.GetFileName(url.Path);
+
+                        if (Guid.TryParse(Path.GetFileNameWithoutExtension(fileName), out _))
+                        {
+                            fileName = DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + Path.GetExtension(fileName) ?? string.Empty;
+                        }
+
+                        using var stream = new FileStream(url.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                        // Post progress.
+                        long lastRead = 0;
+                        progressTimer = new Timer(obj => {
+                            var position = stream.Position;
+                            if (position == 0 || position <= lastRead) return;
+                            progress.CompletedUnitCount += position - lastRead;
+                            lastRead = position;
+                        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(0.1));
+                        var remotePath = Path.Combine(workingPath, fileName);
+                        await fileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
+                        progressTimer.Dispose();
+                        progressTimer = null;
+                    }
+                    catch
+                    {
+                        failed += 1;
+                        progressTimer.Dispose();
+                        progressTimer = null;
+                    }
+                    if (shouldRelease) url.StopAccessingSecurityScopedResource();
+                }
+
+                InvokeOnMainThread(() => {
+                    hud.Hide(true);
+                    RefreshDirectory(this, EventArgs.Empty);
+                    SPAlert.PresentPreset(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null,
+                        failed == 0 ? SPAlertPreset.Done : SPAlertPreset.Warning);
                 });
             });
         }
