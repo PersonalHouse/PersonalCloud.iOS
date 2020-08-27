@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +30,7 @@ using NSPersonalCloud.DarwinCore.Models;
 using System.Threading;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using NSPersonalCloud.Interfaces.FileSystem;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -40,6 +41,7 @@ namespace NSPersonalCloud.DarwinMobile
         public UIWindow Window { get; private set; }
 
         private CFNotificationObserverToken networkNotification;
+        ILogger logger;
 
         [Export("application:willFinishLaunchingWithOptions:")]
         public bool WillFinishLaunching(UIApplication application, NSDictionary launchOptions)
@@ -53,6 +55,8 @@ namespace NSPersonalCloud.DarwinMobile
                 config.Environment = "iOS";
                 config.Release = appVersion;
             });
+            logger = Globals.Loggers.CreateLogger<AppDelegate>();
+
 
             var databasePath = Path.Combine(Paths.SharedLibrary, "Preferences.sqlite3");
             Globals.Database = new SQLiteConnection(databasePath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
@@ -62,8 +66,6 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.Database.CreateTable<AlibabaOSS>();
             Globals.Database.CreateTable<AzureBlob>();
             Globals.Database.CreateTable<WebApp>();
-
-            Globals.Database.SaveSetting(UserSettings.PhotoBackupInterval, "1");
 
             if (Globals.Database.Find<KeyValueModel>(UserSettings.EnableSharing) is null)
             {
@@ -79,13 +81,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             Paths.CreateCommonDirectories();
 
-            Globals.FileSystem = new SandboxedFileSystem(sharingEnabled ? Paths.Documents : null);
-
-            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
-                Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1"))
-            {
-                Globals.FileSystem.ArePhotosShared = true;
-            }
+            SetupFS(sharingEnabled);
 
             if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
                 Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1"))
@@ -112,6 +108,33 @@ namespace NSPersonalCloud.DarwinMobile
 
 
             return true;
+        }
+
+        public static void SetupFS(bool sharingEnabled)
+        {
+            Zio.IFileSystem fs;
+            var rootfs = new Zio.FileSystems.PhysicalFileSystem();
+            Zio.IFileSystem fsfav;
+            if (sharingEnabled)
+            {
+                fsfav = new Zio.FileSystems.SubFileSystem(rootfs, Paths.Documents);
+            }
+            else
+            {
+                fsfav = new Zio.FileSystems.MemoryFileSystem();
+            }
+            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized &&
+                Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1"))
+            {
+                var mfs = new Zio.FileSystems.MountFileSystem(fsfav, true);
+                mfs.Mount("/" + Unishare.Apps.DarwinCore.PhotoFileSystem.FolderName, new Unishare.Apps.DarwinCore.PhotoFileSystem());
+                fs = mfs;
+            }
+            else
+            {
+                fs = fsfav;
+            }
+            Globals.FileSystem = fs;
         }
 
         [Export("application:didFinishLaunchingWithOptions:")]
@@ -192,21 +215,35 @@ namespace NSPersonalCloud.DarwinMobile
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public void PerformFetch(UIApplication application, Action<UIBackgroundFetchResult> completionHandler)
         {
-            var tdelay = Task.Delay(25 * 1000);
-            backgroundStatus = UIBackgroundFetchResult.NewData;
-            if (currentBackupTask == null)
+            try
             {
-                currentBackupTask = Task.Run(BackgroundBackupImages);
-            }
+                var tdelay = Task.Delay(25 * 1000);
+                backgroundStatus = UIBackgroundFetchResult.NewData;
+                if (currentBackupTask == null)
+                {
+                    currentBackupTask = Task.Run(BackgroundBackupImages);
+                }
 
-            var res = Task.WhenAny(new[] { tdelay, currentBackupTask }).Result;
-            if (res == currentBackupTask)
-            {
-                currentBackupTask = null;
-                completionHandler?.Invoke(backgroundStatus);
-                return;
+                var res = Task.WhenAny(new[] { tdelay, currentBackupTask }).Result;
+                if (res == currentBackupTask)
+                {
+                    currentBackupTask = null;
+                    completionHandler?.Invoke(backgroundStatus);
+                    return;
+                }
+                completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
             }
-            completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+            catch (Exception e)
+            {
+                logger.LogError(e, "PerformFetch");
+                try
+                {
+                    completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+                }
+                catch
+                {
+                }
+            }
         }
 
         private void WaitForPath(PersonalCloud cloud, string path)
@@ -214,7 +251,7 @@ namespace NSPersonalCloud.DarwinMobile
             using var cts = new CancellationTokenSource();
             cts.CancelAfter(27 * 1000);
             var pathsegs = path.Split(new char[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
-            if (pathsegs?.Length>0)
+            if (pathsegs?.Length > 0)
             {
                 var rootnodetofind = pathsegs[0];
                 for (int i = 0; i < 1000; i++)
@@ -248,7 +285,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (worker == null)
             {
                 SentrySdk.CaptureMessage("Photo sync worker not initialized.", SentryLevel.Error);
-                backgroundStatus = UIBackgroundFetchResult.Failed;
+                backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }
 
@@ -289,7 +326,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             try
             {
-                var items = await worker.StartBackup(cloud.RootFS, path,true).ConfigureAwait(false);
+                var items = await worker.StartBackup(cloud.RootFS, path, true).ConfigureAwait(false);
 
                 backgroundStatus = UIBackgroundFetchResult.NoData;
             }

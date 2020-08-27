@@ -2,12 +2,12 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
-using NSPersonalCloud;
-
-using UIKit;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+
+using Ricardo.RMBProgressHUD.iOS;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -42,44 +42,44 @@ namespace NSPersonalCloud.DarwinMobile
             var deviceName = DeviceNameBox.Text;
 
             var invalidCharHit = false;
-            foreach (var character in VirtualFileSystem.InvalidCharacters)
+            foreach (var character in Consts.InvalidCharacters)
             {
                 if (deviceName?.Contains(character) == true) invalidCharHit = true;
             }
             if (string.IsNullOrWhiteSpace(deviceName) || invalidCharHit)
             {
-                this.ShowAlert(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
+                this.ShowWarning(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(cloudName))
             {
-                this.ShowAlert(this.Localize("Settings.BadCloudName"), this.Localize("Settings.CloudNameCannotBeEmpty"));
+                this.ShowError(this.Localize("Settings.BadCloudName"), this.Localize("Settings.CloudNameCannotBeEmpty"));
                 return;
             }
 
-            var alert = UIAlertController.Create(this.Localize("Welcome.Creating"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(async () => {
-                    try
-                    {
-                        await Globals.CloudManager.CreatePersonalCloud(cloudName, deviceName).ConfigureAwait(false);
-                        Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Welcome.Created"), string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.CreatedCloud.Formattable"), cloudName), action => {
-                                    NavigationController.DismissViewController(true, null);
-                                });
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Welcome.Creating");
+            Task.Run(async () => {
+                try
+                {
+                    await Globals.CloudManager.CreatePersonalCloud(cloudName, deviceName).ConfigureAwait(false);
+                    Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowConfirmation(this.Localize("Welcome.Created"),
+                            string.Format(CultureInfo.InvariantCulture, this.Localize("Welcome.CreatedCloud.Formattable"), cloudName), () => {
+                                NavigationController.DismissViewController(true, null);
                             });
-                        });
-                    }
-                    catch
-                    {
-                        InvokeOnMainThread(() => {
-                            DismissViewController(true, () => this.ShowAlert(this.Localize("Error.CreateCloud"), null));
-                        });
-                    }
-                });
+                    });
+                }
+                catch
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowError(this.Localize("Error.CreateCloud"));
+                    });
+                }
             });
         }
     }

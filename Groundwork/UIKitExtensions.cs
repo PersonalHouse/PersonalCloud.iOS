@@ -1,6 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
+
+using CoreFoundation;
+
 using Foundation;
+
+using PCPersonalCloud;
 
 using UIKit;
 
@@ -39,7 +44,35 @@ namespace NSPersonalCloud.DarwinCore
             return shortVersion ?? version ?? "?";
         }
 
-        public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message)
+        #region Alerts
+        public static void ShowConfirmation(this UIViewController _, [Localizable(true)] string title,
+                                            [Localizable(true)] string message = null, Action onDismiss = null)
+        {
+            var noMessage = string.IsNullOrEmpty(message);
+            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(noMessage ? 2 : 3.5)), onDismiss);
+            if (noMessage) SPAlert.PresentPreset(title, null, SPAlertPreset.Done);
+            else SPAlert.PresentPreset(title, message, SPAlertPreset.Done, 3);
+        }
+
+        public static void ShowWarning(this UIViewController _, [Localizable(true)] string title,
+                                       [Localizable(true)] string message = null, Action onDismiss = null)
+        {
+            var noMessage = string.IsNullOrEmpty(message);
+            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(noMessage ? 3.5 : 5.5)), onDismiss);
+            if (noMessage) SPAlert.PresentPreset(title, null, SPAlertPreset.Warning, 3);
+            else SPAlert.PresentPreset(title, message, SPAlertPreset.Warning, 5);
+        }
+
+        public static void ShowError(this UIViewController _, [Localizable(true)] string title,
+                                     [Localizable(true)] string message = null, Action onDismiss = null)
+        {
+            var noMessage = string.IsNullOrEmpty(message);
+            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(noMessage ? 3.5 : 5.5)), onDismiss);
+            if (noMessage) SPAlert.PresentPreset(title, null, SPAlertPreset.Error, 3);
+            else SPAlert.PresentPreset(title, message, SPAlertPreset.Error, 5);
+        }
+
+        public static void ShowHelp(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
             var ok = UIAlertAction.Create(Localize("Global.OKAction"), UIAlertActionStyle.Default, null);
@@ -48,6 +81,8 @@ namespace NSPersonalCloud.DarwinCore
             controller.PresentViewController(alert, true, null);
         }
 
+        /*
+        [Obsolete("Prefer HUDs (using SPAlert) over alerts.")]
         public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message, Action<UIAlertAction> onDismiss)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
@@ -56,10 +91,11 @@ namespace NSPersonalCloud.DarwinCore
             alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }
+        */
 
-        public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message,
-                                     [Localizable(true)] string dismissAction, bool actionIsDangerous = false,
-                                     Action<UIAlertAction> onDismiss = null)
+        public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title,
+                                     [Localizable(true)] string message, [Localizable(true)] string dismissAction,
+                                     bool actionIsDangerous = false, Action<UIAlertAction> onDismiss = null)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
             var ok = UIAlertAction.Create(dismissAction, actionIsDangerous ? UIAlertActionStyle.Destructive : UIAlertActionStyle.Default, onDismiss);
@@ -79,6 +115,8 @@ namespace NSPersonalCloud.DarwinCore
             alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }
+
+        #endregion
 
         public static void PreviewFile(this UIViewController controller, NSUrl url)
         {

@@ -1,17 +1,15 @@
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
 
 using Foundation;
 
+using NSPersonalCloud.Common;
+using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.RootFS;
 
 using Photos;
 
 using UIKit;
-
-using NSPersonalCloud.Common;
-using NSPersonalCloud.DarwinCore;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -24,7 +22,6 @@ namespace NSPersonalCloud.DarwinMobile
 
         private bool autoBackup;
         private string backupPath;
-        private int backupIntervalHours;
         private RootFileSystem fileSystem;
 
         private object IsEnablingBackupBtnCache;
@@ -44,7 +41,6 @@ namespace NSPersonalCloud.DarwinMobile
             base.ViewWillAppear(animated);
             autoBackup = PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized && Globals.Database.CheckSetting(UserSettings.AutoBackupPhotos, "1");
             backupPath = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
-            if (!int.TryParse(Globals.Database.LoadSetting(UserSettings.PhotoBackupInterval) ?? "-1", out backupIntervalHours)) backupIntervalHours = 0;
 
         }
 
@@ -68,7 +64,6 @@ namespace NSPersonalCloud.DarwinMobile
                     Globals.Database.SaveSetting(UserSettings.PhotoBackupPrefix, e.Path);
                     backupPath = e.Path;
                     InvokeOnMainThread(() => {
-
                         if (!string.IsNullOrWhiteSpace(backupPath))
                         {
                             TurnOnAutoBackup(IsEnablingBackupBtnCache);
@@ -166,7 +161,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 2)
             {
                 if (autoBackup) PerformSegue(ViewPhotosSegue, this);
-                else this.ShowAlert(this.Localize("Backup.NotSetUp"), this.Localize("Backup.SetUpBeforeViewingItems"));
+                else this.ShowError(this.Localize("Backup.NotSetUp"), this.Localize("Backup.SetUpBeforeViewingItems"));
                 return;
             }
 
@@ -174,13 +169,13 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 if ((Globals.BackupWorker?.BackupTask?.IsCompleted ?? true) != true)
                 {
-                    this.ShowAlert(this.Localize("Backup.CannotExecute"), this.Localize("Backup.AlreadyRunning"));
+                    this.ShowWarning(this.Localize("Backup.CannotExecute"), this.Localize("Backup.AlreadyRunning"));
                     return;
                 }
 
                 if (!autoBackup)
                 {
-                    this.ShowAlert(this.Localize("Backup.NotSetUp"), this.Localize("Backup.SetUpBeforeExecuting"));
+                    this.ShowError(this.Localize("Backup.NotSetUp"), this.Localize("Backup.SetUpBeforeExecuting"));
                     return;
                 }
 
@@ -191,7 +186,7 @@ namespace NSPersonalCloud.DarwinMobile
                     }
                     await Globals.BackupWorker.StartBackup(fileSystem, backupPath,false).ConfigureAwait(false);
                 });
-                this.ShowAlert(this.Localize("Backup.Executed"), this.Localize("Backup.NewBackupInProgress"));
+                this.ShowConfirmation(this.Localize("Backup.Executed"), this.Localize("Backup.NewBackupInProgress"));
                 return;
             }
 
@@ -202,7 +197,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         private void ShowHelp(object sender, EventArgs e)
         {
-            this.ShowAlert(this.Localize("Help.Backup"), this.Localize("Help.BackupPhotos"));
+            this.ShowHelp(this.Localize("Help.Backup"), this.Localize("Help.BackupPhotos"));
         }
 
         private void ToggleAutoBackup(object sender, ToggledEventArgs e)
@@ -213,7 +208,7 @@ namespace NSPersonalCloud.DarwinMobile
                     if (status == PHAuthorizationStatus.Authorized) InvokeOnMainThread(() => TurnOnAutoBackup(sender));
                     else InvokeOnMainThread(() => {
                         TurnOffAutoBackup(sender);
-                        this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Permission.Photos"));
+                        this.ShowError(this.Localize("Backup.CannotSetUp"), this.Localize("Permission.Photos"));
                     });
                 });
             }
@@ -225,18 +220,20 @@ namespace NSPersonalCloud.DarwinMobile
             if (string.IsNullOrEmpty(backupPath))
             {
                 TurnOffAutoBackup(obj);
-                //this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoBackupLocation"));
+                // this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoBackupLocation"));
                 IsEnablingBackupBtnCache = obj;
                 PerformSegue(ChooseDeviceSegue, this);
                 return;
             }
 
+            /*
             if (backupIntervalHours < 1)
             {
                 TurnOffAutoBackup(obj);
                 this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoInterval"));
                 return;
             }
+            */
 
             UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalMinimum);
             if (UIApplication.SharedApplication.BackgroundRefreshStatus == UIBackgroundRefreshStatus.Available)
@@ -246,7 +243,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
             else
             {
-                this.ShowAlert(this.Localize("Backup.BackgroundRefreshDisabled"), this.Localize("Permission.BackgroundRefresh"));
+                this.ShowError(this.Localize("Backup.BackgroundRefreshDisabled"), this.Localize("Permission.BackgroundRefresh"));
                 TurnOffAutoBackup(obj);
             }
         }

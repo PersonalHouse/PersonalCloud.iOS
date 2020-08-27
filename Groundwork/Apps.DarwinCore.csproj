@@ -41,9 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NSDateExtensions.cs" />
+    <Compile Include="PHAssetExt.cs" />
+    <Compile Include="PhotoFileSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PathHelpers.cs" />
-    <Compile Include="SandboxedFileSystem.cs" />
     <Compile Include="UIKitExtensions.cs" />
     <Compile Include="Colors.cs" />
     <Compile Include="Prompts.cs" />
@@ -64,15 +65,16 @@
       <Name>PersonalCloud</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <PackageReference Include="sqlite-net-base">
       <Version>1.7.335</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="PCPersonalCloud.SPAlert">
+      <Version>2.1.4.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

@@ -7,13 +7,13 @@ using MobileCoreServices;
 
 using Newtonsoft.Json;
 
-using NSPersonalCloud;
-using NSPersonalCloud.FileSharing.Aliyun;
-
-using UIKit;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+using NSPersonalCloud.FileSharing.Aliyun;
+
+using Ricardo.RMBProgressHUD.iOS;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -62,7 +62,7 @@ namespace NSPersonalCloud.DarwinMobile
                     }
                 }
 
-                this.ShowAlert(this.Localize("Online.ClipboardNoData"), this.Localize("Online.PasteManually"));
+                this.ShowWarning(this.Localize("Online.ClipboardNoData"), this.Localize("Online.PasteManually"));
                 return;
             }
 
@@ -89,13 +89,13 @@ namespace NSPersonalCloud.DarwinMobile
         {
             var name = ServiceName.Text;
             var invalidCharHit = false;
-            foreach (var character in VirtualFileSystem.InvalidCharacters)
+            foreach (var character in Consts.InvalidCharacters)
             {
                 if (name?.Contains(character) == true) invalidCharHit = true;
             }
             if (string.IsNullOrEmpty(name) || invalidCharHit)
             {
-                this.ShowAlert(this.Localize("Online.BadName"), this.Localize("Online.IllegalName"), action => {
+                this.ShowWarning(this.Localize("Online.BadName"), this.Localize("Online.IllegalName"), () => {
                     ServiceName.BecomeFirstResponder();
                 });
                 return;
@@ -104,7 +104,7 @@ namespace NSPersonalCloud.DarwinMobile
             var endpoint = Endpoint.Text;
             if (string.IsNullOrEmpty(endpoint))
             {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadEndpoint"), action => {
+                this.ShowWarning(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadEndpoint"), () => {
                     Endpoint.BecomeFirstResponder();
                 });
                 return;
@@ -113,7 +113,7 @@ namespace NSPersonalCloud.DarwinMobile
             var bucket = BucketName.Text;
             if (string.IsNullOrEmpty(bucket))
             {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadBucket"), action => {
+                this.ShowWarning(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadBucket"), () => {
                     BucketName.BecomeFirstResponder();
                 });
                 return;
@@ -122,7 +122,7 @@ namespace NSPersonalCloud.DarwinMobile
             var accessId = AccessKeyID.Text;
             if (string.IsNullOrEmpty(accessId))
             {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadUserID"), action => {
+                this.ShowWarning(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadUserID"), () => {
                     AccessKeyID.BecomeFirstResponder();
                 });
                 return;
@@ -131,7 +131,7 @@ namespace NSPersonalCloud.DarwinMobile
             var accessSecret = AccessKeySecret.Text;
             if (string.IsNullOrEmpty(accessSecret))
             {
-                this.ShowAlert(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadUserSecret"), action => {
+                this.ShowWarning(this.Localize("Online.BadCredential"), this.Localize("AliYun.BadUserSecret"), () => {
                     AccessKeySecret.BecomeFirstResponder();
                 });
                 return;
@@ -139,51 +139,47 @@ namespace NSPersonalCloud.DarwinMobile
 
             if (!Globals.Database.IsStorageNameUnique(name))
             {
-                this.ShowAlert(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADifferentName"), action => {
+                this.ShowWarning(this.Localize("Online.ServiceAlreadyExists"), this.Localize("Online.ChooseADifferentName"), () => {
                     ServiceName.BecomeFirstResponder();
                 });
                 return;
             }
 
-            var alert = UIAlertController.Create(this.Localize("Online.Verifying"), null, UIAlertControllerStyle.Alert);
-            PresentViewController(alert, true, () => {
-                Task.Run(() => {
-                    var config = new OssConfig {
-                        OssEndpoint = endpoint,
-                        BucketName = bucket,
-                        AccessKeyId = accessId,
-                        AccessKeySecret = accessSecret
-                    };
+            var hud = MBProgressHUD.ShowHUD(NavigationController.View, true);
+            hud.Label.Text = this.Localize("Online.Verifying");
+            Task.Run(() => {
+                var config = new OssConfig {
+                    OssEndpoint = endpoint,
+                    BucketName = bucket,
+                    AccessKeyId = accessId,
+                    AccessKeySecret = accessSecret
+                };
 
-                    if (config.Verify())
+                if (config.Verify())
+                {
+                    try
                     {
-                        try
-                        {
-                            Globals.CloudManager.AddStorageProvider(Globals.CloudManager.PersonalClouds[0].Id, Guid.NewGuid(), name, config, visibility);
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
-                                    NavigationController.DismissViewController(true, null);
-                                });
-                            });
-                        }
-                        catch
-                        {
-                            InvokeOnMainThread(() => {
-                                DismissViewController(true, () => {
-                                    this.ShowAlert(this.Localize("AliYun.CannotAddService"), this.Localize("Error.Internal"));
-                                });
-                            });
-                        }
-                    }
-                    else
-                    {
+                        Globals.CloudManager.AddStorageProvider(Globals.CloudManager.PersonalClouds[0].Id, Guid.NewGuid(), name, config, visibility);
                         InvokeOnMainThread(() => {
-                            DismissViewController(true, () => {
-                                this.ShowAlert(this.Localize("Error.Authentication"), this.Localize("AliYun.Unauthorized"));
-                            });
+                            hud.Hide(true);
+                            NavigationController.DismissViewController(true, null);
                         });
                     }
-                });
+                    catch
+                    {
+                        InvokeOnMainThread(() => {
+                            hud.Hide(true);
+                            this.ShowError(this.Localize("AliYun.CannotAddService"), this.Localize("Error.Internal"));
+                        });
+                    }
+                }
+                else
+                {
+                    InvokeOnMainThread(() => {
+                        hud.Hide(true);
+                        this.ShowError(this.Localize("Error.Authentication"), this.Localize("AliYun.Unauthorized"));
+                    });
+                }
             });
         }
     }

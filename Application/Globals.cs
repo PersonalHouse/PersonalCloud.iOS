@@ -11,7 +11,7 @@ namespace NSPersonalCloud.DarwinMobile
     public static class Globals
     {
         public static ILoggerFactory Loggers { get; internal set; }
-        public static SandboxedFileSystem FileSystem { get; internal set; }
+        public static Zio.IFileSystem FileSystem { get; internal set; }
         public static SQLiteConnection Database { get; internal set; }
         public static AppleDataStorage Storage { get; internal set; }
         public static PCLocalService CloudManager { get; internal set; }

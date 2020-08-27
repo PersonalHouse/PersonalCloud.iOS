@@ -2,12 +2,10 @@ using System;
 
 using Foundation;
 
-using NSPersonalCloud;
-
-using UIKit;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
+
+using UIKit;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -79,13 +77,13 @@ namespace NSPersonalCloud.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 1)
             {
                 var invalidCharHit = false;
-                foreach (var character in VirtualFileSystem.InvalidCharacters)
+                foreach (var character in Consts.InvalidCharacters)
                 {
                     if (deviceName?.Contains(character) == true) invalidCharHit = true;
                 }
                 if (string.IsNullOrWhiteSpace(deviceName) || invalidCharHit)
                 {
-                    this.ShowAlert(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
+                    this.ShowError(this.Localize("Settings.BadDeviceName"), this.Localize("Settings.NoSpecialCharacters"));
                     return;
                 }
 
