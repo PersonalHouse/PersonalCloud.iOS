@@ -268,7 +268,17 @@ namespace NSPersonalCloud.DarwinMobile
             _ = Globals.BackupWorker.Init();
             Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "1");
 
-            AppDelegate.SetupFS(true);
+            AppDelegate.SetupFS(Globals.Database.CheckSetting(UserSettings.EnableSharing, "1"));
+            Globals.CloudManager.FileSystem = Globals.FileSystem;
+            try
+            {
+                Globals.CloudManager.StopNetwork();
+                Globals.CloudManager.StartNetwork(true);
+            }
+            catch
+            {
+                // Ignored.
+            }
         }
 
         private void TurnOffPhotoSharing()
@@ -277,13 +287,16 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.BackupWorker = null;
             Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "0");
 
-            if (Globals.Database.CheckSetting(UserSettings.EnableSharing, "1"))
+            AppDelegate.SetupFS(Globals.Database.CheckSetting(UserSettings.EnableSharing, "1"));
+            Globals.CloudManager.FileSystem = Globals.FileSystem;
+            try
             {
-                AppDelegate.SetupFS(true);
+                Globals.CloudManager.StopNetwork();
+                Globals.CloudManager.StartNetwork(true);
             }
-            else
+            catch
             {
-                AppDelegate.SetupFS(false);
+                // Ignored.
             }
         }
 
@@ -292,6 +305,16 @@ namespace NSPersonalCloud.DarwinMobile
             shareFiles = true;
             Globals.Database.SaveSetting(UserSettings.EnableSharing, "1");
             AppDelegate.SetupFS(true);
+            Globals.CloudManager.FileSystem = Globals.FileSystem;
+            try
+            {
+                Globals.CloudManager.StopNetwork();
+                Globals.CloudManager.StartNetwork(true);
+            }
+            catch
+            {
+                // Ignored.
+            }
             UIApplication.SharedApplication.IdleTimerDisabled = true;
         }
 
@@ -300,6 +323,16 @@ namespace NSPersonalCloud.DarwinMobile
             shareFiles = false;
             Globals.Database.SaveSetting(UserSettings.EnableSharing, "0");
             AppDelegate.SetupFS(false);
+            Globals.CloudManager.FileSystem = Globals.FileSystem;
+            try
+            {
+                Globals.CloudManager.StopNetwork();
+                Globals.CloudManager.StartNetwork(true);
+            }
+            catch
+            {
+                // Ignored.
+            }
             UIApplication.SharedApplication.IdleTimerDisabled = false;
         }
     }

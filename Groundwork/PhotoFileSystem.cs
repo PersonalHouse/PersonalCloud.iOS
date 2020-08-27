@@ -153,7 +153,7 @@ namespace Unishare.Apps.DarwinCore
                 var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
                 foreach (PHAssetCollection asset in collections)
                 {
-                    cacheDir.Add("/" + asset.LocalizedTitle, asset);
+                    cacheDir["/" + asset.LocalizedTitle] = asset;
 
                     var assets = PHAsset.FetchAssets(asset, null);
                     foreach (PHAsset photo in assets)
@@ -165,11 +165,11 @@ namespace Unishare.Apps.DarwinCore
 
                         if (original == null) continue;
 
-                        var dt = (DateTime) photo.CreationDate;
+                        var dt = photo.CreationDate.ToDateTime();
                         var dtstr = dt.ToLocalTime().ToString("yyyy-MM-dd HH_mm");
                         var filename = $"{dtstr} {original.OriginalFilename}";
-                        var up = (UPath) (Path.Combine(asset.LocalizedTitle, filename));
-                        cachePhoto.Add(up.ToAbsolute().ToString().ToUpperInvariant(), new PHPhotoItem { Col = asset, Asset = photo, Res = original });
+                        UPath up = Path.Combine(asset.LocalizedTitle, filename);
+                        cachePhoto[up.ToAbsolute().ToString().ToUpperInvariant()] = new PHPhotoItem { Col = asset, Asset = photo, Res = original };
 
                         var originalName = Path.GetFileNameWithoutExtension(original.OriginalFilename);
                         foreach (var resource in assetResources)
@@ -178,11 +178,11 @@ namespace Unishare.Apps.DarwinCore
                             if (string.IsNullOrEmpty(resource.OriginalFilename)) continue;
 
                             var extension = Path.GetExtension(resource.OriginalFilename) ?? string.Empty;
-                            var fileName = $"{dtstr} {originalName} ({resource.ResourceType.ToString("G")}){extension}";
+                            var fileName = $"{dtstr} {originalName} ({resource.ResourceType:G}){extension}";
 
-                            up = (UPath) (Path.Combine(asset.LocalizedTitle, fileName));
+                            up = Path.Combine(asset.LocalizedTitle, fileName);
 
-                            cachePhoto.Add(up.ToAbsolute().ToString().ToUpperInvariant(), new PHPhotoItem { Col = asset, Asset = photo, Res = resource });
+                            cachePhoto[up.ToAbsolute().ToString().ToUpperInvariant()] = new PHPhotoItem { Col = asset, Asset = photo, Res = resource };
                         }
                     }
                 }
@@ -197,6 +197,10 @@ namespace Unishare.Apps.DarwinCore
                     _cachePhoto = cachePhoto;
                     _bCached = true;
                 }
+
+            }
+            catch (Exception exception)
+            {
 
             }
             finally
