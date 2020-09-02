@@ -112,7 +112,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         public static void SetupFS(bool sharingEnabled)
         {
-            Zio.IFileSystem fs = null;
+            Zio.IFileSystem fs;
             var rootfs = new Zio.FileSystems.PhysicalFileSystem();
             Zio.IFileSystem fsfav;
             if (sharingEnabled)
@@ -127,7 +127,7 @@ namespace NSPersonalCloud.DarwinMobile
                 Globals.Database.CheckSetting(UserSettings.EnbalePhotoSharing, "1"))
             {
                 var mfs = new Zio.FileSystems.MountFileSystem(fsfav, true);
-                mfs.Mount("/"+Unishare.Apps.DarwinCore.PhotoFileSystem.FolderName, new Unishare.Apps.DarwinCore.PhotoFileSystem());
+                mfs.Mount("/" + Unishare.Apps.DarwinCore.PhotoFileSystem.FolderName, new Unishare.Apps.DarwinCore.PhotoFileSystem());
                 fs = mfs;
             }
             else
@@ -251,7 +251,7 @@ namespace NSPersonalCloud.DarwinMobile
             using var cts = new CancellationTokenSource();
             cts.CancelAfter(27 * 1000);
             var pathsegs = path.Split(new char[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
-            if (pathsegs?.Length>0)
+            if (pathsegs?.Length > 0)
             {
                 var rootnodetofind = pathsegs[0];
                 for (int i = 0; i < 1000; i++)
@@ -326,7 +326,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             try
             {
-                var items = await worker.StartBackup(cloud.RootFS, path,true).ConfigureAwait(false);
+                var items = await worker.StartBackup(cloud.RootFS, path, true).ConfigureAwait(false);
 
                 backgroundStatus = UIBackgroundFetchResult.NoData;
             }
