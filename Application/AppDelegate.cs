@@ -134,7 +134,7 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 fs = fsfav;
             }
-            Globals.FileSystem = fs;
+            Globals.SetupFS(fs);
         }
 
         [Export("application:didFinishLaunchingWithOptions:")]
