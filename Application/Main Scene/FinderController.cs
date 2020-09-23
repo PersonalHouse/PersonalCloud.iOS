@@ -77,13 +77,13 @@ namespace NSPersonalCloud.DarwinMobile
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
-            if (refreshNow) RefreshDirectory(this, EventArgs.Empty);
         }
 
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
             cloud.OnNodeChangedEvent += RefreshDevices;
+            RefreshDirectory(this, EventArgs.Empty);
         }
 
         public override void ViewDidDisappear(bool animated)
@@ -614,6 +614,7 @@ namespace NSPersonalCloud.DarwinMobile
                 try
                 {
                     var files = await fileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
+                    System.Diagnostics.Debug.WriteLine($"fileSystem.EnumerateChildrenAsync return {files.Count}");
                     items = files.SortDirectoryFirstByName().ToList();
                     InvokeOnMainThread(() => {
                         hud.Hide(true);
