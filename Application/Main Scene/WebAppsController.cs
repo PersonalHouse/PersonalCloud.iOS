@@ -17,6 +17,27 @@ namespace NSPersonalCloud.DarwinMobile
 
         private List<AppLauncher> apps;
 
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+            var cloud = Globals.CloudManager.PersonalClouds[0];
+            if (cloud!=null)
+            {
+                cloud.OnNodeChangedEvent += RefreshAppsInternal;
+                RefreshAppsInternal(this, null);
+            }
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            base.ViewDidDisappear(animated);
+            var cloud = Globals.CloudManager.PersonalClouds[0];
+            if (cloud != null)
+            {
+                cloud.OnNodeChangedEvent -= RefreshAppsInternal;
+            }
+        }
+
         #region Lifecycle
 
         public override void ViewDidLoad()
@@ -24,7 +45,11 @@ namespace NSPersonalCloud.DarwinMobile
             base.ViewDidLoad();
             RefreshControl = new UIRefreshControl();
             RefreshControl.ValueChanged += RefreshApps;
-            apps = Globals.CloudManager.PersonalClouds[0].Apps;
+            apps = Globals.CloudManager?.PersonalClouds[0]?.Apps;
+            if (apps == null)
+            {
+                apps = new List<AppLauncher>();
+            }
         }
         #endregion
 
@@ -87,8 +112,20 @@ namespace NSPersonalCloud.DarwinMobile
 
         private void RefreshApps(object sender, EventArgs e)
         {
-            apps = Globals.CloudManager.PersonalClouds[0].Apps;
-            TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
+            RefreshAppsInternal(sender, e);
+            RefreshControl.EndRefreshing();
+        }
+        private void RefreshAppsInternal(object sender, EventArgs e)
+        {
+            apps = Globals.CloudManager?.PersonalClouds[0]?.Apps;
+            if (apps == null)
+            {
+                apps = new List<AppLauncher>();
+            }
+            InvokeOnMainThread(() => {
+                TableView.ReloadData();
+                //TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic);
+            });
         }
     }
 }

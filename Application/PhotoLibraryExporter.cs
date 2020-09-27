@@ -98,7 +98,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
         }
 
-        public async Task<bool> CopyToDestination(PHAsset photo, string destPath, IFileSystem fileSystem)
+        public async Task<bool> CopyToDestination(PHAsset photo, string destPath, IFileSystem fileSystem,DateTime ft)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace NSPersonalCloud.DarwinMobile
                 }
                 var fs = new FileStream(origfilepath,FileMode.Open,FileAccess.Read);
 
-                return await CopyToDestination(fs, destPath, fileSystem).ConfigureAwait(false);
+                return await CopyToDestination(fs, destPath, fileSystem, ft).ConfigureAwait(false);
 
             }
             catch (Exception)
@@ -120,7 +120,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308", Justification = "Lookup requires lowercase.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
-        public async Task<bool> CopyToDestination(PLAsset photo, string destPath, IFileSystem fileSystem)
+        public async Task<bool> CopyToDestination(PLAsset photo, string destPath, IFileSystem fileSystem,DateTime filetime)
         {
             try
             {
@@ -154,22 +154,9 @@ namespace NSPersonalCloud.DarwinMobile
                 });
                 await tcs.Task.ConfigureAwait(false);
 
-                try
-                {
-                    await fileSystem.RenameAsync(destTmpFile, destPath).ConfigureAwait(false);
-                }
-                catch
-                {
-                    try
-                    {
-                        await fileSystem.RenameAsync(destTmpFile, destPath + $".RenameFailed").ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                    }
-                    return false;
-                }
-                return true;
+
+                return await RenameDestinationFile(fileSystem, destTmpFile, destPath, filetime).ConfigureAwait(false);
+
 
             }
             catch (Exception)
@@ -178,8 +165,38 @@ namespace NSPersonalCloud.DarwinMobile
             }
         }
 
+        private async Task<bool> RenameDestinationFile(IFileSystem fileSystem, string origname, string newname, DateTime filetime)
+        {
+            var finalpath = newname;
+            try
+            {
+                await fileSystem.RenameAsync(origname, finalpath).ConfigureAwait(false);
+            }
+            catch
+            {
+                try
+                {
+                    var guid = Guid.NewGuid().ToString("N");
+                    finalpath = newname + $".{guid}.{Path.GetExtension(newname)}";
+                    await fileSystem.RenameAsync(origname, finalpath).ConfigureAwait(false);
+                }
+                catch
+                {
+                }
+            }
 
-        private async Task<bool> CopyToDestination(Stream fs, string destPath, IFileSystem fileSystem)
+            try
+            {
+                await fileSystem.SetFileTimeAsync(finalpath, filetime, filetime, filetime).ConfigureAwait(false);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private async Task<bool> CopyToDestination(Stream fs, string destPath, IFileSystem fileSystem,DateTime filetime)
         {
             try
             {
@@ -220,23 +237,7 @@ namespace NSPersonalCloud.DarwinMobile
                         Console.WriteLine(fs.Length);
                     }
                 }
-
-                try
-                {
-                    await fileSystem.RenameAsync(destTmpFile, destPath).ConfigureAwait(false);
-                }
-                catch
-                {
-                    try
-                    {
-                        await fileSystem.RenameAsync(destTmpFile, destPath + $".RenameFailed").ConfigureAwait(false);
-                    }
-                    catch
-                    {
-                    }
-                    return false;
-                }
-                return true;
+                return await RenameDestinationFile(fileSystem, destTmpFile, destPath, filetime).ConfigureAwait(false);
 
             }
             catch (Exception)
@@ -258,6 +259,8 @@ namespace NSPersonalCloud.DarwinMobile
                 FileStream zipStream = null;
                 SinglePhotoPackage package = null;
 
+                var ft = photo.CreationDate;
+
                 package = new SinglePhotoPackage(photo);
 
                 if (photo.Resources.Count>1)
@@ -274,7 +277,7 @@ namespace NSPersonalCloud.DarwinMobile
 
                         zipStream.Seek(0, SeekOrigin.Begin);
                         var destZipFile = Path.Combine(remotePath, Path.GetFileNameWithoutExtension(photo.FileName) + ".PLAsset");
-                        if (!await CopyToDestination(zipStream, destZipFile, fileSystem).ConfigureAwait(false))
+                        if (!await CopyToDestination(zipStream, destZipFile, fileSystem, ft).ConfigureAwait(false))
                         {
                             return false;
                         }
@@ -284,14 +287,14 @@ namespace NSPersonalCloud.DarwinMobile
                     var destOriginalFile = Path.Combine(remotePath, photo.FileName);
                     if(background && (photo.Size>30L*1024*1024))
                     {
-                        if (!await CopyToDestination(photo.Asset, destOriginalFile, fileSystem).ConfigureAwait(false))
+                        if (!await CopyToDestination(photo.Asset, destOriginalFile, fileSystem,ft).ConfigureAwait(false))
                         {
                             return false;
                         }
                     }
                     else
                     {
-                        if (!await CopyToDestination(photo, destOriginalFile, fileSystem).ConfigureAwait(false))
+                        if (!await CopyToDestination(photo, destOriginalFile, fileSystem,ft).ConfigureAwait(false))
                         {
                             return false;
                         }

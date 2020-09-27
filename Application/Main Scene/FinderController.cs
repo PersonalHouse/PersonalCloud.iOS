@@ -74,10 +74,6 @@ namespace NSPersonalCloud.DarwinMobile
             GoHome(this, EventArgs.Empty);
         }
 
-        public override void ViewWillAppear(bool animated)
-        {
-            base.ViewWillAppear(animated);
-        }
 
         public override void ViewDidAppear(bool animated)
         {

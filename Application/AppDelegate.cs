@@ -49,13 +49,13 @@ namespace NSPersonalCloud.DarwinMobile
             SQLitePCL.Batteries_V2.Init();
             var appVersion = application.GetBundleVersion();
 
-            AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
             Globals.Loggers = new LoggerFactory().AddSentry(config => {
                 config.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@o209874.ingest.sentry.io/5174354";
                 config.Environment = "iOS";
                 config.Release = appVersion;
             });
             logger = Globals.Loggers.CreateLogger<AppDelegate>();
+            AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
 
 
             var databasePath = Path.Combine(Paths.SharedLibrary, "Preferences.sqlite3");
