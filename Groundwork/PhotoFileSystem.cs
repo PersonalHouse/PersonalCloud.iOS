@@ -264,7 +264,7 @@ namespace Unishare.Apps.DarwinCore
                     return FileAttributes.Normal;
                 }
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 return FileAttributes.Directory;
             }
@@ -290,7 +290,7 @@ namespace Unishare.Apps.DarwinCore
                     return fi?.Asset.CreationDate?.ToDateTime() ?? DateTime.UtcNow;
                 }
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 return DateTime.Now;
             }
@@ -319,7 +319,7 @@ namespace Unishare.Apps.DarwinCore
                     return fi?.Asset.ModificationDate?.ToDateTime() ?? DateTime.UtcNow;
                 }
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 return DateTime.Now;
             }
@@ -350,7 +350,7 @@ namespace Unishare.Apps.DarwinCore
                     return finfo.Length;
                 }
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 return 0;
             }
@@ -393,7 +393,7 @@ namespace Unishare.Apps.DarwinCore
                     return new FileStream(pa, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 }
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 return Stream.Null;
             }

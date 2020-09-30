@@ -177,7 +177,7 @@ namespace NSPersonalCloud.DarwinMobile
                 try
                 {
                     var guid = Guid.NewGuid().ToString("N");
-                    finalpath = newname + $".{guid}.{Path.GetExtension(newname)}";
+                    finalpath = newname + $".{guid}{Path.GetExtension(newname)}";
                     await fileSystem.RenameAsync(origname, finalpath).ConfigureAwait(false);
                 }
                 catch
@@ -191,7 +191,6 @@ namespace NSPersonalCloud.DarwinMobile
             }
             catch
             {
-                return false;
             }
             return true;
         }
