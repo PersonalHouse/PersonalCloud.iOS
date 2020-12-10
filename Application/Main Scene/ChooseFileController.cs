@@ -213,7 +213,7 @@ namespace NSPersonalCloud.DarwinMobile
                             var remotePath = Path.Combine(WorkingPath, fileName);
                             await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
                         }
-                        catch (Exception exception)
+                        catch (Exception )
                         {
                             failed += 1;
                         }

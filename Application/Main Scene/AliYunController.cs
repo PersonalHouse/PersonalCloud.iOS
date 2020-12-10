@@ -89,9 +89,11 @@ namespace NSPersonalCloud.DarwinMobile
         {
             var name = ServiceName.Text;
             var invalidCharHit = false;
-            foreach (var character in Consts.InvalidCharacters)
+            foreach (var character in PathConsts.InvalidCharacters)
             {
+#pragma warning disable CA1307 // Specify StringComparison
                 if (name?.Contains(character) == true) invalidCharHit = true;
+#pragma warning restore CA1307 // Specify StringComparison
             }
             if (string.IsNullOrEmpty(name) || invalidCharHit)
             {

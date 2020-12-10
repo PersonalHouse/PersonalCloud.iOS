@@ -43,7 +43,7 @@ namespace NSPersonalCloud.DarwinMobile
             var inviteCode = InviteCodeBox.Text;
 
             var invalidCharHit = false;
-            foreach (var character in Consts.InvalidCharacters)
+            foreach (var character in PathConsts.InvalidCharacters)
             {
                 if (deviceName?.Contains(character) == true) invalidCharHit = true;
             }

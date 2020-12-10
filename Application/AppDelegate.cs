@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,9 +15,6 @@ using Microsoft.Extensions.Logging;
 using NSPersonalCloud;
 
 using Photos;
-
-using Sentry;
-using Sentry.Protocol;
 
 using SQLite;
 
@@ -46,15 +43,21 @@ namespace NSPersonalCloud.DarwinMobile
         [Export("application:willFinishLaunchingWithOptions:")]
         public bool WillFinishLaunching(UIApplication application, NSDictionary launchOptions)
         {
-            SQLitePCL.Batteries_V2.Init();
-            var appVersion = application.GetBundleVersion();
+            //Sentry.SentrySdk.Init("https://d0a8d714e2984642a530aa7deaca3498@o209874.ingest.sentry.io/5174354");
 
             AppCenter.Start("60ed8f1c-4c08-4598-beef-c169eb0c2e53", typeof(Analytics), typeof(Crashes));
+            SQLitePCL.Batteries_V2.Init();
+            var appVersion = application.GetBundleVersion();
             Globals.Loggers = new LoggerFactory().AddSentry(config => {
                 config.Dsn = "https://d0a8d714e2984642a530aa7deaca3498@o209874.ingest.sentry.io/5174354";
                 config.Environment = "iOS";
                 config.Release = appVersion;
             });
+            logger = Globals.Loggers.CreateLogger<AppDelegate>();
+
+
+
+            Globals.Loggers = new LoggerFactory();
             logger = Globals.Loggers.CreateLogger<AppDelegate>();
 
 
@@ -134,7 +137,7 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 fs = fsfav;
             }
-            Globals.FileSystem = fs;
+            Globals.SetupFS(fs);
         }
 
         [Export("application:didFinishLaunchingWithOptions:")]
@@ -271,12 +274,12 @@ namespace NSPersonalCloud.DarwinMobile
         async Task BackgroundBackupImages()
         {
 
-            SentrySdk.AddBreadcrumb("Background App Refresh triggered.");
+            logger.LogTrace("Background App Refresh triggered.");
 
             var cloud = Globals.CloudManager.PersonalClouds?[0];
             if (cloud == null)
             {
-                SentrySdk.CaptureMessage("Backup triggered while no Personal Cloud configured.", SentryLevel.Error);
+                logger.LogError("Backup triggered while no Personal Cloud configured.");
                 backgroundStatus = UIBackgroundFetchResult.Failed;
                 return;
             }
@@ -284,7 +287,7 @@ namespace NSPersonalCloud.DarwinMobile
             var worker = Globals.BackupWorker;
             if (worker == null)
             {
-                SentrySdk.CaptureMessage("Photo sync worker not initialized.", SentryLevel.Error);
+                logger.LogError("Photo sync worker not initialized.");
                 backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }
@@ -296,8 +299,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
             catch (Exception exception)
             {
-                SentrySdk.CaptureMessage("Exception occurred while refreshing network status or waiting for response.", SentryLevel.Error);
-                SentrySdk.CaptureException(exception);
+                logger.LogError(exception,"Exception occurred while refreshing network status or waiting for response.");
                 backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }
@@ -306,7 +308,7 @@ namespace NSPersonalCloud.DarwinMobile
             var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
             if (string.IsNullOrEmpty(path))
             {
-                SentrySdk.CaptureMessage("Photo sync not configured.", SentryLevel.Error);
+                logger.LogError("Photo sync not configured.");
                 backgroundStatus = UIBackgroundFetchResult.Failed;
                 return;
             }
@@ -318,8 +320,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
             catch (Exception exception)
             {
-                SentrySdk.CaptureMessage("Exception occurred while wait for node appearing when backup photos.", SentryLevel.Error);
-                SentrySdk.CaptureException(exception);
+                logger.LogError(exception, "Exception occurred while wait for node appearing when backup photos.");
                 backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }

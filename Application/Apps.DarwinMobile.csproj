@@ -31,6 +31,9 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
+    <MtouchSdkVersion>
+    </MtouchSdkVersion>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -74,9 +77,12 @@
     <CodesignProvision>Personal Cloud Distribution (CN)</CodesignProvision>
     <LangVersion>latest</LangVersion>
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
+    <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
+    <MtouchSdkVersion>14.2</MtouchSdkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
     <AppExtensionDebugBundleId />
+    <LaunchForBackgroundFetch>false</LaunchForBackgroundFetch>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -424,7 +430,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="Main Scene\Consts.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="AppleDataStorage.cs" />

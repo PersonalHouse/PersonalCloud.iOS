@@ -14,3 +14,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Usage", "CA1801", Justification = "Callbacks have fixed parameters.", Scope = "module")]
 [assembly: SuppressMessage("Reliability", "CA2002:Do not lock on objects with weak identity", Justification = "<Pending>", Scope = "module")]
 [assembly: SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>", Scope = "module")]
+[assembly: SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "<Pending>", Scope = "module")]

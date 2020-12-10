@@ -49,27 +49,27 @@ namespace NSPersonalCloud.DarwinCore
                                             [Localizable(true)] string message = null, Action onDismiss = null)
         {
             var noMessage = string.IsNullOrEmpty(message);
-            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(noMessage ? 2 : 3.5)), onDismiss);
-            if (noMessage) SPAlert.PresentPreset(title, null, SPAlertPreset.Done);
-            else SPAlert.PresentPreset(title, message, SPAlertPreset.Done, 3);
+            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(2)), onDismiss);
+            if (noMessage) SPAlert.PresentPreset(title, null, SPAlertPreset.Done,2);
+            else SPAlert.PresentPreset(title, message, SPAlertPreset.Done, 2);
         }
 
         public static void ShowWarning(this UIViewController _, [Localizable(true)] string title,
                                        [Localizable(true)] string message = null, Action onDismiss = null)
         {
             var noMessage = string.IsNullOrEmpty(message);
-            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(noMessage ? 3.5 : 5.5)), onDismiss);
+            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(3)), onDismiss);
             if (noMessage) SPAlert.PresentPreset(title, null, SPAlertPreset.Warning, 3);
-            else SPAlert.PresentPreset(title, message, SPAlertPreset.Warning, 5);
+            else SPAlert.PresentPreset(title, message, SPAlertPreset.Warning, 3);
         }
 
         public static void ShowError(this UIViewController _, [Localizable(true)] string title,
                                      [Localizable(true)] string message = null, Action onDismiss = null)
         {
             var noMessage = string.IsNullOrEmpty(message);
-            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(noMessage ? 3.5 : 5.5)), onDismiss);
+            if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(3)), onDismiss);
             if (noMessage) SPAlert.PresentPreset(title, null, SPAlertPreset.Error, 3);
-            else SPAlert.PresentPreset(title, message, SPAlertPreset.Error, 5);
+            else SPAlert.PresentPreset(title, message, SPAlertPreset.Error, 3);
         }
 
         public static void ShowHelp(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message)

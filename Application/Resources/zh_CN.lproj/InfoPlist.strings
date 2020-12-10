@@ -9,3 +9,7 @@
 "CFBundleDisplayName" = "个人云";
 "NSCameraUsageDescription" = "扫描二维码需要访问“相机”";
 "NSPhotoLibraryUsageDescription" = "共享相簿需要访问“照片”";
+"NSPhotoLibraryAddUsageDescription" = "查看照片时，点击“分享”按钮并“存储图像”即可将照片保存到当前设备。";
+"NSContactsUsageDescription" = "为联系人指定头像可能需要访问“联系人”。";
+"NSLocationAlwaysUsageDescription" = "个人云可以通过位置改变事件触发设备间同步。当您选择“总是允许”时，iOS 会在您的定位发生重大变化时通知个人云同步数据；选择“仅使用期间”和“不允许”时，此功能不生效。";
+"NSLocationWhenInUseUsageDescription" = "个人云可以通过位置改变事件触发设备间同步。当您选择“总是允许”时，iOS 会在您的定位发生重大变化时通知个人云同步数据；选择“仅使用期间”和“不允许”时，此功能不生效。";

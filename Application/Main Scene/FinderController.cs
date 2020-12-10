@@ -74,16 +74,12 @@ namespace NSPersonalCloud.DarwinMobile
             GoHome(this, EventArgs.Empty);
         }
 
-        public override void ViewWillAppear(bool animated)
-        {
-            base.ViewWillAppear(animated);
-            if (refreshNow) RefreshDirectory(this, EventArgs.Empty);
-        }
 
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
             cloud.OnNodeChangedEvent += RefreshDevices;
+            RefreshDirectory(this, EventArgs.Empty);
         }
 
         public override void ViewDidDisappear(bool animated)

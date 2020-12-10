@@ -123,7 +123,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             var name = ServiceName.Text;
             var invalidCharHit = false;
-            foreach (var character in Consts.InvalidCharacters)
+            foreach (var character in PathConsts.InvalidCharacters)
             {
                 if (name?.Contains(character) == true) invalidCharHit = true;
             }
