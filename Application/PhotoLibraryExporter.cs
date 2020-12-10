@@ -8,14 +8,13 @@ using NSPersonalCloud.Interfaces.FileSystem;
 
 using Photos;
 
-using Sentry;
-using Sentry.Protocol;
-
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.DarwinCore.Models;
 using Foundation;
 using AVFoundation;
+using WebKit;
+using Microsoft.Extensions.Logging;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -23,12 +22,14 @@ namespace NSPersonalCloud.DarwinMobile
     {
         public Task<int> BackupTask { get; private set; }
         public Lazy<IReadOnlyList<PLAsset>> Photos { get; private set; }
+        public ILogger logger;
 
         public PhotoLibraryExporter()
         {
             Photos = new Lazy<IReadOnlyList<PLAsset>>(() => {
                 return GetPhotos();
             });
+            logger = Globals.Loggers.CreateLogger("PhotoLibraryExporter");
         }
 
         public async Task Init()
@@ -62,7 +63,7 @@ namespace NSPersonalCloud.DarwinMobile
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         public Task<int> StartBackup(IFileSystem fileSystem, string pathPrefix, bool background)
         {
-            SentrySdk.AddBreadcrumb("Starting photos backup job...");
+            logger.LogTrace("Starting photos backup job...");
             CreateBackupTask(fileSystem, pathPrefix, background);
             return BackupTask;
         }
@@ -250,7 +251,7 @@ namespace NSPersonalCloud.DarwinMobile
 
             try
             {
-                SentrySdk.AddBreadcrumb($"Backing up item: {photo.FileName}");
+                logger.LogTrace($"Backing up item: {photo.FileName}");
 
                 var zipFile = Path.Combine(Paths.Temporary, photo.FileName + ".zip");
                 File.Delete(zipFile);
@@ -303,8 +304,7 @@ namespace NSPersonalCloud.DarwinMobile
                 }
                 catch (Exception exception)
                 {
-                    SentrySdk.AddBreadcrumb($"Backup failed for item: {photo.FileName}", level: BreadcrumbLevel.Error);
-                    SentrySdk.CaptureException(exception);
+                    logger.LogError(exception, $"Backup failed for item: {photo.FileName}");
                 }finally
                 {
                     zipStream?.Dispose();
@@ -332,7 +332,7 @@ namespace NSPersonalCloud.DarwinMobile
                 try { await fileSystem.CreateDirectoryAsync(remotePath).ConfigureAwait(false); }
                 catch
                 {
-                    SentrySdk.AddBreadcrumb("Remote directory is inaccessible or already exists.");
+                    logger.LogTrace("Remote directory is inaccessible or already exists.");
                 }
 
                 try
@@ -341,7 +341,7 @@ namespace NSPersonalCloud.DarwinMobile
                 }
                 catch
                 {
-                    SentrySdk.AddBreadcrumb("Remote directory is inaccessible. Backup failed.", level: BreadcrumbLevel.Error);
+                    logger.LogError("Remote directory is inaccessible. Backup failed.");
                     throw;
                 }
 
@@ -355,7 +355,7 @@ namespace NSPersonalCloud.DarwinMobile
 
                 }
 
-                SentrySdk.AddBreadcrumb($"Backup finished: {failures.Count} failures.");
+                logger.LogError($"Backup finished: {failures.Count} failures.");
                 var difference = Photos.Value.Count - failures.Count;
 
                 lock (this)
@@ -367,8 +367,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
             catch (Exception exception)
             {
-                SentrySdk.CaptureMessage("Exception occurred when backup photos.", SentryLevel.Error);
-                SentrySdk.CaptureException(exception);
+                logger.LogError(exception,"Exception occurred when backup photos.");
                 throw;
             }
         }
@@ -378,7 +377,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (Photos.Value == null )
             {
-                SentrySdk.AddBreadcrumb("No photos to backup.");
+                logger.LogTrace("No photos to backup.");
                 BackupTask = Task.FromResult(0);
                 return;
             }

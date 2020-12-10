@@ -31,6 +31,9 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
+    <MtouchSdkVersion>
+    </MtouchSdkVersion>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -74,6 +77,8 @@
     <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
     <LangVersion>latest</LangVersion>
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
+    <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
+    <MtouchSdkVersion>14.2</MtouchSdkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
     <AppExtensionDebugBundleId />
