@@ -610,7 +610,6 @@ namespace NSPersonalCloud.DarwinMobile
                 try
                 {
                     var files = await fileSystem.EnumerateChildrenAsync(workingPath).ConfigureAwait(false);
-                    System.Diagnostics.Debug.WriteLine($"fileSystem.EnumerateChildrenAsync return {files.Count}");
                     items = files.SortDirectoryFirstByName().ToList();
                     InvokeOnMainThread(() => {
                         hud.Hide(true);

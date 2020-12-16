@@ -31,8 +31,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <LangVersion>latest</LangVersion>
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
-    <MtouchSdkVersion>
-    </MtouchSdkVersion>
+    <MtouchSdkVersion>14.2</MtouchSdkVersion>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
