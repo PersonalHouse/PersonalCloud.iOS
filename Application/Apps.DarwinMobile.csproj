@@ -73,7 +73,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <CodesignKey>Apple Distribution: Beijing Daoyehuo Technology Co.Ltd (N747QRT8C4)</CodesignKey>
-    <CodesignProvision>Personal Cloud Distribution</CodesignProvision>
+    <CodesignProvision>PC global</CodesignProvision>
     <LangVersion>latest</LangVersion>
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
@@ -529,6 +529,10 @@
     <Compile Include="Main Scene\AzureBlobController.Designer.cs">
       <DependentUpon>AzureBlobController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Main Scene\NewDevicePromptController.cs" />
+    <Compile Include="Main Scene\NewDevicePromptController.designer.cs">
+      <DependentUpon>NewDevicePromptController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Groundwork\Apps.DarwinCore.csproj">
@@ -578,6 +582,8 @@
       <Optimize>true</Optimize>
     </BundleResource>
     <BundleResource Include="Resources\zh_CN.lproj\Main.strings" />
+    <BundleResource Include="Resources\Base.lproj\NewDevicePromt.htm" />
+    <BundleResource Include="Resources\zh_CN.lproj\NewDevicePromt.htm" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
