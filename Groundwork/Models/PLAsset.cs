@@ -56,6 +56,10 @@ namespace NSPersonalCloud.DarwinCore.Models
 
         public void Refresh()
         {
+            if (Size != 0)//Refresh has been called
+            {
+                return;
+            }
             Version = 1;
 
             if (Asset == null && !string.IsNullOrEmpty(Id))
@@ -66,6 +70,7 @@ namespace NSPersonalCloud.DarwinCore.Models
                     IsAvailable = false;
                     return;
                 }
+                IsAvailable = true;
 
                 if (Type != (PLAssetType) Asset.MediaType) HasChanged = true;
                 Type = (PLAssetType) Asset.MediaType;

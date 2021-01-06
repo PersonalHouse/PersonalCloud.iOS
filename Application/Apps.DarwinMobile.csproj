@@ -63,6 +63,7 @@
     <LangVersion>latest</LangVersion>
     <CodesignProvision>VS: com.daoyehuo.UnishareTouch Development</CodesignProvision>
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
+    <MtouchSdkVersion>14.2</MtouchSdkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
