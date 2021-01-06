@@ -23,7 +23,7 @@ namespace NSPersonalCloud.DarwinCore.Models
         [Ignore, JsonIgnore]
         public bool HasChanged { get; set; }
 
-        [Ignore, JsonIgnore]
+        [Ignore, JsonIgnore]//Properties have been populated
         public bool IsAvailable { get; set; }
 
         [PrimaryKey]
@@ -54,56 +54,57 @@ namespace NSPersonalCloud.DarwinCore.Models
 
         public override int GetHashCode() => HashCode.Combine(Id);
 
-        public void Refresh()
+        public void PopulateProperties()
         {
+            if (IsAvailable)//Refresh has been called
+            {
+                return;
+            }
             Version = 1;
 
-            if (Asset == null && !string.IsNullOrEmpty(Id))
-            {
-                Asset = PHAsset.FetchAssetsUsingLocalIdentifiers(new[] { Id }, null).OfType<PHAsset>().FirstOrDefault();
-                if (Asset == null)
-                {
-                    IsAvailable = false;
-                    return;
-                }
+            // Couldn't find usage. Therefor comment out
+            //             if (Asset == null && !string.IsNullOrEmpty(Id))
+            //             {
+            //                 Asset = PHAsset.FetchAssetsUsingLocalIdentifiers(new[] { Id }, null).OfType<PHAsset>().FirstOrDefault();
+            //                 if (Asset == null)
+            //                 {
+            //                     IsAvailable = false;
+            //                     return;
+            //                 }
+            //                 IsAvailable = true;
+            // 
+            //                 if (Type != (PLAssetType) Asset.MediaType) HasChanged = true;
+            //                 Type = (PLAssetType) Asset.MediaType;
+            // 
+            //                 if (Tags != (PLAssetTags) Asset.MediaSubtypes) HasChanged = true;
+            //                 Tags = (PLAssetTags) Asset.MediaSubtypes;
+            // 
+            //                 var creation = Asset.CreationDate.ToDateTime();
+            //                 if (creation != CreationDate) HasChanged = true;
+            //                 CreationDate = creation;
+            // 
+            //                 var modification = Asset.ModificationDate.ToDateTime();
+            //                 if (modification != ModificationDate) HasChanged = true;
+            //                 ModificationDate = modification;
+            // 
+            //                 RefreshResources();
+            //                 Size = Resources?.Sum(x => x.UserInfoGetSize() ?? 0) ?? 0;
+            // 
+            //                 return;
+            //             }
 
-                if (Type != (PLAssetType) Asset.MediaType) HasChanged = true;
-                Type = (PLAssetType) Asset.MediaType;
 
-                if (Tags != (PLAssetTags) Asset.MediaSubtypes) HasChanged = true;
-                Tags = (PLAssetTags) Asset.MediaSubtypes;
+            Id = Asset.LocalIdentifier;
+            Type = (PLAssetType) Asset.MediaType;
+            Tags = (PLAssetTags) Asset.MediaSubtypes;
+            CreationDate = Asset.CreationDate.ToDateTime();
+            ModificationDate = Asset.ModificationDate.ToDateTime();
 
-                var creation = Asset.CreationDate.ToDateTime();
-                if (creation != CreationDate) HasChanged = true;
-                CreationDate = creation;
+            if (Resources == null || FileName == null) RefreshResources();
+            if (Size == 0) Size = Resources?.Sum(x => x.UserInfoGetSize() ?? 0) ?? 0;
 
-                var modification = Asset.ModificationDate.ToDateTime();
-                if (modification != ModificationDate) HasChanged = true;
-                ModificationDate = modification;
-
-                RefreshResources();
-                Size = Resources?.Sum(x => x.UserInfoGetSize() ?? 0) ?? 0;
-
-                return;
-            }
-
-            if (Id == null && Asset != null)
-            {
-                IsAvailable = true;
-
-                Id = Asset.LocalIdentifier;
-                Type = (PLAssetType) Asset.MediaType;
-                Tags = (PLAssetTags) Asset.MediaSubtypes;
-                CreationDate = Asset.CreationDate.ToDateTime();
-                ModificationDate = Asset.ModificationDate.ToDateTime();
-
-                if (Resources == null || FileName == null) RefreshResources();
-                if (Size == 0) Size = Resources?.Sum(x => x.UserInfoGetSize() ?? 0) ?? 0;
-
-                return;
-            }
-
-            IsAvailable = false;
+            IsAvailable = true;
+            return;
         }
 
         private void RefreshResources()

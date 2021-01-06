@@ -24,7 +24,7 @@ namespace NSPersonalCloud.DarwinMobile
         public SinglePhotoPackage(PHAsset photo)
         {
             Photo = new PLAsset { Asset = photo };
-            Photo.Refresh();
+            Photo.PopulateProperties();
         }
 
         public SinglePhotoPackage(PLAsset photo)

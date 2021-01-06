@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Foundation;
 
@@ -27,6 +28,14 @@ namespace Unishare.Apps.DarwinCore
             internal PHAssetCollection Col;
             internal PHAsset Asset;
             internal PHAssetResource Res;
+            internal Lazy<long> Length;
+            internal Lazy<string> Path;
+            internal string FillPath=>Asset.GetIOSFilePath().Result;
+            internal long FillLength()
+            {
+                var fi = new FileInfo(Path.Value);
+                return fi.Length;
+            }
         }
         private readonly ReaderWriterLockSlim _globalLock;
         private const string FileNameForFolderConfiguration = "desktop.ini";
@@ -139,6 +148,7 @@ namespace Unishare.Apps.DarwinCore
             }
         }
 
+
         protected void Internal_FillCache()
         {
             if (_bCached)
@@ -146,8 +156,15 @@ namespace Unishare.Apps.DarwinCore
                 return;
             }
             _globalLock.EnterWriteLock();
+
+
             try
             {
+                if (_bCached)
+                {
+                    return;
+                }
+
                 var cacheDir = new Dictionary<string, PHAssetCollection>();
                 var cachePhoto = new Dictionary<string, PHPhotoItem>();
                 var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
@@ -169,7 +186,15 @@ namespace Unishare.Apps.DarwinCore
                         var dtstr = dt.ToLocalTime().ToString("yyyy-MM-dd HH_mm");
                         var filename = $"{dtstr} {original.OriginalFilename}";
                         UPath up = Path.Combine(asset.LocalizedTitle, filename);
-                        cachePhoto[up.ToAbsolute().ToString().ToUpperInvariant()] = new PHPhotoItem { Col = asset, Asset = photo, Res = original };
+                        var item = new PHPhotoItem {
+                            Col = asset,
+                            Asset = photo,
+                            Res = original
+                        };
+                        item.Path = new Lazy<string>(item.FillPath);
+                        item.Length = new Lazy<long>(item.FillLength);
+
+                        cachePhoto[up.ToAbsolute().ToString().ToUpperInvariant()] = item;
 
                         var originalName = Path.GetFileNameWithoutExtension(original.OriginalFilename);
                         foreach (var resource in assetResources)
@@ -182,24 +207,32 @@ namespace Unishare.Apps.DarwinCore
 
                             up = Path.Combine(asset.LocalizedTitle, fileName);
 
-                            cachePhoto[up.ToAbsolute().ToString().ToUpperInvariant()] = new PHPhotoItem { Col = asset, Asset = photo, Res = resource };
+
+                            item = new PHPhotoItem {
+                                Col = asset,
+                                Asset = photo,
+                                Res = resource
+                            };
+                            item.Path = new Lazy<string>(item.FillPath);
+                            item.Length = new Lazy<long>(item.FillLength);
+
+                            cachePhoto[up.ToAbsolute().ToString().ToUpperInvariant()] = item;
                         }
                     }
                 }
 
-                lock (this)
-                {
-                    if (_bCached)
-                    {
-                        return;
-                    }
-                    _cacheDir = cacheDir;
-                    _cachePhoto = cachePhoto;
-                    _bCached = true;
-                }
-
+                _cacheDir = cacheDir;
+                _cachePhoto = cachePhoto;
+                _bCached = true;
+                Task.Run(() => {
+                    Parallel.ForEach(cachePhoto, new ParallelOptions { MaxDegreeOfParallelism = 2 * Environment.ProcessorCount },
+                        x => {
+                            _ = x.Value.Length.Value;
+                            _ = x.Value.Path.Value;
+                        });
+                });
             }
-            catch (Exception exception)
+            catch (Exception )
             {
 
             }
@@ -346,8 +379,7 @@ namespace Unishare.Apps.DarwinCore
                     {
                         return 0;
                     }
-                    var finfo = new FileInfo(fi.Asset.GetIOSFilePath().Result);
-                    return finfo.Length;
+                    return fi.Length.Value;
                 }
             }
             catch (Exception )
@@ -389,8 +421,7 @@ namespace Unishare.Apps.DarwinCore
                     {
                         return Stream.Null;
                     }
-                    var pa = fi.Asset.GetIOSFilePath().Result;
-                    return new FileStream(pa, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    return new FileStream(fi.Path.Value, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 }
             }
             catch (Exception )

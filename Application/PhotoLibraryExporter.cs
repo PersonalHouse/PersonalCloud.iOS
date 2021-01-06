@@ -27,7 +27,7 @@ namespace NSPersonalCloud.DarwinMobile
         public PhotoLibraryExporter()
         {
             Photos = new Lazy<IEnumerable<PLAsset>>(() => {
-                return GetPhotos();
+                return GetPhotosToBeBackedUp();
             });
             logger = Globals.Loggers.CreateLogger("PhotoLibraryExporter");
         }
@@ -38,7 +38,7 @@ namespace NSPersonalCloud.DarwinMobile
                 _ = Photos.Value;
             }).ConfigureAwait(false);
         }
-        static private IEnumerable<PLAsset> GetPhotos()
+        static private IEnumerable<PLAsset> GetPhotosToBeBackedUp()
         {
             if (PHPhotoLibrary.AuthorizationStatus != PHAuthorizationStatus.Authorized)
             {
@@ -48,7 +48,10 @@ namespace NSPersonalCloud.DarwinMobile
 
             var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
             var photos = collections.OfType<PHAssetCollection>().SelectMany(x => PHAsset.FetchAssets(x, null).OfType<PHAsset>().Select(x => {
-                var asset = new PLAsset { Asset = x };
+                var asset = new PLAsset {
+                    Asset = x,
+                    Id = x.LocalIdentifier
+                };
                 return asset;
             })).ToList();
 
@@ -58,7 +61,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
             foreach (var item in photos)
             {
-                item.Refresh();
+                item.PopulateProperties();
                 yield return item;
             }
             //return photos.AsReadOnly();
@@ -390,12 +393,12 @@ namespace NSPersonalCloud.DarwinMobile
                 BackupTask = Task.FromResult(0);
                 return;
             }
-            if (Photos.Value.Any())
+            if (!Photos.Value.Any())
             {
                 lock (this)
                 {
                     Photos = new Lazy<IEnumerable<PLAsset>>(() => {
-                        return GetPhotos();
+                        return GetPhotosToBeBackedUp();
                     });
                 }
 
