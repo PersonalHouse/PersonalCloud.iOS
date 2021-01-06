@@ -325,3 +325,12 @@
 
 /* Class = "UILabel"; text = "Endpoint or Extranet Endpoint"; ObjectID = "zSW-p9-pOV"; */
 "zSW-p9-pOV.text" = "域名或外网域名";
+
+/* Class = "UIButton"; normalTitle = "Add more devices"; ObjectID = "xpc-GD-UXt"; */
+"xpc-GD-UXt.normalTitle" = "添加更多设备/节点";
+
+/* Class = "UIBarButtonItem"; title = "Open website"; ObjectID = "fqK-fj-C8c"; */
+"fqK-fj-C8c.title" = "打开个人云主页";
+
+/* Class = "UIBarButtonItem"; title = "Cancel"; ObjectID = "6je-S6-IrE"; */
+"6je-S6-IrE.title" = "取消";

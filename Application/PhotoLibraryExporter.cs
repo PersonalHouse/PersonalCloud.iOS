@@ -21,12 +21,12 @@ namespace NSPersonalCloud.DarwinMobile
     public class PhotoLibraryExporter
     {
         public Task<int> BackupTask { get; private set; }
-        public Lazy<IReadOnlyList<PLAsset>> Photos { get; private set; }
+        public Lazy<IEnumerable<PLAsset>> Photos { get; private set; }
         public ILogger logger;
 
         public PhotoLibraryExporter()
         {
-            Photos = new Lazy<IReadOnlyList<PLAsset>>(() => {
+            Photos = new Lazy<IEnumerable<PLAsset>>(() => {
                 return GetPhotos();
             });
             logger = Globals.Loggers.CreateLogger("PhotoLibraryExporter");
@@ -38,18 +38,17 @@ namespace NSPersonalCloud.DarwinMobile
                 _ = Photos.Value;
             }).ConfigureAwait(false);
         }
-        static private IReadOnlyList<PLAsset> GetPhotos()
+        static private IEnumerable<PLAsset> GetPhotos()
         {
             if (PHPhotoLibrary.AuthorizationStatus != PHAuthorizationStatus.Authorized)
             {
-                return null;
+                yield break;
+                //return null;
             }
 
             var collections = PHAssetCollection.FetchAssetCollections(PHAssetCollectionType.SmartAlbum, PHAssetCollectionSubtype.SmartAlbumUserLibrary, null);
-            var photos = collections.OfType<PHAssetCollection>().SelectMany(x => PHAsset.FetchAssets(x, null).OfType<PHAsset>().Select(x =>
-            {
+            var photos = collections.OfType<PHAssetCollection>().SelectMany(x => PHAsset.FetchAssets(x, null).OfType<PHAsset>().Select(x => {
                 var asset = new PLAsset { Asset = x };
-                asset.Refresh();
                 return asset;
             })).ToList();
 
@@ -57,7 +56,12 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 if (photos.Contains(asset)) photos.Remove(asset);
             }
-            return photos.AsReadOnly();
+            foreach (var item in photos)
+            {
+                item.Refresh();
+                yield return item;
+            }
+            //return photos.AsReadOnly();
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
@@ -73,13 +77,13 @@ namespace NSPersonalCloud.DarwinMobile
         async Task WriteToDest(byte[] bytes, long datawritten, long datalen, string path, IFileSystem fileSystem)
         {
 
-            using var ms = new MemoryStream(bytes,0, (int)datalen);
+            using var ms = new MemoryStream(bytes, 0, (int) datalen);
             for (int i = 0; i < 3; i++)
             {
                 try
                 {
                     ms.Seek(0, SeekOrigin.Begin);
-                    if (datawritten==0)
+                    if (datawritten == 0)
                     {
                         await fileSystem.WriteFileAsync(path, ms).ConfigureAwait(false);
                     }
@@ -99,7 +103,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
         }
 
-        public async Task<bool> CopyToDestination(PHAsset photo, string destPath, IFileSystem fileSystem,DateTime ft)
+        public async Task<bool> CopyToDestination(PHAsset photo, string destPath, IFileSystem fileSystem, DateTime ft)
         {
             try
             {
@@ -108,7 +112,7 @@ namespace NSPersonalCloud.DarwinMobile
                 {
                     return false;
                 }
-                var fs = new FileStream(origfilepath,FileMode.Open,FileAccess.Read);
+                var fs = new FileStream(origfilepath, FileMode.Open, FileAccess.Read);
 
                 return await CopyToDestination(fs, destPath, fileSystem, ft).ConfigureAwait(false);
 
@@ -121,7 +125,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1308", Justification = "Lookup requires lowercase.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
-        public async Task<bool> CopyToDestination(PLAsset photo, string destPath, IFileSystem fileSystem,DateTime filetime)
+        public async Task<bool> CopyToDestination(PLAsset photo, string destPath, IFileSystem fileSystem, DateTime filetime)
         {
             try
             {
@@ -196,7 +200,7 @@ namespace NSPersonalCloud.DarwinMobile
             return true;
         }
 
-        private async Task<bool> CopyToDestination(Stream fs, string destPath, IFileSystem fileSystem,DateTime filetime)
+        private async Task<bool> CopyToDestination(Stream fs, string destPath, IFileSystem fileSystem, DateTime filetime)
         {
             try
             {
@@ -263,7 +267,7 @@ namespace NSPersonalCloud.DarwinMobile
 
                 package = new SinglePhotoPackage(photo);
 
-                if (photo.Resources.Count>1)
+                if (photo.Resources.Count > 1)
                 {
                     zipStream = new FileStream(zipFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                 }
@@ -271,7 +275,7 @@ namespace NSPersonalCloud.DarwinMobile
 
                 try
                 {
-                    if (zipStream!=null)
+                    if (zipStream != null)
                     {
                         package.WriteArchive(zipStream);
 
@@ -283,18 +287,18 @@ namespace NSPersonalCloud.DarwinMobile
                         }
                     }
 
-                    
+
                     var destOriginalFile = Path.Combine(remotePath, photo.FileName);
-                    if(background && (photo.Size>30L*1024*1024))
+                    if (background && (photo.Size > 30L * 1024 * 1024))
                     {
-                        if (!await CopyToDestination(photo.Asset, destOriginalFile, fileSystem,ft).ConfigureAwait(false))
+                        if (!await CopyToDestination(photo.Asset, destOriginalFile, fileSystem, ft).ConfigureAwait(false))
                         {
                             return false;
                         }
                     }
                     else
                     {
-                        if (!await CopyToDestination(photo, destOriginalFile, fileSystem,ft).ConfigureAwait(false))
+                        if (!await CopyToDestination(photo, destOriginalFile, fileSystem, ft).ConfigureAwait(false))
                         {
                             return false;
                         }
@@ -305,7 +309,8 @@ namespace NSPersonalCloud.DarwinMobile
                 catch (Exception exception)
                 {
                     logger.LogError(exception, $"Backup failed for item: {photo.FileName}");
-                }finally
+                }
+                finally
                 {
                     zipStream?.Dispose();
                 }
@@ -314,7 +319,8 @@ namespace NSPersonalCloud.DarwinMobile
                 {
                     File.Delete(zipFile);
                 }
-                catch {// Ignored.
+                catch
+                {// Ignored.
                 }
                 return true;
             }
@@ -345,29 +351,32 @@ namespace NSPersonalCloud.DarwinMobile
                     throw;
                 }
 
-                var failures = new List<PLAsset>(Photos.Value.Count);
+                var failures = new List<PLAsset>();
+                int backedupcount = 0;
                 foreach (var photo in Photos.Value)
                 {
-                    if(await BackupOneImage(photo, remotePath, fileSystem, background).ConfigureAwait(false) == false)
+                    if (await BackupOneImage(photo, remotePath, fileSystem, background).ConfigureAwait(false) == false)
                     {
                         failures.Add(photo);
+                    }else
+                    {
+                        ++backedupcount;
                     }
 
                 }
 
                 logger.LogError($"Backup finished: {failures.Count} failures.");
-                var difference = Photos.Value.Count - failures.Count;
 
                 lock (this)
                 {
-                    Photos = new Lazy<IReadOnlyList<PLAsset>>(failures.AsReadOnly());
+                    Photos = new Lazy<IEnumerable<PLAsset>>(failures.AsReadOnly());
                 }
 
-                return difference;
+                return backedupcount;
             }
             catch (Exception exception)
             {
-                logger.LogError(exception,"Exception occurred when backup photos.");
+                logger.LogError(exception, "Exception occurred when backup photos.");
                 throw;
             }
         }
@@ -375,25 +384,24 @@ namespace NSPersonalCloud.DarwinMobile
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303", Justification = "Logging needs no localization.")]
         private void CreateBackupTask(IFileSystem fileSystem, string pathPrefix, bool background)
         {
-            if (Photos.Value == null )
+            if (Photos.Value == null)
             {
                 logger.LogTrace("No photos to backup.");
                 BackupTask = Task.FromResult(0);
                 return;
             }
-            if (Photos.Value.Count == 0)
+            if (Photos.Value.Any())
             {
                 lock (this)
                 {
-                    Photos = new Lazy<IReadOnlyList<PLAsset>>(() => {
+                    Photos = new Lazy<IEnumerable<PLAsset>>(() => {
                         return GetPhotos();
                     });
                 }
 
             }
 
-            BackupTask = Task.Run(async () =>
-            {
+            BackupTask = Task.Run(async () => {
                 return await Backup(pathPrefix, fileSystem, background).ConfigureAwait(false);
             });
         }

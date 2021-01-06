@@ -7,6 +7,7 @@ using Foundation;
 using UIKit;
 using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.DarwinCore.Models;
+using System.Linq;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -19,12 +20,12 @@ namespace NSPersonalCloud.DarwinMobile
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            photos = Globals.BackupWorker?.Photos.Value;
+            photos = Globals.BackupWorker?.Photos.Value.ToList();
             if ((photos == null)|| (photos.Count==0))
             {
                 Task.Run(() => {
                     Globals.BackupWorker = new PhotoLibraryExporter();
-                    photos = Globals.BackupWorker.Photos.Value;
+                    photos = Globals.BackupWorker.Photos.Value.ToList();
                     InvokeOnMainThread(() => TableView.ReloadSections(new NSIndexSet(0), UITableViewRowAnimation.Automatic));
                 });
 
