@@ -176,7 +176,7 @@ namespace NSPersonalCloud.DarwinMobile
             try
             {
                 networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
-                Globals.CloudManager?.StartNetwork(false);
+                Globals.CloudManager?.NetworkMayChanged(false);
             }
             catch
             {
@@ -293,16 +293,16 @@ namespace NSPersonalCloud.DarwinMobile
             }
 
 
-            try
-            {
-                Globals.CloudManager.NetworkRefeshNodes();
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception,"Exception occurred while refreshing network status or waiting for response.");
-                backgroundStatus = UIBackgroundFetchResult.NoData;
-                return;
-            }
+//             try
+//             {
+//                 Globals.CloudManager.NetworkMayChanged(false);
+//             }
+//             catch (Exception exception)
+//             {
+//                 logger.LogError(exception,"Exception occurred while refreshing network status or waiting for response.");
+//                 backgroundStatus = UIBackgroundFetchResult.NoData;
+//                 return;
+//             }
 
 
             var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
@@ -344,7 +344,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (name != Notifications.NetworkChange) return;
 
-            try { Globals.CloudManager?.StartNetwork(false); }
+            try { Globals.CloudManager?.NetworkMayChanged(true); }
             catch { } // Ignored.            
         }
     }

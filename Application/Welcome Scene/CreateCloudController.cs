@@ -63,7 +63,7 @@ namespace NSPersonalCloud.DarwinMobile
             Task.Run(async () => {
                 try
                 {
-                    await Globals.CloudManager.CreatePersonalCloud(cloudName, deviceName).ConfigureAwait(false);
+                    Globals.CloudManager.CreatePersonalCloud(cloudName, deviceName);
                     Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                     InvokeOnMainThread(() => {
                         hud.Hide(true);

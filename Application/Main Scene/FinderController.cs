@@ -586,8 +586,8 @@ namespace NSPersonalCloud.DarwinMobile
                 NavigationItem.SetLeftBarButtonItem(HelpItem, true);
                 NavigationItem.SetRightBarButtonItems(new[] { AddDeviceItem }, true);
 
-                try { Globals.CloudManager.StartNetwork(false); }
-                catch { } // Ignored.
+//                 try { Globals.CloudManager.StartNetwork(false); }
+//                 catch { } // Ignored.
             }
             else
             {
