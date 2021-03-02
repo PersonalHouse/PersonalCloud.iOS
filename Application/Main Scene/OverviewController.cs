@@ -272,7 +272,7 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.CloudManager.FileSystem = Globals.FileSystem;
             try
             {
-                Globals.CloudManager.TellNetworkIveChanged();
+                Globals.CloudManager.BroadcastingIveChanged();
             }
             catch
             {
@@ -290,7 +290,7 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.CloudManager.FileSystem = Globals.FileSystem;
             try
             {
-                Globals.CloudManager.TellNetworkIveChanged();
+                Globals.CloudManager.BroadcastingIveChanged();
             }
             catch
             {
@@ -306,7 +306,7 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.CloudManager.FileSystem = Globals.FileSystem;
             try
             {
-                Globals.CloudManager.TellNetworkIveChanged();
+                Globals.CloudManager.BroadcastingIveChanged();
             }
             catch
             {
@@ -323,7 +323,7 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.CloudManager.FileSystem = Globals.FileSystem;
             try
             {
-                Globals.CloudManager.TellNetworkIveChanged();
+                Globals.CloudManager.BroadcastingIveChanged();
             }
             catch
             {

@@ -92,7 +92,7 @@ namespace NSPersonalCloud.DarwinMobile
                 Globals.Database.SaveSetting(UserSettings.DeviceName, deviceName);
                 try
                 {
-                    Globals.CloudManager.TellNetworkIveChanged();
+                    Globals.CloudManager.BroadcastingIveChanged();
                 }
                 catch
                 {
