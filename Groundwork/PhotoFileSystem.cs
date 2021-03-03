@@ -30,7 +30,7 @@ namespace Unishare.Apps.DarwinCore
             internal PHAssetResource Res;
             internal Lazy<long> Length;
             internal Lazy<string> Path;
-            internal string FillPath=>Asset.GetIOSFilePath().Result;
+            internal string FillPath => Asset.GetIOSFilePath().Result;
             internal long FillLength()
             {
                 var fi = new FileInfo(Path.Value);
@@ -89,16 +89,9 @@ namespace Unishare.Apps.DarwinCore
             EnterFileSystemShared();
             try
             {
-                if (path == UPath.Root)
-                {
-                    return true;
-                }
-                else
-                {
-                    var npath = path.ToString().ToUpperInvariant();
-                    var res = _cachePhoto.Any(x => (x.Key.IndexOf(npath) == 0) && (x.Key.Length != npath.Length));
-                    return res;
-                }
+                var npath = path.ToString().ToUpperInvariant();
+                var res = _cachePhoto.Any(x => (x.Key.IndexOf(npath) == 0) && (x.Key.Length != npath.Length));
+                return res;
             }
             finally
             {
@@ -148,7 +141,6 @@ namespace Unishare.Apps.DarwinCore
             }
         }
 
-
         protected void Internal_FillCache()
         {
             if (_bCached)
@@ -156,7 +148,6 @@ namespace Unishare.Apps.DarwinCore
                 return;
             }
             _globalLock.EnterWriteLock();
-
 
             try
             {
@@ -232,9 +223,9 @@ namespace Unishare.Apps.DarwinCore
                         });
                 });
             }
-            catch (Exception )
+            catch (Exception e)
             {
-
+                Console.WriteLine(e.Message);
             }
             finally
             {
@@ -244,20 +235,17 @@ namespace Unishare.Apps.DarwinCore
 
         protected override bool FileExistsImpl(UPath path)
         {
+            if (path == UPath.Root)
+            {
+                return true;
+            }
             Internal_FillCache();
             EnterFileSystemShared();
             try
             {
-                if (path == UPath.Root)
-                {
-                    return true;
-                }
-                else
-                {
-                    var npath = path.ToString().ToUpperInvariant();
-                    var res = _cachePhoto.Any(x => x.Key == npath);
-                    return res;
-                }
+                var npath = path.ToString().ToUpperInvariant();
+                var res = _cachePhoto.Any(x => x.Key == npath);
+                return res;
             }
             finally
             {
@@ -283,21 +271,18 @@ namespace Unishare.Apps.DarwinCore
 
         protected override FileAttributes GetAttributesImpl(UPath path)
         {
+            if (path == UPath.Root)
+            {
+                return FileAttributes.Directory;
+            }
             Internal_FillCache();
             EnterFileSystemShared();
             try
             {
-                if (path == UPath.Root)
-                {
-                    return FileAttributes.Directory;
-                }
-                else
-                {
-                    var fi = GetFileInfo(path);
-                    return FileAttributes.Normal;
-                }
+                var fi = GetFileInfo(path);
+                return FileAttributes.Normal;
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return FileAttributes.Directory;
             }
@@ -309,21 +294,18 @@ namespace Unishare.Apps.DarwinCore
 
         protected override DateTime GetCreationTimeImpl(UPath path)
         {
+            if (path == UPath.Root)
+            {
+                return DateTime.Now;
+            }
             Internal_FillCache();
             EnterFileSystemShared();
             try
             {
-                if (path == UPath.Root)
-                {
-                    return DateTime.Now;
-                }
-                else
-                {
-                    var fi = GetFileInfo(path);
-                    return fi?.Asset.CreationDate?.ToDateTime() ?? DateTime.UtcNow;
-                }
+                var fi = GetFileInfo(path);
+                return fi?.Asset.CreationDate?.ToDateTime() ?? DateTime.UtcNow;
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return DateTime.Now;
             }
@@ -338,21 +320,18 @@ namespace Unishare.Apps.DarwinCore
         }
         protected override DateTime GetLastWriteTimeImpl(UPath path)
         {
+            if (path == UPath.Root)
+            {
+                return DateTime.Now;
+            }
             Internal_FillCache();
             EnterFileSystemShared();
             try
             {
-                if (path == UPath.Root)
-                {
-                    return DateTime.Now;
-                }
-                else
-                {
-                    var fi = GetFileInfo(path);
-                    return fi?.Asset.ModificationDate?.ToDateTime() ?? DateTime.UtcNow;
-                }
+                var fi = GetFileInfo(path);
+                return fi?.Asset.ModificationDate?.ToDateTime() ?? DateTime.UtcNow;
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return DateTime.Now;
             }
@@ -364,25 +343,22 @@ namespace Unishare.Apps.DarwinCore
 
         protected override long GetFileLengthImpl(UPath path)
         {
+            if (path == UPath.Root)
+            {
+                return 0;
+            }
             Internal_FillCache();
             EnterFileSystemShared();
             try
             {
-                if (path == UPath.Root)
+                var fi = GetFileInfo(path);
+                if (fi?.Asset == null)
                 {
                     return 0;
                 }
-                else
-                {
-                    var fi = GetFileInfo(path);
-                    if (fi?.Asset == null)
-                    {
-                        return 0;
-                    }
-                    return fi.Length.Value;
-                }
+                return fi.Length.Value;
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return 0;
             }
@@ -406,25 +382,22 @@ namespace Unishare.Apps.DarwinCore
 
         protected override Stream OpenFileImpl(UPath path, FileMode mode, FileAccess access, FileShare share)
         {
+            if (path == UPath.Root)
+            {
+                throw new NotImplementedException("Not support open root folder");
+            }
             Internal_FillCache();
             EnterFileSystemShared();
             try
             {
-                if (path == UPath.Root)
+                var fi = GetFileInfo(path);
+                if (fi?.Asset == null)
                 {
-                    throw new NotImplementedException("Not support open root folder");
+                    return Stream.Null;
                 }
-                else
-                {
-                    var fi = GetFileInfo(path);
-                    if (fi?.Asset == null)
-                    {
-                        return Stream.Null;
-                    }
-                    return new FileStream(fi.Path.Value, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                }
+                return new FileStream(fi.Path.Value, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             }
-            catch (Exception )
+            catch (Exception)
             {
                 return Stream.Null;
             }

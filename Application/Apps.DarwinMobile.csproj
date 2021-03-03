@@ -65,6 +65,7 @@
     <NoWarn>CS1701;CS1702;MT0109</NoWarn>
     <MtouchSdkVersion>
     </MtouchSdkVersion>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
