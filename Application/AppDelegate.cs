@@ -220,7 +220,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             try
             {
-                var tdelay = Task.Delay(25 * 1000);
+                var tdelay = Task.Delay(21 * 1000);
                 backgroundStatus = UIBackgroundFetchResult.NewData;
                 if (currentBackupTask == null)
                 {
@@ -241,7 +241,7 @@ namespace NSPersonalCloud.DarwinMobile
                 logger.LogError(e, "PerformFetch");
                 try
                 {
-                    completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+                    completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
                 }
                 catch
                 {
@@ -291,18 +291,6 @@ namespace NSPersonalCloud.DarwinMobile
                 backgroundStatus = UIBackgroundFetchResult.NoData;
                 return;
             }
-
-
-//             try
-//             {
-//                 Globals.CloudManager.NetworkMayChanged(false);
-//             }
-//             catch (Exception exception)
-//             {
-//                 logger.LogError(exception,"Exception occurred while refreshing network status or waiting for response.");
-//                 backgroundStatus = UIBackgroundFetchResult.NoData;
-//                 return;
-//             }
 
 
             var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
