@@ -269,15 +269,6 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "1");
 
             AppDelegate.SetupFS(Globals.Database.CheckSetting(UserSettings.EnableSharing, "1"));
-            Globals.CloudManager.FileSystem = Globals.FileSystem;
-            try
-            {
-                Globals.CloudManager.BroadcastingIveChanged();
-            }
-            catch
-            {
-                // Ignored.
-            }
         }
 
         private void TurnOffPhotoSharing()
@@ -287,15 +278,6 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.Database.SaveSetting(UserSettings.EnbalePhotoSharing, "0");
 
             AppDelegate.SetupFS(Globals.Database.CheckSetting(UserSettings.EnableSharing, "1"));
-            Globals.CloudManager.FileSystem = Globals.FileSystem;
-            try
-            {
-                Globals.CloudManager.BroadcastingIveChanged();
-            }
-            catch
-            {
-                // Ignored.
-            }
         }
 
         private void TurnOnFileSharing()
@@ -303,15 +285,6 @@ namespace NSPersonalCloud.DarwinMobile
             shareFiles = true;
             Globals.Database.SaveSetting(UserSettings.EnableSharing, "1");
             AppDelegate.SetupFS(true);
-            Globals.CloudManager.FileSystem = Globals.FileSystem;
-            try
-            {
-                Globals.CloudManager.BroadcastingIveChanged();
-            }
-            catch
-            {
-                // Ignored.
-            }
             UIApplication.SharedApplication.IdleTimerDisabled = true;
         }
 
@@ -320,15 +293,6 @@ namespace NSPersonalCloud.DarwinMobile
             shareFiles = false;
             Globals.Database.SaveSetting(UserSettings.EnableSharing, "0");
             AppDelegate.SetupFS(false);
-            Globals.CloudManager.FileSystem = Globals.FileSystem;
-            try
-            {
-                Globals.CloudManager.BroadcastingIveChanged();
-            }
-            catch
-            {
-                // Ignored.
-            }
             UIApplication.SharedApplication.IdleTimerDisabled = false;
         }
     }
