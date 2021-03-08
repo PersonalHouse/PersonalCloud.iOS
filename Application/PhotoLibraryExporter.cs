@@ -239,10 +239,6 @@ namespace NSPersonalCloud.DarwinMobile
                     }
                     await WriteToDest(buf, datawritten, read, destTmpFile, fileSystem).ConfigureAwait(false);
                     datawritten += read;
-                    if (datawritten >= 1642070016L)
-                    {
-                        Console.WriteLine(fs.Length);
-                    }
                 }
                 return await RenameDestinationFile(fileSystem, destTmpFile, destPath, filetime).ConfigureAwait(false);
 

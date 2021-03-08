@@ -21,8 +21,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (CloudManager != null)
             {
                 CloudManager.FileSystem = _FileSystem;
-                CloudManager.StopNetwork();
-                CloudManager.StartNetwork(true);
+                CloudManager.BroadcastingIveChanged();
             }
         }
 

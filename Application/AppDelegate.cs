@@ -176,7 +176,7 @@ namespace NSPersonalCloud.DarwinMobile
             try
             {
                 networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
-                Globals.CloudManager?.StartNetwork(false);
+                Globals.CloudManager?.NetworkMayChanged(false);
             }
             catch
             {
@@ -220,7 +220,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             try
             {
-                var tdelay = Task.Delay(25 * 1000);
+                var tdelay = Task.Delay(21 * 1000);
                 backgroundStatus = UIBackgroundFetchResult.NewData;
                 if (currentBackupTask == null)
                 {
@@ -241,7 +241,7 @@ namespace NSPersonalCloud.DarwinMobile
                 logger.LogError(e, "PerformFetch");
                 try
                 {
-                    completionHandler?.Invoke(UIBackgroundFetchResult.NewData);
+                    completionHandler?.Invoke(UIBackgroundFetchResult.Failed);
                 }
                 catch
                 {
@@ -293,18 +293,6 @@ namespace NSPersonalCloud.DarwinMobile
             }
 
 
-            try
-            {
-                Globals.CloudManager.NetworkRefeshNodes();
-            }
-            catch (Exception exception)
-            {
-                logger.LogError(exception,"Exception occurred while refreshing network status or waiting for response.");
-                backgroundStatus = UIBackgroundFetchResult.NoData;
-                return;
-            }
-
-
             var path = Globals.Database.LoadSetting(UserSettings.PhotoBackupPrefix);
             if (string.IsNullOrEmpty(path))
             {
@@ -344,7 +332,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (name != Notifications.NetworkChange) return;
 
-            try { Globals.CloudManager?.StartNetwork(false); }
+            try { Globals.CloudManager?.NetworkMayChanged(true); }
             catch { } // Ignored.            
         }
     }
