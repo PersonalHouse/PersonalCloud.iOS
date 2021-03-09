@@ -11,9 +11,9 @@
 	<key>CFBundleName</key>
 	<string>Personal Cloud</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.9</string>
+	<string>2.9.1</string>
 	<key>CFBundleVersion</key>
-	<string>197</string>
+	<string>198</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleLocalizations</key>
