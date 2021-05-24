@@ -108,7 +108,7 @@
       <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Analytics">
-      <Version>4.1.0</Version>
+      <Version>4.2.0</Version>
     </PackageReference>
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3">
       <Version>2.0.4</Version>
@@ -117,7 +117,7 @@
       <Version>1.7.335</Version>
     </PackageReference>
     <PackageReference Include="Humanizer.Core">
-      <Version>2.8.26</Version>
+      <Version>2.10.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging">
       <Version>5.0.0</Version>
@@ -126,13 +126,13 @@
       <Version>4.3.0</Version>
     </PackageReference>
     <PackageReference Include="Sentry">
-      <Version>3.0.7</Version>
+      <Version>3.3.4</Version>
     </PackageReference>
     <PackageReference Include="Sentry.Extensions.Logging">
-      <Version>3.0.7</Version>
+      <Version>3.3.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AppCenter.Crashes">
-      <Version>4.1.0</Version>
+      <Version>4.2.0</Version>
     </PackageReference>
     <PackageReference Include="Ricardo.MBProgressHUD.iOS">
       <Version>1.1.0</Version>

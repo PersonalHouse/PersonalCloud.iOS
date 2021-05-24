@@ -4,8 +4,14 @@ This project contains Personal Cloud mobile app for iOS.
 
 ## Get Started
 
-### Configure GitHub Authentication for NuGet Package Manager
+### Quick start for restoring nuget packages
+Run the following command line
+```xml
+dotnet nuget add source "https://nuget.pkg.github.com/PersonalHouse/index.json" -n "PersonalHouseGitHub"  --store-password-in-clear-text  -u Github_User_Name  -p GITHUB_TOKEN
+```
 
+
+### Configure GitHub Authentication for NuGet Package Manager
 All packages published by us, in which some of them are referenced by this project, are hosted on GitHub.
 
 Because GitHub does not yet allow anonymous access to package feeds, you need to either:
