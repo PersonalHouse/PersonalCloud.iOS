@@ -239,4 +239,4 @@
 "Favorites.BadFolder" = "此文件夹已被删除或内容异常。";
 "Favorites.Importing" = "正在导入……";
 
-"Apps.NoWebApps" = "无云端应用";
+"Apps.NoWebApps" = "请在计算机上配置相册App";
