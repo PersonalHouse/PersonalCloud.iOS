@@ -65,17 +65,25 @@
       <Name>PersonalCloud</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <PackageReference Include="BTProgressHUD">
+      <Version>1.3.2</Version>
+    </PackageReference>
     <PackageReference Include="sqlite-net-base">
       <Version>1.7.335</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
-    <PackageReference Include="PCPersonalCloud.SPAlert">
-      <Version>2.1.4.3</Version>
-    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Images\Done.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Images\Error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Images\Exclamation.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

@@ -11,7 +11,7 @@ namespace NSPersonalCloud.DarwinMobile
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            SelectedIndex = 2;
+            SelectedIndex = 0;
         }
     }
 }

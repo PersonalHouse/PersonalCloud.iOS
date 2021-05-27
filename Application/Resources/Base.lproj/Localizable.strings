@@ -35,7 +35,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Error.RemoteHTTP.429" = "Remote was busy. The operation could not be completed in time.";
 "Error.RemoteHTTP.500" = "Remote reported an internal error. Please restart Personal Cloud or contact support.";
 "Error.RemoteHTTP.501" = "This operation was not supported.";
-"Error.Download" = "Unable to Download This Item";
+"Error.Download" = "Unable to download this item";
 "Error.IOConflict" = "An I/O conflict occurred. Try again.";
 "Error.NewFolder" = "Unable to Create New Folder";
 "Error.Rename" = "Unable to Rename This Item";
@@ -43,7 +43,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Error.Delete" = "Unable to Delete This Item";
 "Error.Upload" = "Unable to Upload This Item";
 "Error.Timeout" = "Timeout occurred while communicating with remote.";
-"Error.RefreshDirectory" = "Unable to Load This Folder";
+"Error.RefreshDirectory" = "Unable to load this folder";
 "Error.OldVersion.Short" = "App Version Mismatch";
 "Error.OldVersion.Long" = "A device in your Personal Cloud reported an app version higher than the one installed on this device. Please upgrade from App Store in order to connect to other devices.";
 "Error.Internal" = "An internal error occurred. Try again.";
@@ -58,7 +58,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Permission.BackgroundRefresh" = "Personal Cloud cannot use Background App Refresh. Auto Photo Backup will be turned off.\n\nPlease go to \"Settings\" > \"General\" > \"Background App Refresh\" and turn on Personal Cloud.\n\nWhen your device is under restrictions or in Low Power Mode, you cannot change Background App Refresh settings or use this feature.";
 
 "Help.Finder" = "Browse Other Devices";
-"Help.BrowseInFinder" = "When a device is connected to local network and launches Personal Cloud app, their shared files will show up here.\n\nTap to open a folder or files. Swipe for see more actions. Use top right buttons to create folder or upload files.\n\nYou should use Favorites tab or Files.app to manage shared files on this device.";
+"Help.BrowseInFinder" = "When a device is connected to local network and launches Personal Cloud app, their shared files will show up here.\n\nTap to open a folder or files. Swipe for see more actions. Use top right buttons to create folder or upload files.\n\nYou could use Apple Files app to share files between Persona House app and other apps.";
 "Help.SelectPath" = "Browse to a desired location and tap \"Save\".";
 "Help.Favorites" = "Manage Local Files";
 "Help.ManageFavorites" = "Swipe a file in Cloud tab to reveal the \"Favorite\" action.\n\nFavorited items are stored on this device for offline use.\n\nWhen connected to a local network, Favorites are shared with other devices.";
@@ -89,11 +89,10 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Finder.GoBack" = "Back";
 "Finder.ReturnTo.Formattable" = "return to folder \"{0}\"";
 "Finder.CurrentDirectory" = "Current Directory";
-"Finder.Favorite" = "Favorite";
-"Finder.AddedToFavorite" = "Added to Favorites";
-"Finder.ItemAddedToFavorite.Formattable" = "\"{0}\" has been added to Favorites.";
-"Finder.ReplaceLocalFavorite" = "Replace Local Favorite?";
-"Finder.ReplaceFavoriteAlternatives.Formattable" = "A local favorite with the same name \"{0}\" already exists. If you add this item to Favorites, the old one will be overwritten.\n\nIf you’d like to keep both copies, go to Favorites and rename the old item.";
+"Finder.Favorite" = "Download";
+"Finder.ItemAddedToFavorite.Formattable" = "\"{0}\" has been added to this device.";
+"Finder.ReplaceLocalFavorite" = "Replace files with same name?";
+"Finder.ReplaceFavoriteAlternatives.Formattable" = "A local file with the same name \"{0}\" already exists. If you continue, the old one will be overwritten.\n\nIf you’d like to keep both copies, go to \"This device\" and rename the old item.";
 "Finder.Replace" = "Replace";
 "Finder.DownloadOversizedFile" = "Download Oversized Item?";
 "Finder.SizeOver100MB" = "This item may be over 100 MB. It may take a long time to transfer this item.";
@@ -121,7 +120,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Finder.BadFolderName" = "Bad Folder Name";
 "Finder.MakingNewFolder" = "Creating...";
 "Finder.UploadOpenPhotos" = "Choose from Photos";
-"Finder.UploadPickFromFavorites" = "Choose from Favorites";
+"Finder.UploadPickFromFavorites" = "Choose from this device";
 "Finder.UploadOpenFilesApp" = "Choose from Files.app";
 "Finder.SelectOneFileOnly" = "Select One File Only";
 "Finder.ConcurrentUploadNotSupported" = "Concurrent upload is not supported in this version.";
@@ -132,10 +131,12 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Finder.Uploaded.Formattable" = "Uploaded {0} File(s)";
 "Finder.SelectionCleared" = "Previous Selections Were Cleared";
 "Finder.SelectionCleared.PathChange" = "Multi-select does not work across folders.\n\nConfirm your selection before switching folders, and make new selections again.";
+"Finder.MyComputer" = "This device";
+
 
 "Backup.FileType" = "photo backup archive";
 "Backup.RestoreFromPLAsset" = "Restore From Backup";
-"Backup.DownloadBeforeRestore.Formattable" = "\"{0}\" contains restorable photos.\n\nBefore restoring from this backup, you must add this item to Favorites first. Swipe to reveal the \"Favorite\" action.";
+"Backup.DownloadBeforeRestore.Formattable" = "\"{0}\" contains restorable photos.\n\nBefore restoring from this backup, you must download this item to this device first. Swipe to reveal the \"Download\" action.";
 "Backup.RestoreThisPhoto.Formattable" = "\"{0}\" contains restorable photos. Restoring from this backup does not affect existing photos in your library.\n\nDo you want to restore from this backup now?";
 "Backup.Restore" = "Restore";
 "Backup.Restored" = "Restore Success";
@@ -231,12 +232,12 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "SelectPath.BadPath" = "Invalid Location";
 "SelectPath.ChooseADevice" = "Unable to save to this location. Please choose a different device.";
 
-"Favorites.Title" = "Favorites";
+"Favorites.Title" = "This device";
 "Favorites.Hint" = "Tap (?) for help.";
-"Favorites.Root" = "Favorites/";
+"Favorites.Root" = "This device/";
 "Favorites.DeleteFile" = "Delete Favorite Item?";
 "Favorites.DeleteContents.Formattable" = "\"{0}\" will be permanently deleted from your device.\n\nIf this item is a folder or package, all of its contents are also deleted.";
 "Favorites.BadFolder" = "This folder has already been moved or deleted.";
 "Favorites.Importing" = "Importing...";
 
-"Apps.NoWebApps" = "Configure Album App on a desktop computer.";
+"Apps.NoWebApps" = "Configure photo album App on a desktop computer.";
