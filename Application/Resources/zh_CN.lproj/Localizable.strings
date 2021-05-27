@@ -58,7 +58,7 @@
 "Permission.BackgroundRefresh" = "个人云无法使用“后台 App 刷新”，定时备份已自动关闭。\n\n请前往“设置” > “通用” > “后台 App 刷新”并打开“个人云”。如果您的设备已打开“访问限制”或处于“低电量模式”，后台 App 刷新将不工作。";
 
 "Help.Finder" = "管理其它设备上的文件";
-"Help.BrowseInFinder" = "同一网络内其它设备上的个人云 App 运行时，您可以直接管理其共享的文件。\n\n点击一台设备以查看其共享文件夹。左右轻扫文件或文件夹以执行删除等操作。使用屏幕顶部右侧的按钮创建新文件夹或上传新文件。\n\n要管理此设备上本地收藏的文件，请前往“本地收藏”页或打开系统“文件” App；不推荐在此页面访问本设备上的共享文件夹。";
+"Help.BrowseInFinder" = "同一网络内其它设备上的个人云 App 运行时，您可以直接管理其共享的文件。\n\n点击一台设备以查看其共享文件夹。左右轻扫文件或文件夹以执行删除等操作。使用屏幕顶部右侧的按钮创建新文件夹或上传新文件。\n\n您亦可以在系统“文件” App中访问个人云此设备的文件。";
 "Help.SelectPath" = "点击“保存”将使用此文件夹。如果要使用子文件夹，请打开子文件夹后点击“保存”。";
 "Help.Favorites" = "使用本地收藏管理共享文件";
 "Help.ManageFavorites" = "查看个人云中其它设备上的文件时，您可以向右轻扫某个文件将其“收藏”，此文件将被保存至本地收藏。\n\n本地收藏存储在这台设备上，使您可以在不连接其它设备的情况下查看和编辑。\n\n连接个人云中其它设备后，本地收藏的文件将在其它设备上可见，您也可以将文件上传至其它设备。";
@@ -89,11 +89,10 @@
 "Finder.GoBack" = "返回上层";
 "Finder.ReturnTo.Formattable" = "后退至“{0}”";
 "Finder.CurrentDirectory" = "当前所在目录";
-"Finder.Favorite" = "收藏";
-"Finder.AddedToFavorite" = "已收藏";
-"Finder.ItemAddedToFavorite.Formattable" = "“{0}”已加入收藏夹。";
+"Finder.Favorite" = "下载";
+"Finder.ItemAddedToFavorite.Formattable" = "“{0}”已下载到此设备。";
 "Finder.ReplaceLocalFavorite" = "替换本地同名文件？";
-"Finder.ReplaceFavoriteAlternatives.Formattable" = "本地收藏中已存在同名文件“{0}”，收藏新文件将替换旧文件。\n\n如果您想要同时保留新、旧收藏，请在本地收藏管理页面手动重命名冲突的文件。";
+"Finder.ReplaceFavoriteAlternatives.Formattable" = "本地设备中已存在同名文件“{0}”，收藏新文件将替换旧文件。\n\n如果您想要同时保留新、旧文件，请在本地设备手动重命名冲突的文件。";
 "Finder.Replace" = "替换";
 "Finder.DownloadOversizedFile" = "立即下载此文件？";
 "Finder.SizeOver100MB" = "此文件尚未下载并且大小可能超过 100 MB，下载将需要一段时间。";
@@ -121,7 +120,7 @@
 "Finder.BadFolderName" = "文件夹名称无效";
 "Finder.MakingNewFolder" = "正在创建……";
 "Finder.UploadOpenPhotos" = "上传相册照片";
-"Finder.UploadPickFromFavorites" = "上传本地收藏文件";
+"Finder.UploadPickFromFavorites" = "上传本地文件";
 "Finder.UploadOpenFilesApp" = "上传其它 App 的文件";
 "Finder.SelectOneFileOnly" = "仅支持单文件上传";
 "Finder.ConcurrentUploadNotSupported" = "当前版本只能同时上传 1 个文件。";
@@ -132,10 +131,11 @@
 "Finder.Uploaded.Formattable" = "成功上传 {0} 个文件";
 "Finder.SelectionCleared" = "已选项目被取消";
 "Finder.SelectionCleared.PathChange" = "不支持跨文件夹多选。\n\n如果需要上传来自不同文件夹的文件，请先选择位于同一文件夹的文件，完成上传后再前往其它文件夹。";
+"Finder.MyComputer" = "此设备";
 
 "Backup.FileType" = "相册备份归档";
 "Backup.RestoreFromPLAsset" = "恢复相册备份";
-"Backup.DownloadBeforeRestore.Formattable" = "“{0}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。\n\n请轻扫并点击“收藏”以将此备份下载到本地，然后前往“本地收藏”恢复此备份。";
+"Backup.DownloadBeforeRestore.Formattable" = "“{0}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。\n\n请轻扫并点击“下载”以将此备份下载到本地，然后前往“此设备”恢复此备份。";
 "Backup.RestoreThisPhoto.Formattable" = "“{0}”是个人云相册备份文件，包含可供导入本机相册的照片或视频。\n\n您可以立即恢复此备份，相册中目前所有照片均不会受到影响。";
 "Backup.Restore" = "恢复备份";
 "Backup.Restored" = "相册备份恢复成功";
@@ -231,12 +231,12 @@
 "SelectPath.BadPath" = "存储位置无效";
 "SelectPath.ChooseADevice" = "无法将数据存储在当前位置，请至少选择一台设备。";
 
-"Favorites.Title" = "本地收藏";
+"Favorites.Title" = "此设备";
 "Favorites.Hint" = "如需了解详情，请使用“帮助”按钮。";
-"Favorites.Root" = "本地收藏/";
+"Favorites.Root" = "此设备/";
 "Favorites.DeleteFile" = "删除此项收藏？";
 "Favorites.DeleteContents.Formattable" = "将从本地收藏中删除“{0}”。\n\n如果此项收藏是文件夹或包，其中的内容将被一同删除。";
 "Favorites.BadFolder" = "此文件夹已被删除或内容异常。";
 "Favorites.Importing" = "正在导入……";
 
-"Apps.NoWebApps" = "无云端应用";
+"Apps.NoWebApps" = "请在计算机上配置相册App";

@@ -13,7 +13,6 @@ using UIKit;
 
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
-using PCPersonalCloud;
 using Ricardo.RMBProgressHUD.iOS;
 
 namespace NSPersonalCloud.DarwinMobile
@@ -112,7 +111,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (indexPath.Section == 0 && indexPath.Row == 0 && depth != 0)
             {
                 var pathString = string.Join(" » ", directory.FullName.Replace(Paths.Favorites, this.Localize("Favorites.Root")).Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                SPAlert.PresentCustom(this.Localize("Finder.CurrentDirectory") + Environment.NewLine + pathString, SPAlertHaptic.None);
+                this.ShowMsg(this.Localize("Finder.CurrentDirectory") + Environment.NewLine + pathString);
                 return;
             }
         }

@@ -12,8 +12,6 @@ using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.FileSharing.Aliyun;
 
-using PCPersonalCloud;
-
 using Ricardo.RMBProgressHUD.iOS;
 
 using UIKit;
@@ -95,8 +93,7 @@ namespace NSPersonalCloud.DarwinMobile
                         return;
                     }
                 }
-
-                SPAlert.PresentPreset(this.Localize("Online.ClipboardNoData"), this.Localize("Online.PasteManually"), SPAlertPreset.Warning);
+                this.ShowWarning(this.Localize("Online.ClipboardNoData"), this.Localize("Online.PasteManually"));
                 return;
             }
 

@@ -17,8 +17,6 @@ using NSPersonalCloud.Interfaces.Errors;
 using NSPersonalCloud.Interfaces.FileSystem;
 using NSPersonalCloud.RootFS;
 
-using PCPersonalCloud;
-
 using Photos;
 
 using Ricardo.RMBProgressHUD.iOS;
@@ -161,18 +159,30 @@ namespace NSPersonalCloud.DarwinMobile
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 if (item.IsDirectory)
                 {
-                    if (item.Attributes.HasFlag(FileAttributes.Device)) cell.Update(item.Name, new UTI(UTType.Directory), this.Localize("Finder.Device"));
-                    else cell.Update(item.Name, new UTI(UTType.Directory));
+                    if (item.Attributes.HasFlag(FileAttributes.Device))
+                    {
+                        var acc = this.Localize("Finder.Device");
+                        if (item is TopFileSystemEntry t)
+                        {
+                            if (t.NodeId == Globals.CloudManager.NodeId)
+                            {
+                                t.DisplayName = this.Localize("Finder.MyComputer");
+                                acc = t.Name;
+                            }
+                        }
+                        cell.Update(item.DisplayName, new UTI(UTType.Directory),acc);
+                    }
+                    else cell.Update(item.DisplayName, new UTI(UTType.Directory));
                     cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
                 }
                 else if (item.Size.HasValue)
                 {
-                    cell.Update(item.Name, item.Size.Value);
+                    cell.Update(item.DisplayName, item.Size.Value);
                     cell.Accessory = UITableViewCellAccessory.None;
                 }
                 else
                 {
-                    cell.Update(item.Name);
+                    cell.Update(item.DisplayName);
                     cell.Accessory = UITableViewCellAccessory.None;
                 }
                 return cell;
@@ -190,7 +200,7 @@ namespace NSPersonalCloud.DarwinMobile
             if (workingPath.Length != 1 && indexPath.Section == 0 && indexPath.Row == 0)
             {
                 var pathString = string.Join(" » ", workingPath.Split(Path.AltDirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
-                SPAlert.PresentCustom(this.Localize("Finder.CurrentDirectory") + Environment.NewLine + pathString, SPAlertHaptic.None);
+                this.ShowMsg(this.Localize("Finder.CurrentDirectory") + Environment.NewLine + pathString);
                 return;
             }
         }
@@ -289,7 +299,7 @@ namespace NSPersonalCloud.DarwinMobile
 
                         var filePath = Path.Combine(Paths.Favorites, item.Name);
                         PreparePlaceholder(item, filePath, url => {
-                            this.ShowConfirmation(this.Localize("Finder.AddedToFavorite"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
+                            this.ShowConfirmation(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
                         }, exception => {
                             if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
                             else this.ShowError(this.Localize("Error.Download"), exception.GetType().Name);
@@ -956,8 +966,14 @@ namespace NSPersonalCloud.DarwinMobile
                 InvokeOnMainThread(() => {
                     hud.Hide(true);
                     RefreshDirectory(this, EventArgs.Empty);
-                    SPAlert.PresentPreset(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null,
-                        failed == 0 ? SPAlertPreset.Done : SPAlertPreset.Warning);
+                    if (failed==0)
+                    {
+                        this.ShowConfirmation(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed));
+                    }
+                    else
+                    {
+                        this.ShowWarning(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed));
+                    }
                 });
             });
         }
