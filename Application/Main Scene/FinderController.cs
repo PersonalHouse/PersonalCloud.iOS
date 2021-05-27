@@ -302,7 +302,7 @@ namespace NSPersonalCloud.DarwinMobile
                             this.ShowConfirmation(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
                         }, exception => {
                             if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
-                            else this.ShowError(this.Localize("Error.Download")+ exception.GetType().Name);
+                            else this.ShowError(this.Localize("Error.Download"), exception.GetType().Name);
                         });
                     });
                     download.BackgroundColor = Colors.OrangeFlag;
@@ -355,7 +355,7 @@ namespace NSPersonalCloud.DarwinMobile
                 var download = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, this.Localize("Finder.Favorite"), (action, view, handler) => {
                     handler?.Invoke(true);
                     PreparePlaceholder(item, Path.Combine(Paths.Favorites, item.Name), url => {
-                        this.ShowConfirmation(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
+                        this.ShowConfirmation(this.Localize("Finder.AddedToFavorite"), string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.ItemAddedToFavorite.Formattable"), item.Name));
                     }, exception => {
                         if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
                         else this.ShowError(this.Localize("Error.Download"), exception.GetType().Name);
