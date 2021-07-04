@@ -33,7 +33,7 @@
 "88p-54-0dv.normalTitle" = "创建个人云";
 
 /* Class = "UINavigationItem"; title = "Choose from Favorites"; ObjectID = "8eP-Rv-tpI"; */
-"8eP-Rv-tpI.title" = "选择收藏文件";
+"8eP-Rv-tpI.title" = "选择本地文件";
 
 /* Class = "UILabel"; text = "Endpoint URI or Endpoint Suffix (required)"; ObjectID = "9IY-bK-KN9"; */
 "9IY-bK-KN9.text" = "Endpoint URI 或 Endpoint Suffix（必填）";
@@ -57,7 +57,7 @@
 "DBr-Pg-pnM.placeholder" = "例如：core.windows.net";
 
 /* Class = "UINavigationItem"; title = "Favorites"; ObjectID = "DIg-4k-bnV"; */
-"DIg-4k-bnV.title" = "本地收藏";
+"DIg-4k-bnV.title" = "本地文件";
 
 /* Class = "UILabel"; text = "888.88 MB"; ObjectID = "DVG-6e-Prw"; */
 "DVG-6e-Prw.text" = "示例";
@@ -237,7 +237,7 @@
 "gEa-pf-rED.placeholder" = "例如：container0";
 
 /* Class = "UITabBarItem"; title = "Favorites"; ObjectID = "gbc-MP-ucz"; */
-"gbc-MP-ucz.title" = "本地收藏";
+"gbc-MP-ucz.title" = "本地文件";
 
 /* Class = "UILabel"; text = "File Name"; ObjectID = "grL-5N-ObT"; */
 "grL-5N-ObT.text" = "标题";

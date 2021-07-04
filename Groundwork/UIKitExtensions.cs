@@ -60,7 +60,7 @@ namespace NSPersonalCloud.DarwinCore
             var noMessage = string.IsNullOrEmpty(message);
             if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(to)), onDismiss);
 
-            BigTed.BTProgressHUD.ShowImage(UIImage.FromFile("Images/Done.png"), title +" "+ message, to * 1000);
+            BigTed.BTProgressHUD.ShowImage(UIImage.FromFile("Images/Done.png"), title +"\n\n"+ message, to * 1000);
         }
 
         public static void ShowWarning(this UIViewController _, [Localizable(true)] string title,
@@ -69,7 +69,7 @@ namespace NSPersonalCloud.DarwinCore
             int to = 2;
             var noMessage = string.IsNullOrEmpty(message);
             if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(to)), onDismiss);
-            BigTed.BTProgressHUD.ShowImage(UIImage.FromFile("Images/Exclamation.png"), title + " " + message, to * 1000);
+            BigTed.BTProgressHUD.ShowImage(UIImage.FromFile("Images/Exclamation.png"), title + "\n\n" + message, to * 1000);
         }
 
         public static void ShowError(this UIViewController _, [Localizable(true)] string title,
@@ -78,7 +78,7 @@ namespace NSPersonalCloud.DarwinCore
             int to = 2;
             var noMessage = string.IsNullOrEmpty(message);
             if (onDismiss != null) DispatchQueue.MainQueue.DispatchAfter(new DispatchTime(DispatchTime.Now, TimeSpan.FromSeconds(to)), onDismiss);
-            BigTed.BTProgressHUD.ShowImage(UIImage.FromFile("Images/Error.png"), title + " " + message, to * 1000);
+            BigTed.BTProgressHUD.ShowImage(UIImage.FromFile("Images/Error.png"), title + "\n\n" + message, to * 1000);
         }
 
         public static void ShowHelp(this UIViewController controller, [Localizable(true)] string title, [Localizable(true)] string message)
@@ -103,12 +103,16 @@ namespace NSPersonalCloud.DarwinCore
         */
 
         public static void ShowAlert(this UIViewController controller, [Localizable(true)] string title,
-                                     [Localizable(true)] string message, [Localizable(true)] string dismissAction,
-                                     bool actionIsDangerous = false, Action<UIAlertAction> onDismiss = null)
+                                     [Localizable(true)] string message, [Localizable(true)] string okAction,
+                                     bool actionIsDangerous = false, Action<UIAlertAction> onok = null,bool IsthereCancelBtn=false)
         {
             var alert = UIAlertController.Create(title, message, UIAlertControllerStyle.Alert);
-            var ok = UIAlertAction.Create(dismissAction, actionIsDangerous ? UIAlertActionStyle.Destructive : UIAlertActionStyle.Default, onDismiss);
+            var ok = UIAlertAction.Create(okAction, actionIsDangerous ? UIAlertActionStyle.Destructive : UIAlertActionStyle.Default, onok);
             alert.AddAction(ok);
+            if (IsthereCancelBtn)
+            {
+                alert.AddAction(UIAlertAction.Create(Localize("Global.CancelAction"),  UIAlertActionStyle.Cancel, null));
+            }
             alert.SetPreferredAction(ok);
             controller.PresentViewController(alert, true, null);
         }

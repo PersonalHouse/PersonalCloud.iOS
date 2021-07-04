@@ -227,39 +227,82 @@ namespace NSPersonalCloud.DarwinMobile
                     RefreshDirectory(this, EventArgs.Empty);
                     return;
                 }
-
-                if (item.Name.EndsWith(".PLAsset", StringComparison.InvariantCultureIgnoreCase))
+                var fullpath = Path.Combine(workingPath, item.Name);
+                if (fileSystem.IsLocalPath(fullpath))
                 {
-                    this.ShowWarning(this.Localize("Backup.RestoreFromPLAsset"),
-                                     string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.DownloadBeforeRestore.Formattable"), item.Name));
-                    return;
-                }
-
-                var filePath = Path.Combine(Paths.Temporary, item.Name);
-                if (File.Exists(filePath))
-                {
-                    var fileInfo = new FileInfo(filePath);
-                    if (fileInfo.Length == item.Size)
+                    var localpath = Path.Combine(Paths.Favorites, fileSystem.GetLocalPath(fullpath));
+                    if (Path.GetExtension(localpath)?.ToUpperInvariant() == ".PLASSET")
                     {
-                        var cacheUrl = NSUrl.FromFilename(filePath);
-                        this.PreviewFile(cacheUrl);
+                        var alert = UIAlertController.Create(this.Localize("Backup.RestoreFromPLAsset"), string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.RestoreThisPhoto.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                        alert.AddAction(UIAlertAction.Create(this.Localize("Global.CancelAction"), UIAlertActionStyle.Cancel, null));
+                        var restore = UIAlertAction.Create(this.Localize("Backup.Restore"), UIAlertActionStyle.Default, action => {
+                            Task.Run(() => {
+                                SinglePhotoPackage.RestoreFromArchive(localpath, () => {
+                                    InvokeOnMainThread(() => {
+                                        var completionAlert = UIAlertController.Create(this.Localize("Backup.Restored"), string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.AddedToPhotos.Formattable"), item.Name), UIAlertControllerStyle.Alert);
+                                        completionAlert.AddAction(UIAlertAction.Create(this.Localize("Backup.DeleteBackup"), UIAlertActionStyle.Destructive, action => {
+                                            try { File.Delete(localpath); }
+                                            catch { }
+                                            RefreshDirectory(this, EventArgs.Empty);
+                                        }));
+                                        var ok = UIAlertAction.Create(this.Localize("Global.OKAction"), UIAlertActionStyle.Default, null);
+                                        completionAlert.AddAction(ok);
+                                        completionAlert.PreferredAction = ok;
+                                        PresentViewController(completionAlert, true, null);
+                                    });
+                                }, error => {
+                                    InvokeOnMainThread(() => {
+                                        this.ShowError(this.Localize("Error.RestorePhotos"), error?.LocalizedDescription ?? this.Localize("Error.Generic"));
+                                    });
+                                });
+                            });
+                        });
+                        alert.AddAction(restore);
+                        alert.PreferredAction = restore;
+                        PresentViewController(alert, true, null);
                         return;
                     }
-                    else
-                    {
-                        try { fileInfo.Delete(); }
-                        catch { }
-                    }
-                }
 
-                PreparePlaceholder(item, filePath, url => {
+                    var url = NSUrl.FromFilename(localpath);
                     this.PreviewFile(url);
-                }, exception => {
-                    if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
-                    else this.ShowError(this.Localize("Error.Download"), exception.GetType().Name);
-                });
+                    return;
+                }
+                else
+                {
 
-                return;
+                    if (item.Name.EndsWith(".PLAsset", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        this.ShowWarning(this.Localize("Backup.RestoreFromPLAsset"),
+                                         string.Format(CultureInfo.InvariantCulture, this.Localize("Backup.DownloadBeforeRestore.Formattable"), item.Name));
+                        return;
+                    }
+
+                    var filePath = Path.Combine(Paths.Temporary, item.Name);
+                    if (File.Exists(filePath))
+                    {
+                        var fileInfo = new FileInfo(filePath);
+                        if (fileInfo.Length == item.Size)
+                        {
+                            var cacheUrl = NSUrl.FromFilename(filePath);
+                            this.PreviewFile(cacheUrl);
+                            return;
+                        }
+                        else
+                        {
+                            try { fileInfo.Delete(); }
+                            catch { }
+                        }
+                    }
+
+                    PreparePlaceholder(item, filePath, url => {
+                        this.PreviewFile(url);
+                    }, exception => {
+                        if (exception is HttpRequestException http) PresentViewController(CloudExceptions.Explain(http), true, null);
+                        else this.ShowError(this.Localize("Error.Download"), exception.GetType().Name);
+                    });
+
+                    return;
+                }
             }
         }
 
@@ -292,7 +335,10 @@ namespace NSPersonalCloud.DarwinMobile
                 var actions = new List<UITableViewRowAction>(4);
 
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
-                if (!item.IsDirectory)
+
+                var fullpath = Path.Combine(workingPath, item.Name);
+
+                if ((!item.IsDirectory) && (!fileSystem.IsLocalPath(fullpath)))
                 {
                     var download = UITableViewRowAction.Create(UITableViewRowActionStyle.Default, this.Localize("Finder.Favorite"), (action, indexPath) => {
                         TableView.SetEditing(false, true);
@@ -351,6 +397,10 @@ namespace NSPersonalCloud.DarwinMobile
             {
                 var item = items[workingPath.Length == 1 ? indexPath.Row : (indexPath.Row - 1)];
                 if (item.IsDirectory) return null;
+
+                var fullpath = Path.Combine(workingPath, item.Name);
+                if (fileSystem.IsLocalPath(fullpath)) return null;
+
 
                 var download = UIContextualAction.FromContextualActionStyle(UIContextualActionStyle.Normal, this.Localize("Finder.Favorite"), (action, view, handler) => {
                     handler?.Invoke(true);
@@ -875,6 +925,7 @@ namespace NSPersonalCloud.DarwinMobile
                 return;
             }
         }
+
 
         #region IUIDocumentPickerDelegate
 
