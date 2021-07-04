@@ -28,6 +28,7 @@ using System.Threading;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using NSPersonalCloud.Interfaces.FileSystem;
+using System.Net.Http;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -37,7 +38,6 @@ namespace NSPersonalCloud.DarwinMobile
     {
         public UIWindow Window { get; private set; }
 
-        private CFNotificationObserverToken networkNotification;
         ILogger logger;
 
         [Export("application:willFinishLaunchingWithOptions:")]
@@ -57,8 +57,8 @@ namespace NSPersonalCloud.DarwinMobile
 
 
 
-            Globals.Loggers = new LoggerFactory();
-            logger = Globals.Loggers.CreateLogger<AppDelegate>();
+            //Globals.Loggers = new LoggerFactory();
+            //logger = Globals.Loggers.CreateLogger<AppDelegate>();
 
 
             var databasePath = Path.Combine(Paths.SharedLibrary, "Preferences.sqlite3");
@@ -140,6 +140,45 @@ namespace NSPersonalCloud.DarwinMobile
             Globals.SetupFS(fs);
         }
 
+        private void PingMainPage()
+        {
+            Task.Run(async () => {
+                try
+                {
+                    using (var client = new HttpClient())
+                    using (var request = new HttpRequestMessage(HttpMethod.Head, "https://Personal.House"))
+                    {
+                        await client.SendAsync(request).ConfigureAwait(false);
+                    }
+                }
+                catch
+                {
+                    // Ignored.
+                }
+            });
+        }
+
+        private void MonitorNetwork()
+        {
+            Reachability.InternetConnectionStatus();
+            Reachability.LocalWifiConnectionStatus();
+            Reachability.RemoteHostStatus();
+            SystemConfiguration.NetworkReachabilityFlags? prenet = null;
+            Reachability.ReachabilityChanged += args => {
+                if (prenet != null)
+                {
+                    if (prenet!= args)
+                    {
+                        Task.Run(() => {
+                            try { Globals.CloudManager?.NetworkMayChanged(true); }
+                            catch { } // Ignored.
+                        });
+                    }
+                }
+                prenet = args;
+            };
+        }
+
         [Export("application:didFinishLaunchingWithOptions:")]
         public bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
@@ -160,11 +199,7 @@ namespace NSPersonalCloud.DarwinMobile
             }
             Window.MakeKeyAndVisible();
 
-            if (networkNotification == null)
-            {
-                networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
-            }
-
+            MonitorNetwork();
 
 
             return true;
@@ -175,25 +210,7 @@ namespace NSPersonalCloud.DarwinMobile
         {
             try
             {
-                networkNotification = CFNotificationCenter.Darwin.AddObserver(Notifications.NetworkChange, null, ObserveNetworkChange, CFNotificationSuspensionBehavior.Coalesce);
                 Globals.CloudManager?.NetworkMayChanged(false);
-            }
-            catch
-            {
-                // Ignored.
-            }
-        }
-
-        [Export("applicationDidEnterBackground:")]
-        public void DidEnterBackground(UIApplication application)
-        {
-            try
-            {
-                if (networkNotification != null)
-                {
-                    CFNotificationCenter.Darwin.RemoveObserver(networkNotification);
-                    networkNotification = null;
-                }
             }
             catch
             {
@@ -328,13 +345,6 @@ namespace NSPersonalCloud.DarwinMobile
 
         #endregion
 
-        private void ObserveNetworkChange(string name, NSDictionary userInfo)
-        {
-            if (name != Notifications.NetworkChange) return;
-
-            try { Globals.CloudManager?.NetworkMayChanged(true); }
-            catch { } // Ignored.            
-        }
     }
 }
 

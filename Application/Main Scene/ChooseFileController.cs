@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 using Foundation;
 
+using Microsoft.Extensions.Logging;
+
 using MobileCoreServices;
 
 using NSPersonalCloud.Common;
@@ -34,6 +36,7 @@ namespace NSPersonalCloud.DarwinMobile
         private int depth;
 
         private List<FileInfo> pendingFiles;
+        ILogger logger;
 
         #region Lifecycle
 
@@ -46,6 +49,7 @@ namespace NSPersonalCloud.DarwinMobile
             RefreshControl.ValueChanged += RefreshDirectory;
             directory = new DirectoryInfo(Paths.Favorites);
             pendingFiles = new List<FileInfo>();
+            logger = Globals.Loggers.CreateLogger<ChooseFileController>();
         }
 
         public override void ViewDidAppear(bool animated)
@@ -176,59 +180,67 @@ namespace NSPersonalCloud.DarwinMobile
             hud.Label.Text = this.Localize("Finder.Uploading");
 
                 Task.Run(async () => {
-                    var total = pendingFiles.Count;
-                    var fileSizes = new long[total];
-                    for (var i = 0; i < total; i++)
+                    try
                     {
-                        var info = pendingFiles[i];
-                        try { fileSizes[i] = info.Length; }
-                        catch { }
-                    }
-                    var progress = NSProgress.FromTotalUnitCount(fileSizes.Sum());
-                    InvokeOnMainThread(() => {
-                        hud.ProgressObject = progress;
-                        hud.Mode = MBProgressHUDMode.AnnularDeterminate;
-                    });
-
-                    var failed = 0;
-                    Timer progressTimer = null;
-                    for (var i = 0; i < total; i++)
-                    {
-                        var item = pendingFiles[i];
-                        InvokeOnMainThread(() => hud.Label.Text = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
-                        try
+                        var total = pendingFiles.Count;
+                        var fileSizes = new long[total];
+                        for (var i = 0; i < total; i++)
                         {
-                            var fileName = Path.GetFileName(item.FullName);
-                            var stream = new FileStream(item.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                            var info = pendingFiles[i];
+                            try { fileSizes[i] = info.Length; }
+                            catch { }
+                        }
+                        var progress = NSProgress.FromTotalUnitCount(fileSizes.Sum());
+                        InvokeOnMainThread(() => {
+                            hud.ProgressObject = progress;
+                            hud.Mode = MBProgressHUDMode.AnnularDeterminate;
+                        });
 
-                            long lastRead = 0;
-                            progressTimer = new Timer(obj => {
-                                var position = stream.Position;
-                                if (position == 0 || position <= lastRead) return;
-                                progress.CompletedUnitCount += position - lastRead;
-                                lastRead = position;
-                            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(0.1));
-                            var remotePath = Path.Combine(WorkingPath, fileName);
-                            await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
-                        }
-                        catch (Exception )
+                        var failed = 0;
+                        Timer progressTimer = null;
+                        for (var i = 0; i < total; i++)
                         {
-                            failed += 1;
-                        }
-                        finally
-                        {
-                            progressTimer.Dispose();
-                            progressTimer = null;
-                        }
-                    }
+                            var item = pendingFiles[i];
+                            InvokeOnMainThread(() => hud.Label.Text = string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.UploadingProgress.Formattable"), i + 1, total));
+                            try
+                            {
+                                var fileName = Path.GetFileName(item.FullName);
+                                var stream = new FileStream(item.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-                    InvokeOnMainThread(() => {
-                        hud.Hide(true);
-                        FileUploaded?.Invoke(this, EventArgs.Empty);
-                        this.ShowConfirmation(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null, () => {
+                                long lastRead = 0;
+                                progressTimer = new Timer(obj => {
+                                    var position = stream.Position;
+                                    if (position == 0 || position <= lastRead) return;
+                                    progress.CompletedUnitCount += position - lastRead;
+                                    lastRead = position;
+                                }, null, TimeSpan.Zero, TimeSpan.FromSeconds(0.1));
+                                var remotePath = Path.Combine(WorkingPath, fileName);
+                                await FileSystem.WriteFileAsync(remotePath, stream).ConfigureAwait(false);
+                            }
+                            catch (Exception)
+                            {
+                                failed += 1;
+                            }
+                            finally
+                            {
+                                progressTimer.Dispose();
+                                progressTimer = null;
+                            }
+                        }
+
+                        InvokeOnMainThread(() => {
+                            hud.Hide(true);
+                            FileUploaded?.Invoke(this, EventArgs.Empty);
+                            this.ShowConfirmation(string.Format(CultureInfo.InvariantCulture, this.Localize("Finder.Uploaded.Formattable"), total - failed), null, () => {
                                 NavigationController.DismissViewController(true, null);
                             });
-                    });
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "Exception in UploadFiles");
+                        throw;
+                    }
             });
         }
     }

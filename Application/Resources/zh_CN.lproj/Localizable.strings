@@ -22,10 +22,12 @@
 "Global.NoPreview.Short" = "无法预览此类文件";
 "Global.NoPreview.Long" = "已安装的 App 均不提供此类文件的预览，即时预览已取消。\n\n您仍然可以将文件分享给他人或在其它 App 中打开。如果您前往其它 App，文件和相簿共享可能中断。";
 "Global.NoPreview.OpenIn" = "分享到…";
+"Global.OpenIosSetting" = "打开App设置";
 
 "Error.CreateCloud" = "无法创建个人云";
 "Error.EnrollDevice" = "无法加入个人云";
 "Error.NoCloudInNetwork" = "未发现可以加入的个人云。";
+"Error.NoNetwork" = "无互联网连接";
 "Error.Invite" = "无法生成邀请码";
 "Error.RemoteHTTP" = "执行操作时遇到问题";
 "Error.RemoteHTTP.400" = "无法完成此操作。";

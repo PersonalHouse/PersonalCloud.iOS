@@ -9,11 +9,11 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.daoyehuo.UnishareTouch</string>
 	<key>CFBundleName</key>
-	<string>Personal Cloud</string>
+	<string>Personal House</string>
 	<key>CFBundleShortVersionString</key>
 	<string>2.9.2</string>
 	<key>CFBundleVersion</key>
-	<string>201</string>
+	<string>206</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleLocalizations</key>
@@ -89,5 +89,11 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string></string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string></string>
+	<key>NSCameraUsageDescription</key>
+	<string></string>
 </dict>
 </plist>

@@ -1027,7 +1027,7 @@ Personal Cloud</string>
             </objects>
             <point key="canvasLocation" x="2926.087" y="387.72320000000002"/>
         </scene>
-        <!--Choose from Favorites-->
+        <!--Choose from this device-->
         <scene sceneID="iIo-L0-0OF">
             <objects>
                 <tableViewController hidesBottomBarWhenPushed="YES" id="mgx-Au-Nkm" customClass="ChooseFileController" sceneMemberID="viewController">

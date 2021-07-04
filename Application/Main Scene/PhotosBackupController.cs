@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 using Foundation;
 
+using Microsoft.Extensions.Logging;
+
 using NSPersonalCloud.Common;
 using NSPersonalCloud.DarwinCore;
 using NSPersonalCloud.RootFS;
@@ -10,6 +12,8 @@ using NSPersonalCloud.RootFS;
 using Photos;
 
 using UIKit;
+
+using Xamarin.Essentials;
 
 namespace NSPersonalCloud.DarwinMobile
 {
@@ -23,6 +27,7 @@ namespace NSPersonalCloud.DarwinMobile
         private bool autoBackup;
         private string backupPath;
         private RootFileSystem fileSystem;
+        ILogger logger;
 
         private object IsEnablingBackupBtnCache;
 
@@ -30,6 +35,7 @@ namespace NSPersonalCloud.DarwinMobile
 
         public override void ViewDidLoad()
         {
+            logger = Globals.Loggers.CreateLogger<PhotosBackupController>();
             base.ViewDidLoad();
             fileSystem = Globals.CloudManager.PersonalClouds[0].RootFS;
             NavigationItem.LeftBarButtonItem.Clicked += ShowHelp;
@@ -204,11 +210,34 @@ namespace NSPersonalCloud.DarwinMobile
         {
             if (e.On)
             {
-                PHPhotoLibrary.RequestAuthorization(status => {
-                    if (status == PHAuthorizationStatus.Authorized) InvokeOnMainThread(() => TurnOnAutoBackup(sender));
-                    else InvokeOnMainThread(() => {
-                        TurnOffAutoBackup(sender);
-                        this.ShowError(this.Localize("Backup.CannotSetUp"), this.Localize("Permission.Photos"));
+                Task.Run(async () => {
+                    await MainThread.InvokeOnMainThreadAsync(async () => {
+                        try
+                        {
+                            var status = await Permissions.RequestAsync<Permissions.Photos>();
+                            if (status == PermissionStatus.Granted)
+                            {
+                                await MainThread.InvokeOnMainThreadAsync(() => {
+                                    TurnOnAutoBackup(sender);
+                                });
+                            }
+                            else
+                            {
+                                await MainThread.InvokeOnMainThreadAsync(() => {
+                                    TurnOffAutoBackup(sender);
+                                    this.ShowAlert(null, this.Localize("Permission.Photos"), this.Localize("Global.OpenIosSetting"), false,
+                                        (x) => { UIApplication.SharedApplication.OpenUrl(new NSUrl(UIApplication.OpenSettingsUrlString)); }, true);////"app-settings:"
+
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, "Exception in ToggleAutoBackup");
+                            _ = MainThread.InvokeOnMainThreadAsync(() => {
+                                TableView.ReloadData();
+                            });
+                        }
                     });
                 });
             }
@@ -220,20 +249,12 @@ namespace NSPersonalCloud.DarwinMobile
             if (string.IsNullOrEmpty(backupPath))
             {
                 TurnOffAutoBackup(obj);
-                // this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoBackupLocation"));
                 IsEnablingBackupBtnCache = obj;
                 PerformSegue(ChooseDeviceSegue, this);
                 return;
             }
 
-            /*
-            if (backupIntervalHours < 1)
-            {
-                TurnOffAutoBackup(obj);
-                this.ShowAlert(this.Localize("Backup.CannotSetUp"), this.Localize("Backup.NoInterval"));
-                return;
-            }
-            */
+
 
             UIApplication.SharedApplication.SetMinimumBackgroundFetchInterval(UIApplication.BackgroundFetchIntervalMinimum);
             if (UIApplication.SharedApplication.BackgroundRefreshStatus == UIBackgroundRefreshStatus.Available)

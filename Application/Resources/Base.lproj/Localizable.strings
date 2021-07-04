@@ -5,7 +5,7 @@ Last Updated: 2020-04-21 / v2.2 (65)
 
 */
 
-"Global.AppName" = "Personal Cloud";
+"Global.AppName" = "Personal House";
 "Global.Cloud" = "Personal Cloud";
 "Global.Unavailable" = "Unavailable";
 "Global.FeatureUnavailable" = "This feature is currently unavailable.";
@@ -22,10 +22,12 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Global.NoPreview.Short" = "Preview Not Available";
 "Global.NoPreview.Long" = "None of the installed apps supports previewing this item.\n\nYou may open this item in another app or sharing it with others. If you switch apps, ongoing file and photo transfers may be interrupted.";
 "Global.NoPreview.OpenIn" = "Share...";
+"Global.OpenIosSetting" = "Open Settings";
 
 "Error.CreateCloud" = "Unable to Create Personal Cloud";
 "Error.EnrollDevice" = "Unable to Enroll This Device";
 "Error.NoCloudInNetwork" = "No Personal Cloud can be discovered in your local network.";
+"Error.NoNetwork" = "There is no internet access";
 "Error.Invite" = "Unable to Invite Devices";
 "Error.RemoteHTTP" = "A Error Has Occurred";
 "Error.RemoteHTTP.400" = "Unable to complete this operation.";
