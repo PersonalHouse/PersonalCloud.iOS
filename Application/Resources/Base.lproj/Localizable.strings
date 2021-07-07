@@ -121,9 +121,9 @@ Last Updated: 2020-04-21 / v2.2 (65)
 "Finder.CreateNewFolder" = "Create";
 "Finder.BadFolderName" = "Bad Folder Name";
 "Finder.MakingNewFolder" = "Creating...";
-"Finder.UploadOpenPhotos" = "Choose from Photos";
-"Finder.UploadPickFromFavorites" = "Choose from this device";
-"Finder.UploadOpenFilesApp" = "Choose from Files.app";
+"Finder.UploadOpenPhotos" = "Choose file from Photos";
+"Finder.UploadPickFromFavorites" = "Choose files from this device";
+"Finder.UploadOpenFilesApp" = "Choose from Files App";
 "Finder.SelectOneFileOnly" = "Select One File Only";
 "Finder.ConcurrentUploadNotSupported" = "Concurrent upload is not supported in this version.";
 "Finder.CannotReadFromFilesApp" = "Read Error";

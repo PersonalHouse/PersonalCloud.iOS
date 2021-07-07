@@ -123,7 +123,7 @@
 "Finder.MakingNewFolder" = "正在创建……";
 "Finder.UploadOpenPhotos" = "上传相册照片";
 "Finder.UploadPickFromFavorites" = "上传本地文件";
-"Finder.UploadOpenFilesApp" = "上传其它 App 的文件";
+"Finder.UploadOpenFilesApp" = "上传文件App的文件";
 "Finder.SelectOneFileOnly" = "仅支持单文件上传";
 "Finder.ConcurrentUploadNotSupported" = "当前版本只能同时上传 1 个文件。";
 "Finder.CannotReadFromFilesApp" = "不支持此共享方式";
@@ -133,7 +133,7 @@
 "Finder.Uploaded.Formattable" = "成功上传 {0} 个文件";
 "Finder.SelectionCleared" = "已选项目被取消";
 "Finder.SelectionCleared.PathChange" = "不支持跨文件夹多选。\n\n如果需要上传来自不同文件夹的文件，请先选择位于同一文件夹的文件，完成上传后再前往其它文件夹。";
-"Finder.MyComputer" = "此设备";
+"Finder.MyComputer" = "本地文件";
 
 "Backup.FileType" = "相册备份归档";
 "Backup.RestoreFromPLAsset" = "恢复相册备份";
